@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Official One UI Primary (#0381FE), not the lighter SESL sample blue (#387AFF). -->
+    <!-- Claude orange primary within the original One UI component hierarchy. -->
     <style name="AppTheme" parent="OneUITheme">
         <item name="colorPrimary">@color/oneui_primary</item>
         <item name="colorPrimaryDark">@color/oneui_primary_dark</item>
@@ -13,7 +13,7 @@
         <item name="buttonCornerRadius">999dp</item>
     </style>
 
-    <!-- Same One UI blues as fallback when Material You system colors are unavailable. -->
+    <!-- Preserve One UI sizing with the Claude color palette. -->
     <style name="AppTheme.MaterialYou" parent="AppTheme" />
 
     <style name="App.ContainedPrimaryColorButtonTheme" parent="OneUI.ContainedPrimaryColorButtonTheme">

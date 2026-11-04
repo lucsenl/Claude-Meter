@@ -45,7 +45,7 @@
     <string name="widget_name">Claude usage</string>
     <string name="widget_sample_compact_reset">5h resets 3:42 PM · Week resets Mon 11:00 AM</string>
     <string name="widget_sample_five_hour_short">5h</string>
-    <string name="widget_sample_plan">PLUS</string>
+    <string name="widget_sample_plan">PRO</string>
     <string name="widget_sample_primary_percent">73% left</string>
     <string name="widget_sample_primary_percent_short">73%</string>
     <string name="widget_sample_primary_value">76%</string>

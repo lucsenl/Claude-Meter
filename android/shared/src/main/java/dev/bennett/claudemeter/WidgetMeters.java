@@ -38,7 +38,6 @@ public final class WidgetMeters {
         keys.add(FIVE_HOUR);
         keys.add(WEEKLY);
         keys.add(NEXT_RESET);
-        keys.add(RESET_CREDITS);
         return keys;
     }
 
@@ -131,15 +130,14 @@ public final class WidgetMeters {
 
     /**
      * Catalog of meters that can be offered in widget config. Model-specific additional limits
-     * (for example GPT-5.3-Claude-Spark) stay on the in-app dashboard only — widgets stick to the
-     * Claude 5-hour/weekly windows plus next-reset and reset-credit helpers.
+     * (for example a model-scoped limit) stay on the in-app dashboard only — widgets stick to the
+     * Claude 5-hour/weekly windows plus the next-reset helper.
      */
     public static List<String> availableKeys(UsageSnapshot snapshot) {
         LinkedHashSet<String> keys = new LinkedHashSet<>();
         keys.add(FIVE_HOUR);
         keys.add(WEEKLY);
         keys.add(NEXT_RESET);
-        keys.add(RESET_CREDITS);
         return new ArrayList<>(keys);
     }
 

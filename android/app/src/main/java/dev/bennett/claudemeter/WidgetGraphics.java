@@ -139,12 +139,15 @@ public final class WidgetGraphics {
 
     public static int accentColor(Context context, String str, boolean z) {
         if (WidgetOptions.ACCENT_APP.equals(str)) {
-            return Ui.accent(context, z);
+            return context.getColor(R.color.claude_orange);
         }
         return accentColor(str, z);
     }
 
     public static int accentColor(String str, boolean z) {
+        if (WidgetOptions.ACCENT_APP.equals(str)) {
+            return Color.rgb(217, 119, 87);
+        }
         if (WidgetOptions.ACCENT_BLUE.equals(str)) {
             return z ? Color.rgb(92, 169, 255) : Color.rgb(3, 129, 254);
         }

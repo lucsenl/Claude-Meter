@@ -102,7 +102,7 @@ public final class WidgetOptions {
         this.surfaceStyle = oneOf(str3, SURFACE_MATERIAL, SURFACE_ONE_UI) ? str3 : SURFACE_MATERIAL;
         this.graphicScale = oneOf(str4, "auto", GRAPHIC_LARGE, GRAPHIC_MAX) ? str4 : "auto";
         this.theme = oneOf(str5, THEME_SYSTEM, THEME_DARK, THEME_LIGHT) ? str5 : THEME_SYSTEM;
-        this.accent = validAccent(str6) ? str6 : ACCENT_MINT;
+        this.accent = validAccent(str6) ? str6 : ACCENT_APP;
         // Accept legacy four-step and drawable-aligned values, then snap to One UI's three
         // fill strengths (or fully off) so saved widgets migrate cleanly.
         if (i != 0 && i != 15 && i != 40 && i != 56 && i != 70 && i != 72 && i != 88 && i != 94
@@ -119,8 +119,8 @@ public final class WidgetOptions {
         this.showPlan = z2;
         this.showUpdated = z3;
         this.showRefresh = z4;
-        this.showResetCredits = z5;
-        this.showResetAction = z6;
+        this.showResetCredits = false; // Legacy option: Claude has no redeemable reset credits.
+        this.showResetAction = false;
         this.showPercentSymbol = showPercentSymbol;
         this.visibleMeters = visibleMeters == null ? "" : visibleMeters.trim();
     }
@@ -144,7 +144,7 @@ public final class WidgetOptions {
 
     public static WidgetOptions defaults() {
         return new WidgetOptions(STYLE_AUTO, "auto", SURFACE_ONE_UI, "auto", THEME_SYSTEM,
-                ACCENT_BLUE, DEFAULT_OPACITY, RESET_HIDDEN, DISPLAY_REMAINING, "both",
+                ACCENT_APP, DEFAULT_OPACITY, RESET_HIDDEN, DISPLAY_REMAINING, "both",
                 false, false, false, false, false, false)
                 .withVisibleMeters(WidgetMeters.serialize(WidgetMeters.defaultVisible()));
     }
@@ -217,7 +217,7 @@ public final class WidgetOptions {
     }
 
     public static String normalizeTapAction(String value) {
-        if (TAP_REFRESH.equals(value) || TAP_USE_RESET.equals(value)) {
+        if (TAP_REFRESH.equals(value)) {
             return value;
         }
         return TAP_OPEN_APP;

@@ -14,7 +14,7 @@
     <path
         android:name="android:progress"
         android:pathData="M 14 93 A 60 60 0 1 1 124 93"
-        android:strokeColor="#ff0381fe"
+        android:strokeColor="#D97757"
         android:strokeWidth="18"
         android:trimPathEnd="0"
         android:strokeLineCap="round" />

@@ -15,8 +15,8 @@ final class WidgetOptionCatalog {
     static final String[] DENSITY_VALUES = {"auto", "compact", WidgetOptions.DENSITY_COMFORTABLE};
     static final String[] GRAPHIC_LABELS = {"Fit automatically", "Large", "Maximum"};
     static final String[] GRAPHIC_VALUES = {"auto", WidgetOptions.GRAPHIC_LARGE, WidgetOptions.GRAPHIC_MAX};
-    static final String[] ACCENT_LABELS = {"Mint", "Blue", "Amber", "Violet", "Rose", "Cyan", "Lime", "Monochrome"};
-    static final String[] ACCENT_VALUES = {WidgetOptions.ACCENT_MINT, WidgetOptions.ACCENT_BLUE, WidgetOptions.ACCENT_AMBER, WidgetOptions.ACCENT_VIOLET, WidgetOptions.ACCENT_ROSE, WidgetOptions.ACCENT_CYAN, WidgetOptions.ACCENT_LIME, WidgetOptions.ACCENT_MONO};
+    static final String[] ACCENT_LABELS = {"Claude", "Mint", "Blue", "Amber", "Violet", "Rose", "Cyan", "Lime", "Monochrome"};
+    static final String[] ACCENT_VALUES = {WidgetOptions.ACCENT_APP, WidgetOptions.ACCENT_MINT, WidgetOptions.ACCENT_BLUE, WidgetOptions.ACCENT_AMBER, WidgetOptions.ACCENT_VIOLET, WidgetOptions.ACCENT_ROSE, WidgetOptions.ACCENT_CYAN, WidgetOptions.ACCENT_LIME, WidgetOptions.ACCENT_MONO};
     /** One UI 7-style discrete fill strengths when the widget background is enabled. */
     static final String[] OPACITY_LABELS = {"56%", "88%", "100%"};
     static final int[] OPACITY_VALUES = WidgetOptions.OPACITY_LEVELS;
