@@ -3,6 +3,7 @@ package dev.bennett.claudemeter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,18 +46,43 @@ public final class UsageSnapshot {
         this.fiveHour = usageWindow;
         this.weekly = usageWindow2;
         this.monthly = monthlyWindow;
-        this.additionalLimits = additionalLimits == null
-                ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(additionalLimits));
+        // A reported model bucket is not proof that it is included in the plan.
+        // Fable uses paid usage credits on Pro and standard Team seats. Without
+        // explicit seat entitlement in the profile we only present Fable as a
+        // subscription quota for Max/Ultra. This also sanitizes old local cache.
+        ArrayList<UsageLimit> includedLimits = new ArrayList<>();
+        if (additionalLimits != null) {
+            for (UsageLimit limit : additionalLimits) {
+                if (limit != null && (!isFableLimit(limit) || includesFable(planType))) {
+                    includedLimits.add(limit);
+                }
+            }
+        }
+        this.additionalLimits = Collections.unmodifiableList(includedLimits);
         this.usageCredits = usageCredits;
         this.resetCreditsAvailable = i < 0 ? -1 : i;
         this.fetchedAtMillis = j;
     }
 
+    private static boolean includesFable(String plan) {
+        if (plan == null) return false;
+        String normalized = plan.trim().toLowerCase(Locale.ROOT)
+                .replace("_", "").replace("-", "").replace(" ", "");
+        return "max".equals(normalized) || "ultra".equals(normalized)
+                || "claudemax".equals(normalized) || "claudeultra".equals(normalized);
+    }
+
+    private static boolean isFableLimit(UsageLimit limit) {
+        String id = limit.id.toLowerCase(Locale.ROOT);
+        String name = limit.name.toLowerCase(Locale.ROOT);
+        return id.contains("fable") || name.contains("fable")
+                || id.contains("iguana_necktie");
+    }
+
     /**
      * The longer-cadence Claude window: weekly when present, otherwise the monthly window that
      * free-tier accounts report. Surfaces that used to hardcode "weekly" adapt through this so a
-     * subscription change (for example Pro 20x expiring to Free) swaps windows automatically.
+     * subscription change (for example Pro expiring to Free) swaps windows automatically.
      */
     public UsageWindow longWindow() {
         return this.weekly;

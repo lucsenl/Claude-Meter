@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 public final class ParserSelfTest {
     public static void main(String[] args) throws Exception {
         testClaudeUsageContract();
+        testFableSubscriptionEligibility();
         testClaudeWidgetCompatibility();
         testResetCountdownFollowsApiTimeline();
         testLowUsageAlertDedup();
@@ -1962,6 +1963,45 @@ public final class ParserSelfTest {
                 "malformed bucket is ignored without hiding valid quota");
 
         System.out.println("Claude usage contract: session, weekly, scoped limits and Extra Usage verified.");
+    }
+
+    /** Never conflate a reported Fable bucket with included subscription access. */
+    private static void testFableSubscriptionEligibility() throws Exception {
+        long now = 1_800_000_000_000L;
+        String usage = "{"
+                + "\"five_hour\":{\"utilization\":12},"
+                + "\"iguana_necktie\":{\"utilization\":0},"
+                + "\"seven_day_sonnet\":{\"utilization\":22},"
+                + "\"limits\":[{\"group\":\"weekly\",\"percent\":0,"
+                + "\"scope\":{\"model\":{\"display_name\":\"Fable 5.1\"}}}],"
+                + "\"extra_usage\":{\"is_enabled\":true,\"monthly_limit\":100,"
+                + "\"used_credits\":2,\"utilization\":2,\"currency\":\"USD\"}"
+                + "}";
+        for (String plan : new String[]{"Pro", "pro", "Team", "Free", ""}) {
+            UsageSnapshot actual = UsageParser.parse(usage, now, plan);
+            check(actual.additionalLimits.size() == 1
+                            && "Sonnet".equals(actual.additionalLimits.get(0).displayName()),
+                    "non-included Fable quotas hidden for plan " + plan);
+            check(actual.usageCredits != null && actual.usageCredits.isEnabled,
+                    "paid usage credits preserved independently of Fable visibility");
+            check(actual.fiveHour != null, "ordinary five-hour allowance unchanged");
+        }
+        for (String plan : new String[]{"Max", "Ultra"}) {
+            UsageSnapshot actual = UsageParser.parse(usage, now, plan);
+            check(actual.additionalLimits.size() == 3,
+                    "Max/Ultra preserve reported bundled Fable windows");
+            check(actual.additionalLimits.stream()
+                            .anyMatch(l -> l.displayName().contains("Fable")),
+                    "Max/Ultra Fable window shown when provider returns it");
+        }
+
+        // Persisted data from v0.2.1 must not keep showing Fable after updating.
+        UsageSnapshot max = UsageParser.parse(usage, now, "Max");
+        org.json.JSONObject oldCache = max.toJson().put("plan_type", "Pro");
+        UsageSnapshot migrated = UsageSnapshot.fromJson(oldCache);
+        check(migrated != null && migrated.additionalLimits.size() == 1,
+                "stale Fable quotas removed when older cached Pro snapshot is loaded");
+        System.out.println("Fable subscription eligibility: Pro and old cache do not imply bundled access.");
     }
 
     private static void check(boolean condition, String name) {
