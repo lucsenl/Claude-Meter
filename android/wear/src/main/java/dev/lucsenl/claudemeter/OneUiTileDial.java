@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import androidx.wear.protolayout.ColorBuilders;
 import androidx.wear.protolayout.DimensionBuilders;
