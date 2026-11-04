@@ -71,16 +71,18 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/UpdateCheckFrequency.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/DiagnosticSanitizer.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/SettingsTransfer.java" \
+  "$ROOT/app/src/main/java/dev/bennett/claudemeter/ClaudeOAuthProtocol.java" \
+  "$ROOT/tests/ClaudeOAuthProtocolTest.java" \
   "$ROOT/tests/ParserSelfTest.java"
 
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ParserSelfTest
+java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeOAuthProtocolTest
 
 # Claude Meter source-contract checks.
 grep -q 'VERSION_NAME = "2.8.0"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'VERSION_CODE = 30' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'applicationId = "dev.bennett.claudemeter"' "$ROOT/app/build.gradle.kts"
-grep -q 'applicationId = "dev.bennett.claudemeter"' "$ROOT/wear/build.gradle.kts"
-grep -q 'https://claude.ai/oauth/authorize' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'https://claude.com/cai/oauth/authorize' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://platform.claude.com/v1/oauth/token' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://api.anthropic.com/api/oauth/usage' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://api.anthropic.com/api/oauth/profile' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
@@ -90,10 +92,13 @@ grep -q 'seven_day' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageParser
 grep -q '#D97757' "$ROOT/app/src/main/res/values/colors.xml"
 grep -q '#141413' "$ROOT/app/src/main/res/values/colors.xml"
 grep -q 'claude_meter_adaptive_fg' "$ROOT/app/src/main/res/mipmap-anydpi/ic_launcher.xml"
-grep -q 'claude_meter_adaptive_fg' "$ROOT/wear/src/main/res/mipmap-anydpi/ic_launcher.xml"
 grep -q 'lucsenl/Claude-Meter/releases?per_page=30' "$ROOT/app/build.gradle.kts"
 grep -Fq 'ClaudeMeter-$VERSION_NAME.apk' "$ROOT/../.github/workflows/build-apk.yml"
-grep -Fq 'ClaudeMeter-Wear-$VERSION_NAME.apk' "$ROOT/../.github/workflows/build-apk.yml"
 test ! -d "$ROOT/../ios"
+test ! -d "$ROOT/wear"
+test ! -d "$ROOT/app/src/main/java/dev/bennett/claudemeter/wear"
+grep -q '"user:profile user:inference"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+! grep -q "org:create_api_key" "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+! grep -q "user:sessions:claude_code" "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 
 echo "Claude Meter source-contract checks passed."
