@@ -12,6 +12,7 @@ public final class ClaudeOAuthProtocolTest {
         check(req.state.length() > 24, "strong state");
         check(ClaudeOAuthProtocol.stateMatches(req.state, req.state), "state match");
         check(!ClaudeOAuthProtocol.stateMatches(req.state, "wrong"), "state reject");
+        check(!ClaudeOAuthProtocol.stateMatches("", req.state), "missing state rejected");
         ClaudeOAuthProtocol.AuthorizationResult result =
                 ClaudeOAuthProtocol.parseAuthorizationResult("test-code#" + req.state);
         check("test-code".equals(result.code), "code parsed");

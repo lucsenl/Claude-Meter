@@ -68,7 +68,7 @@ public final class ClaudeOAuthProtocol {
     }
 
     public static boolean stateMatches(String actual, String expected) {
-        if (actual == null || actual.isEmpty()) return true;
+        if (actual == null || actual.isEmpty()) return false;
         if (expected == null || expected.isEmpty()) return false;
         return MessageDigest.isEqual(
                 actual.getBytes(StandardCharsets.UTF_8),
