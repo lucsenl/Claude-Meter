@@ -62,14 +62,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:text="@string/widget_sample_five_hour_short"
+                android:text="@string/widget_sample_today_short"
                 android:textColor="#B0AEA5"
                 android:textSize="11sp"/>
             <TextView
                 android:id="@+id/primary_percent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/widget_sample_primary_percent_short"
+                android:text="@string/widget_sample_today_value"
                 android:textColor="#FAF9F5"
                 android:textSize="16sp"
                 android:fontFamily="sec"/>
@@ -86,14 +86,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:text="@string/widget_sample_week_short"
+                android:text="@string/widget_sample_seven_day_short"
                 android:textColor="#B0AEA5"
                 android:textSize="11sp"/>
             <TextView
                 android:id="@+id/secondary_percent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/widget_sample_secondary_percent_short"
+                android:text="@string/widget_sample_seven_day_value"
                 android:textColor="#FAF9F5"
                 android:textSize="16sp"
                 android:fontFamily="sec"/>
