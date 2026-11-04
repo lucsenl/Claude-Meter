@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /**
  * Chooses which remaining-percentage value drives the Now Bar / Live Update

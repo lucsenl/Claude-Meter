@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import java.math.BigDecimal;
 import org.json.JSONException;
