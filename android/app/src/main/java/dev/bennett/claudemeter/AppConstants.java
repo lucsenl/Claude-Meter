@@ -17,15 +17,15 @@ public final class AppConstants {
     public static final String EXTRA_CREDIT_ID = "credit_id";
     public static final String EXTRA_PROMPT_USE_RESET = "prompt_use_reset";
 
-    public static final String AUTHORIZE_URL = "https://claude.ai/oauth/authorize";
+    public static final String AUTHORIZE_URL = "https://claude.com/cai/oauth/authorize";
     public static final String TOKEN_URL = "https://platform.claude.com/v1/oauth/token";
     public static final String USAGE_URL = "https://api.anthropic.com/api/oauth/usage";
     public static final String PROFILE_URL = "https://api.anthropic.com/api/oauth/profile";
     public static final String OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
     public static final String OAUTH_SCOPE =
-            "org:create_api_key user:profile user:inference user:sessions:claude_code";
+            "user:profile user:inference";
     public static final String OAUTH_BETA = "oauth-2025-04-20";
-    public static final int[] OAUTH_PORTS = {54545};
+    public static final String REDIRECT_URI = "https://platform.claude.com/oauth/code/callback";
 
     public static final String EXTRA_AUTH_URL = "auth_url";
     public static final String EXTRA_MESSAGE = "message";

@@ -11,8 +11,14 @@ public final class AuthTokens {
     public final long expiresAtMillis;
     public final String idToken;
     public final String refreshToken;
+    public final String scope;
 
     public AuthTokens(String str, String str2, String str3, long j, String str4, String str5) {
+        this(str, str2, str3, j, str4, str5, AppConstants.OAUTH_SCOPE);
+    }
+
+    public AuthTokens(String str, String str2, String str3, long j, String str4, String str5, String scopes) {
+        this.scope = safe(scopes);
         this.accessToken = safe(str);
         this.refreshToken = safe(str2);
         this.idToken = safe(str3);
@@ -37,15 +43,16 @@ public final class AuthTokens {
         jSONObject.put("expires_at", this.expiresAtMillis);
         jSONObject.put("account_id", this.accountId);
         jSONObject.put("email", this.email);
+        jSONObject.put("scope", this.scope);
         return jSONObject;
     }
 
     public static AuthTokens fromJson(JSONObject jSONObject) {
-        return new AuthTokens(jSONObject.optString("access_token", ""), jSONObject.optString("refresh_token", ""), jSONObject.optString("id_token", ""), jSONObject.optLong("expires_at", 0L), jSONObject.optString("account_id", ""), jSONObject.optString("email", ""));
+        return new AuthTokens(jSONObject.optString("access_token", ""), jSONObject.optString("refresh_token", ""), jSONObject.optString("id_token", ""), jSONObject.optLong("expires_at", 0L), jSONObject.optString("account_id", ""), jSONObject.optString("email", ""), jSONObject.optString("scope", AppConstants.OAUTH_SCOPE));
     }
 
     public AuthTokens mergeRefresh(AuthTokens authTokens) {
-        return new AuthTokens(authTokens.accessToken.isEmpty() ? this.accessToken : authTokens.accessToken, authTokens.refreshToken.isEmpty() ? this.refreshToken : authTokens.refreshToken, authTokens.idToken.isEmpty() ? this.idToken : authTokens.idToken, authTokens.expiresAtMillis > 0 ? authTokens.expiresAtMillis : this.expiresAtMillis, authTokens.accountId.isEmpty() ? this.accountId : authTokens.accountId, authTokens.email.isEmpty() ? this.email : authTokens.email);
+        return new AuthTokens(authTokens.accessToken.isEmpty() ? this.accessToken : authTokens.accessToken, authTokens.refreshToken.isEmpty() ? this.refreshToken : authTokens.refreshToken, authTokens.idToken.isEmpty() ? this.idToken : authTokens.idToken, authTokens.expiresAtMillis > 0 ? authTokens.expiresAtMillis : this.expiresAtMillis, authTokens.accountId.isEmpty() ? this.accountId : authTokens.accountId, authTokens.email.isEmpty() ? this.email : authTokens.email, authTokens.scope.isEmpty() ? this.scope : authTokens.scope);
     }
 
     private static String safe(String str) {

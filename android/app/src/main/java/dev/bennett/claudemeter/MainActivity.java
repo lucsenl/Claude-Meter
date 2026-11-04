@@ -858,27 +858,14 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void startOrContinueSignIn() {
-        String str;
         DiagnosticLog.info(this, "user", "sign_in_requested",
                 "already_signed_in", SecureTokenStore.isSignedIn(this));
         if (SecureTokenStore.isSignedIn(this)) {
-            AppPreferences.setOAuthPending(this, false, "");
             rebuild();
             return;
         }
-        try {
-            startForegroundService(new Intent(this, (Class<?>) OAuthService.class).setAction(OAuthService.ACTION_START));
-            if (AppPreferences.isOAuthPending(this)) {
-                str = "Resuming secure Anthropic sign-in…";
-            } else {
-                str = "Opening secure Anthropic sign-in…";
-            }
-            Toast.makeText(this, str, 0).show();
-        } catch (RuntimeException e) {
-            DiagnosticLog.error(this, "auth", "sign_in_service_start_failed", e);
-            AppPreferences.setOAuthPending(this, false, "");
-            Toast.makeText(this, "Could not start sign-in: " + safeMessage(e), 1).show();
-        }
+        startActivity(new Intent(this, OnboardingActivity.class)
+                .putExtra(OnboardingActivity.EXTRA_RECONNECT, true));
     }
 
     public void openAuthUrl(String str) {

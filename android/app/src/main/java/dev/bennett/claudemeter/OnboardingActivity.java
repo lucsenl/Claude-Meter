@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,6 +27,7 @@ import dev.oneuiproject.oneui.widget.RoundedLinearLayout;
 /** First-run setup built from the same One UI Design Library primitives as the app. */
 public final class OnboardingActivity extends AppCompatActivity {
     public static final String EXTRA_AUTH_RETURN = "oauth_return";
+    public static final String EXTRA_RECONNECT = "reconnect";
 
     private LinearLayout content;
     private Ui.Page page;
@@ -35,6 +37,7 @@ public final class OnboardingActivity extends AppCompatActivity {
     private boolean oauthRequested;
     private String authMessage = "";
     private String lastLaunchedAuthUrl = "";
+    private EditText codeInput;
 
     private final BroadcastReceiver authReceiver = new BroadcastReceiver() {
         @Override
@@ -69,7 +72,8 @@ public final class OnboardingActivity extends AppCompatActivity {
     protected void onCreate(Bundle bundle) {
         Ui.applySelectedTheme(this);
         super.onCreate(bundle);
-        if (AppPreferences.isOnboardingComplete(this)) {
+        if (AppPreferences.isOnboardingComplete(this)
+                && !getIntent().getBooleanExtra(EXTRA_RECONNECT, false)) {
             openMain();
             return;
         }
@@ -79,10 +83,11 @@ public final class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.dashboard_refresh).setEnabled(false);
         boolean oauthReturn = getIntent().getBooleanExtra(EXTRA_AUTH_RETURN, false);
         this.oauthRequested = AppPreferences.isOAuthPending(this);
-        this.step = OnboardingFlow.initialStep(
-                AppPreferences.getOnboardingStep(this),
-                SecureTokenStore.isSignedIn(this),
-                oauthReturn);
+        this.step = getIntent().getBooleanExtra(EXTRA_RECONNECT, false)
+                ? OnboardingFlow.STEP_ACCOUNT
+                : OnboardingFlow.initialStep(
+                        AppPreferences.getOnboardingStep(this),
+                        SecureTokenStore.isSignedIn(this), oauthReturn);
         if (oauthReturn && !SecureTokenStore.isSignedIn(this)) {
             this.authMessage = "Sign-in did not complete. You can safely try again.";
         }
@@ -119,6 +124,9 @@ public final class OnboardingActivity extends AppCompatActivity {
         if (this.content != null && SecureTokenStore.isSignedIn(this)
                 && this.step != OnboardingFlow.STEP_COMPLETE) {
             showStep(OnboardingFlow.STEP_COMPLETE);
+        } else if (this.content != null && this.step == OnboardingFlow.STEP_ACCOUNT
+                && OAuthPendingStore.isValid(this)) {
+            render(); // Reveal code-paste controls when returning from the browser.
         }
     }
 
@@ -277,6 +285,23 @@ public final class OnboardingActivity extends AppCompatActivity {
                 ? "Continue sign-in with Claude"
                 : "Sign up or sign in with Claude";
         addPrimaryAction(signInLabel, this::startSignIn);
+        if (OAuthPendingStore.isValid(this)) {
+            Ui.addSpacer(this.content, 12);
+            RoundedLinearLayout authorization = Ui.seslCard(this, this.dark);
+            authorization.addView(Ui.text(this,
+                    "After signing in, copy the authorization result shown by Claude. "
+                            + "Paste code#state or the full callback here.",
+                    14.0f, Ui.secondaryText(this.dark)));
+            this.codeInput = new EditText(this);
+            this.codeInput.setHint("Claude authorization code#state");
+            this.codeInput.setSingleLine(false);
+            this.codeInput.setMinLines(2);
+            authorization.addView(this.codeInput);
+            Button complete = Ui.nativePrimaryButton(this, "Complete Claude sign-in");
+            complete.setOnClickListener(view -> completeSignIn());
+            authorization.addView(complete);
+            this.content.addView(authorization);
+        }
         Button later = Ui.button(this, "Not now", false, this.dark);
         later.setOnClickListener(view -> completeAndOpenMain());
         LinearLayout.LayoutParams laterParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 54));
@@ -358,21 +383,73 @@ public final class OnboardingActivity extends AppCompatActivity {
             showStep(OnboardingFlow.STEP_COMPLETE);
             return;
         }
-        boolean resuming = AppPreferences.isOAuthPending(this);
-        this.oauthRequested = true;
-        this.authMessage = resuming
-                ? "Resuming secure Claude sign-in…"
-                : "Preparing secure Claude sign-in…";
-        render();
         try {
-            startForegroundService(new Intent(this, OAuthService.class)
-                    .setAction(OAuthService.ACTION_START));
-        } catch (RuntimeException exception) {
+            if (!OAuthPendingStore.isValid(this)) {
+                ClaudeOAuthProtocol.LoginRequest request = ClaudeOAuthProtocol.beginLogin();
+                OAuthPendingStore.save(this, request);
+                AppPreferences.setOAuthPending(this, true, request.url);
+            }
+            this.oauthRequested = true;
+            this.authMessage = "Complete secure sign-in in your browser, then paste the code below.";
+            render();
+            openAuthUrl(AppPreferences.getOAuthUrl(this));
+        } catch (Exception exception) {
             this.oauthRequested = false;
-            AppPreferences.setOAuthPending(this, false, "");
-            this.authMessage = "Could not start sign-in: " + safeMessage(exception);
+            this.authMessage = "Could not start Claude sign-in: "
+                    + (exception.getMessage() == null ? "Unknown error" : exception.getMessage());
             render();
         }
+    }
+
+    private void completeSignIn() {
+        String code = this.codeInput == null ? "" : this.codeInput.getText().toString().trim();
+        if (code.isEmpty() || !OAuthPendingStore.isValid(this)) {
+            this.authMessage = "Start sign-in and paste the complete code#state from Claude.";
+            render();
+            return;
+        }
+        String verifier = OAuthPendingStore.verifier(this);
+        String expectedState = OAuthPendingStore.state(this);
+        ClaudeOAuthProtocol.AuthorizationResult result =
+                ClaudeOAuthProtocol.parseAuthorizationResult(code);
+        if (result.code.isEmpty()
+                || !ClaudeOAuthProtocol.stateMatches(result.state, expectedState)) {
+            this.authMessage = "Authorization code or security state is invalid. Try again.";
+            render();
+            return;
+        }
+        this.authMessage = "Completing secure Claude sign-in…";
+        render();
+        new Thread(() -> {
+            try {
+                AuthTokens tokens = OAuthClient.exchangeCode(getApplicationContext(),
+                        result.code, AppConstants.REDIRECT_URI, verifier, expectedState);
+                SecureTokenStore.save(getApplicationContext(), tokens);
+                OAuthPendingStore.clear(getApplicationContext());
+                AppPreferences.setOAuthPending(getApplicationContext(), false, "");
+                try {
+                    UsageSnapshot snapshot = UsageApi.refreshAndCache(getApplicationContext());
+                    RefreshScheduler.scheduleAtNextReset(getApplicationContext(), snapshot);
+                } catch (Exception refreshError) {
+                    AppPreferences.setLastError(getApplicationContext(),
+                            "Claude sign-in succeeded; usage refresh: "
+                                    + refreshError.getMessage());
+                }
+                RefreshScheduler.schedulePeriodic(getApplicationContext());
+                WidgetRenderer.updateAll(getApplicationContext());
+                runOnUiThread(() -> {
+                    this.oauthRequested = false;
+                    showStep(OnboardingFlow.STEP_COMPLETE);
+                });
+            } catch (Exception exception) {
+                runOnUiThread(() -> {
+                    this.authMessage = "Claude sign-in failed: "
+                            + (exception.getMessage() == null
+                            ? exception.getClass().getSimpleName() : exception.getMessage());
+                    render();
+                });
+            }
+        }, "claude-oauth-exchange").start();
     }
 
     private void openAuthUrl(String url) {
@@ -394,16 +471,8 @@ public final class OnboardingActivity extends AppCompatActivity {
     }
 
     private void cancelPendingSignIn() {
-        if (!this.oauthRequested && !AppPreferences.isOAuthPending(this)) {
-            return;
-        }
         this.oauthRequested = false;
-        try {
-            startService(new Intent(this, OAuthService.class)
-                    .setAction(OAuthService.ACTION_CANCEL_SILENT));
-        } catch (RuntimeException ignored) {
-            // The service may already have stopped after the browser returned.
-        }
+        OAuthPendingStore.clear(this);
         AppPreferences.setOAuthPending(this, false, "");
     }
 

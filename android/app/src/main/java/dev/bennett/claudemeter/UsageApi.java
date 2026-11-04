@@ -43,7 +43,8 @@ public final class UsageApi {
                             tokens.idToken,
                             tokens.expiresAtMillis,
                             profile.accountId,
-                            profile.email);
+                            profile.email,
+                            tokens.scope);
                     SecureTokenStore.save(context, tokens);
                 }
 

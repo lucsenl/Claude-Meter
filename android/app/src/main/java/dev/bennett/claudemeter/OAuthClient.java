@@ -35,6 +35,7 @@ public final class OAuthClient {
         body.put("grant_type", "refresh_token");
         body.put("refresh_token", previous.refreshToken);
         body.put("client_id", AppConstants.OAUTH_CLIENT_ID);
+        body.put("scope", previous.scope.isEmpty() ? AppConstants.OAUTH_SCOPE : previous.scope);
         return previous.mergeRefresh(parseTokens(
                 postJson(context, "oauth_token_refresh", AppConstants.TOKEN_URL, body), previous));
     }
@@ -61,7 +62,8 @@ public final class OAuthClient {
                 "",
                 System.currentTimeMillis() + expiresIn * 1000L,
                 previous == null ? "" : previous.accountId,
-                previous == null ? "" : previous.email);
+                previous == null ? "" : previous.email,
+                object.optString("scope", previous == null ? AppConstants.OAUTH_SCOPE : previous.scope));
         if (!result.isUsable()) {
             throw new Exception("The Claude authorization server returned incomplete credentials.");
         }
