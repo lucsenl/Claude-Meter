@@ -9,10 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
         android:name="dev.lucsenl.claudemeter.ClaudeMeterApplication"
@@ -32,15 +29,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data
-                    android:scheme="claudemeter"
-                    android:host="auth"
-                    android:pathPrefix="/complete"/>
             </intent-filter>
         </activity>
         <activity
@@ -278,45 +266,5 @@
         <meta-data
             android:name="com.samsung.android.support.ongoing_activity"
             android:value="true"/>
-        <service
-            android:name="dev.lucsenl.claudemeter.UsageRefreshJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false"/>
-        <service
-            android:name="dev.lucsenl.claudemeter.ReleaseUpdateJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false"/>
-        <service
-            android:name="dev.lucsenl.claudemeter.WidgetRepairJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false"/>
-        <service
-            android:name="dev.lucsenl.claudemeter.OAuthService"
-            android:exported="false"
-            android:stopWithTask="false"
-            android:foregroundServiceType="dataSync"/>
-        <service
-            android:name="dev.lucsenl.claudemeter.wear.PhoneWearListenerService"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="com.google.android.gms.wearable.BIND_LISTENER"
-                    tools:ignore="WearableBindListener"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
-                <data
-                    android:scheme="wear"
-                    android:host="*"
-                    android:pathPrefix="/claude"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
-                <data
-                    android:scheme="wear"
-                    android:host="*"
-                    android:pathPrefix="/claude/msg"/>
-            </intent-filter>
-        </service>
     </application>
 </manifest>
