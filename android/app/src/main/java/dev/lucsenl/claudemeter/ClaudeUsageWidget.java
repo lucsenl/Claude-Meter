@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;

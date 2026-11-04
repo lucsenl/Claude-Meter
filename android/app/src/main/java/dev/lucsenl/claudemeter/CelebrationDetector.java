@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** Pure decision logic for unexpected allowance refills and reset-credit increases. */
 public final class CelebrationDetector {
