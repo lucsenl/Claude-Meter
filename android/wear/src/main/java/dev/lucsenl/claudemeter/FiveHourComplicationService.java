@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.os.Build;
 import androidx.wear.watchface.complications.data.ComplicationData;

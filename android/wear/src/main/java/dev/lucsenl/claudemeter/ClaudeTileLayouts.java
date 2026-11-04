@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,7 +11,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ProtoLayoutScope;
 import androidx.wear.protolayout.ResourceBuilders;
-import dev.bennett.claudemeter.wear.WearSettingsState;
+import dev.lucsenl.claudemeter.wear.WearSettingsState;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
