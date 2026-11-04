@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,7 +16,7 @@ public final class RefreshEngagement {
     private static final String KEY_LAST_OPEN_AT = "last_open_at";
     private static final String KEY_SCORE = "score";
     private static final String KEY_SCORE_AT = "score_at";
-    private static final String PREFS = "codex_meter_refresh_engagement_v1";
+    private static final String PREFS = "claude_meter_refresh_engagement_v1";
 
     private RefreshEngagement() {
     }
