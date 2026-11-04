@@ -10,8 +10,6 @@ Phone-only Android project for Claude Meter.
 | `tests/` | Pure-Java parser/source checks |
 | `vendor/m2/` | Cached One UI / SESL Maven artifacts |
 
-There is no Wear OS, iOS, backend, or private Claude authentication module.
-
 ## Build and test
 
 ```bash
