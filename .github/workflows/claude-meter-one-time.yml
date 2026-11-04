@@ -1,4 +1,5 @@
 name: Claude Meter one-time Android verification
+# Revalidation after legacy widget-settings test repair.
 
 on:
   push:
