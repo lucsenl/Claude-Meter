@@ -23,7 +23,7 @@ public final class UsageWindow {
     }
 
     /**
-     * Whether OpenAI reported a reset timeline for this window.
+     * Whether Claude reported a reset timeline for this window.
      * Unused windows with no {@code reset_at} / {@code reset_after_seconds} stay blank.
      * A 100% remaining window that still includes a timeline is shown as-is.
      */
@@ -49,7 +49,7 @@ public final class UsageWindow {
     }
 
     /**
-     * OpenAI reset timestamps drift slightly across refreshes. Treat nearby reset times for the
+     * Anthropic reset timestamps drift slightly across refreshes. Treat nearby reset times for the
      * same window length as one window so low-usage alerts stay one-shot until the real reset.
      */
     public static long resetWindowToleranceMillis(long windowSeconds) {

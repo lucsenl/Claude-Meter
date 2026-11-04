@@ -143,7 +143,7 @@ public final class WearPhoneSync {
 
     public static void sendMessageToPhone(Context context, String path) {
         if (context == null || path == null || path.isEmpty()) return;
-        // The watch never talks to the OpenAI/ChatGPT APIs directly; the phone remains the
+        // The watch never talks to the Anthropic/Claude APIs directly; the phone remains the
         // OAuth/API source of truth and handles refresh/start/stop requests from MessageClient.
         Context app = context.getApplicationContext();
         Wearable.getNodeClient(app).getConnectedNodes()

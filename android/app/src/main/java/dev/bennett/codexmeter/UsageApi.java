@@ -51,7 +51,7 @@ public final class UsageApi {
                 usageSnapshot = UsageParser.parse(responseRequestUsage.body,
                         System.currentTimeMillis());
                 if (!usageSnapshot.hasDisplayableData()) {
-                    throw new Exception("OpenAI returned no recognizable Codex usage data.");
+                    throw new Exception("Anthropic returned no recognizable Claude usage data.");
                 }
                 UsageSnapshot previousSnapshot = AppPreferences.loadSnapshot(context);
                 if (!AppPreferences.saveSnapshot(context, usageSnapshot)) {
@@ -94,7 +94,7 @@ public final class UsageApi {
     static AuthTokens usableTokens(Context context) throws Exception {
         AuthTokens authTokensLoad = SecureTokenStore.load(context);
         if (authTokensLoad == null) {
-            throw new Exception("Sign in to ChatGPT first.");
+            throw new Exception("Sign in to Claude first.");
         }
         if (authTokensLoad.shouldRefresh(System.currentTimeMillis())) {
             DiagnosticLog.info(context, "auth", "token_refresh_due");
@@ -142,7 +142,7 @@ public final class UsageApi {
         httpsURLConnection.setRequestProperty("User-Agent", AppConstants.userAgent());
         httpsURLConnection.setRequestProperty("originator", AppConstants.ORIGINATOR);
         if (!authTokens.accountId.isEmpty()) {
-            httpsURLConnection.setRequestProperty("ChatGPT-Account-Id", authTokens.accountId);
+            httpsURLConnection.setRequestProperty("Claude-Account-Id", authTokens.accountId);
         }
     }
 
