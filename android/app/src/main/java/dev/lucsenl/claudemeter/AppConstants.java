@@ -2,7 +2,7 @@ package dev.lucsenl.claudemeter;
 
 import android.os.Build;
 
-/** Public Anthropic API contracts used by Claude Meter. */
+/** Claude subscription OAuth and usage contracts used by Claude Meter. */
 public final class AppConstants {
     public static final String ACTION_USAGE_UPDATED =
             "dev.lucsenl.claudemeter.action.USAGE_UPDATED";
@@ -11,16 +11,15 @@ public final class AppConstants {
     public static final String INTERNAL_PERMISSION =
             "dev.lucsenl.claudemeter.permission.INTERNAL";
 
-    public static final String API_BASE = "https://api.anthropic.com";
-    public static final String MODELS_URL = API_BASE + "/v1/models";
-    public static final String ANALYTICS_USAGE_URL =
-            API_BASE + "/v1/organizations/analytics/usage";
-    public static final String ANALYTICS_COST_URL =
-            API_BASE + "/v1/organizations/analytics/cost";
-    public static final String API_VERSION = "2026-10-21";
-    public static final String ANALYTICS_BETA = "analytics-usage-cost-2026-08-24";
-    public static final String CONSOLE_KEYS_URL = "https://platform.claude.com/settings/keys";
-    public static final String API_DOCS_URL = "https://platform.claude.com/docs/en/api/overview";
+    public static final String OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
+    public static final String OAUTH_AUTHORIZE_URL = "https://claude.com/cai/oauth/authorize";
+    public static final String OAUTH_TOKEN_URL = "https://platform.claude.com/v1/oauth/token";
+    public static final String OAUTH_REDIRECT_URI =
+            "https://platform.claude.com/oauth/code/callback";
+    public static final String OAUTH_SCOPES = "user:profile user:inference";
+    public static final String OAUTH_BETA = "oauth-2025-04-20";
+    public static final String USAGE_URL = "https://api.anthropic.com/api/oauth/usage";
+    public static final String PROFILE_URL = "https://api.anthropic.com/api/oauth/profile";
     public static final String PROJECT_URL = "https://github.com/lucsenl/Claude-Meter";
 
     public static final int VERSION_CODE = BuildConfig.VERSION_CODE;
