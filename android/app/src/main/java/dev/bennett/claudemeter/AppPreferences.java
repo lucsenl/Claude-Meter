@@ -437,7 +437,7 @@ public final class AppPreferences {
                 sharedPreferencesPrefs.getString("default_surface_style", WidgetOptions.SURFACE_ONE_UI),
                 sharedPreferencesPrefs.getString("default_graphic_scale", "auto"),
                 sharedPreferencesPrefs.getString("default_theme", WidgetOptions.THEME_SYSTEM),
-                sharedPreferencesPrefs.getString("default_accent", WidgetOptions.ACCENT_BLUE),
+                sharedPreferencesPrefs.getString("default_accent", WidgetOptions.ACCENT_APP),
                 sharedPreferencesPrefs.getInt("default_opacity", 88),
                 sharedPreferencesPrefs.getString("default_reset_mode", WidgetOptions.RESET_ABSOLUTE),
                 sharedPreferencesPrefs.getString("default_display_mode", WidgetOptions.DISPLAY_REMAINING),
