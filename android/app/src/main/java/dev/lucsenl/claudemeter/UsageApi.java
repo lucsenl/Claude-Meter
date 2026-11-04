@@ -1,8 +1,8 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.os.SystemClock;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
+import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
