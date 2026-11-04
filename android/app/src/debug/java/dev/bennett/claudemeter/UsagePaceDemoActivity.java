@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -63,9 +63,9 @@ public final class UsagePaceDemoActivity extends Activity {
                     new UsageWindow(61, TimeUnit.DAYS.toSeconds(7), 0L,
                             weeklyReset / 1000L),
                     Arrays.asList(new UsageLimit(
-                            "codex-spark",
-                            "GPT-5.3-Codex-Spark",
-                            "codex_bengalfox",
+                            "claude-spark",
+                            "GPT-5.3-Claude-Spark",
+                            "claude_bengalfox",
                             true,
                             false,
                             new UsageWindow(24, TimeUnit.HOURS.toSeconds(5), 0L,
@@ -80,7 +80,7 @@ public final class UsagePaceDemoActivity extends Activity {
                     now);
             SecureTokenStore.save(this, new AuthTokens(
                     "debug-demo-access", "debug-demo-refresh", "", Long.MAX_VALUE,
-                    "debug-demo-account", "demo@codexmeter.local"));
+                    "debug-demo-account", "demo@claudemeter.local"));
             AppPreferences.saveSnapshot(this, snapshot);
             seedHistory(now, fiveHourReset, weeklyReset);
             AppPreferences.saveResetCredits(this, new ResetCreditsSnapshot(3, Arrays.asList(

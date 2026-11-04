@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -85,7 +85,7 @@ public final class AboutActivity extends AppCompatActivity {
         RoundedLinearLayout credits = Ui.cardGroup(this, dark);
         credits.addView(personRow("BenIt Buhner", "App creator and AI geek", R.drawable.benit_github_avatar, false,
                 "https://github.com/BenItBuhner"));
-        credits.addView(personRow("That Josh Guy", "App and Icon designer", R.drawable.codex_profile_avatar, true,
+        credits.addView(personRow("That Josh Guy", "App and Icon designer", R.drawable.claude_profile_avatar, true,
                 "https://tjg.gg"));
         content.addView(credits);
 
@@ -94,7 +94,7 @@ public final class AboutActivity extends AppCompatActivity {
         CardItemView oneUi = Ui.actionRow(this, "One UI Design Library", "The library that makes this app so pretty.", R.drawable.ic_oui_theme,
                 view -> openUrl("https://github.com/tribalfs/oneui-design"));
         dependencies.addView(oneUi);
-        CardItemView claudeApi = Ui.actionRow(this, "Claude API", "This app would be pretty useless without it.", R.drawable.ic_openai_figma,
+        CardItemView claudeApi = Ui.actionRow(this, "Claude API", "This app would be pretty useless without it.", R.drawable.ic_anthropic_figma,
                 view -> openUrl("https://platform.claude.com/docs/en/api/overview"));
         claudeApi.setIconSize(Ui.dp(this, 24));
         claudeApi.setShowTopDivider(true);
@@ -112,7 +112,7 @@ public final class AboutActivity extends AppCompatActivity {
         card.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 44)));
         LinearLayout text = new LinearLayout(this);
         text.setOrientation(LinearLayout.VERTICAL);
-        text.addView(Ui.text(this, "Codex Meter", 18, Ui.mainText(dark)));
+        text.addView(Ui.text(this, "Claude Meter", 18, Ui.mainText(dark)));
         text.addView(Ui.text(this, getString(R.string.about_version, Ui.versionName(this)), 14, Ui.secondaryText(dark)));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1);
         params.setMargins(Ui.dp(this, 20), 0, 0, 0);

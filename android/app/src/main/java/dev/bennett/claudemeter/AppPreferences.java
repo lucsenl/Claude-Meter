@@ -1,8 +1,8 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 import org.json.JSONObject;
 
 /* JADX INFO: loaded from: classes.dex */
@@ -40,7 +40,7 @@ public final class AppPreferences {
     private static final String KEY_HISTORY_WEEKLY = "usage_history_weekly";
     private static final String KEY_HISTORY_MONTHLY = "usage_history_monthly";
     private static final long OAUTH_STALE_AFTER_MS = 720000;
-    private static final String PREFS = "codex_meter_settings_v1";
+    private static final String PREFS = "claude_meter_settings_v1";
 
     private AppPreferences() {
     }
@@ -157,7 +157,7 @@ public final class AppPreferences {
         try {
             return prefs(context).edit().putString(KEY_RESET_CREDITS, resetCreditsSnapshot.toJson().toString()).remove(KEY_RESET_ERROR).remove(KEY_RESET_ERROR_AT).commit();
         } catch (Exception e) {
-            setResetCreditsError(context, "Could not cache Codex reset credits.");
+            setResetCreditsError(context, "Could not cache Claude reset credits.");
             return false;
         }
     }
