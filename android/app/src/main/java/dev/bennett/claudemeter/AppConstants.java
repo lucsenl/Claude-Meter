@@ -33,8 +33,8 @@ public final class AppConstants {
     public static final String EXTRA_SUCCESS = "success";
     public static final String INTERNAL_PERMISSION = "dev.bennett.claudemeter.permission.INTERNAL";
 
-    public static final int VERSION_CODE = 2;
-    public static final String VERSION_NAME = "0.2.0";
+    public static final int VERSION_CODE = 3;
+    public static final String VERSION_NAME = "0.2.1";
 
     private AppConstants() {}
 

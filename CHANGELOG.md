@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.1 — 2026-11-04
+
+### Claude branding and subscription correction
+
+- Removed the legacy mapping that mislabeled Claude Pro as "Pro 20x".
+- Read the subscription family and tier from the Claude OAuth profile's
+  organization fields when available. The old Max 20x tier is called Ultra.
+- A missing or ambiguous profile produces no fabricated paid-plan label.
+- Applied the Claude terracotta accent and warm neutrals to the application,
+  dashboard, Now Bar, OAuth browser page and Samsung progress indicators.
+- Disabled Android Material You wallpaper accents in the Claude-branded UI.
+- Migrated legacy blue saved home-widget accents once without deleting layouts.
+- Preserved Samsung One UI widget shapes and optional manual custom colors.
+- Added account-plan regression tests and brand consistency checks.
+
+**Validation limitation:** end-to-end OAuth account identity, quota and Samsung
+widgets still require testing on a physical Android device.
+
+
 ## 0.2.0 — 2026-11-04
 
 ### Android UI recovery preview

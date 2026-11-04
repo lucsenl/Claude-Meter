@@ -76,13 +76,20 @@ java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeOAuthProtocolTest
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeAccountProfileTest
 
 # Claude Meter source-contract checks.
-grep -q 'VERSION_NAME = "0.2.0"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
-grep -q 'VERSION_CODE = 2' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'VERSION_NAME = "0.2.1"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'VERSION_CODE = 3' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'applicationId = "dev.lucsenl.claudemeter"' "$ROOT/app/build.gradle.kts"
 grep -q 'https://claude.com/cai/oauth/authorize' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://platform.claude.com/v1/oauth/token' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://api.anthropic.com/api/oauth/usage' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://api.anthropic.com/api/oauth/profile' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+# Prevent regressions in brand identity and subscription naming.
+grep -q 'ClaudeAccountProfile.parse' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageApi.java"
+grep -q 'ClaudeAccountProfile.displayLabel' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageFormat.java"
+grep -q 'Color.rgb(217, 119, 87)' "$ROOT/app/src/main/java/dev/bennett/claudemeter/Ui.java"
+! grep -q 'Color.rgb(3, 129, 254)' "$ROOT/app/src/main/java/dev/bennett/claudemeter/Ui.java"
+! grep -q 'Color.rgb(3, 129, 254)' "$ROOT/app/src/main/java/dev/bennett/claudemeter/NowBarManager.java"
+! grep -Eq '#0381fe|#5ca9ff' "$ROOT/app/src/main/java/dev/bennett/claudemeter/OAuthBrowserPage.java"
 grep -q 'anthropic-beta' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageApi.java"
 grep -q 'extra_usage' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageParser.java"
 grep -q 'seven_day' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageParser.java"

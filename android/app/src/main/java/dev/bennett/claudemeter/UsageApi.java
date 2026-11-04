@@ -107,7 +107,7 @@ public final class UsageApi {
                 return null;
             }
             // The Claude subscription belongs to the organization, not to the
-            // rate-limit percentage or an old OpenAI-style subscription label.
+            // rate-limit percentage or an unrelated subscription label.
             return ClaudeAccountProfile.parse(response.body, tokens.accountId, tokens.email);
         } catch (Exception exception) {
             DiagnosticLog.error(context, "profile", "profile_request_failed", exception);

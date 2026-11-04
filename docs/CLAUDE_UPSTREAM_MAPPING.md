@@ -44,7 +44,10 @@ The parser recognizes five-hour and seven-day utilization, dynamically returned
 model/scoped quotas, and optional `extra_usage`. It preserves provider reset
 timestamps and never invents missing quotas or a monetary conversion from quota
 percentages. The user's plan label must come from profile evidence, not an
-inferred quota size.
+inferred quota size. Pro is not Pro 20x: use the OAuth organization\'s
+`organization_type` and, for `claude_max` only, `rate_limit_tier` to
+distinguish Max from the renamed Ultra tier. Hide unknown plans rather than
+guessing from capability flags or quota percentages.
 
 Reset-credit **redemption** has no verified Claude subscription equivalent and
 is disabled; **Extra Usage** represents separately reported overage/spend, not
