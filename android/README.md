@@ -1,23 +1,28 @@
-# Codex Meter for Android
+# Claude Meter — Android
 
-Native Android + Wear OS client for viewing the Codex allowance attached to a
-signed-in ChatGPT account. This directory is the **Android** Gradle project of
-the Codex Meter monorepo. The iOS client lives under [`../ios/`](../ios/).
+The Android phone app owns Claude OAuth credentials and usage refresh. Wear OS receives
+only usage snapshots through the Wear Data Layer.
 
-## Layout
+## Authentication
 
-| Path | Role |
-|------|------|
-| `app/` | Phone app (`dev.bennett.codexmeter`) |
-| `wear/` | Wear OS companion |
-| `shared/` | Shared phone↔watch contracts |
-| `tests/` | Pure-Java self-tests used by `./run-tests.sh` |
-| `vendor/m2/` | Cached One UI / SESL Maven artifacts |
-| `ci/` | Encrypted release keystore material for GitHub Actions |
+The app uses Claude's public OAuth client with PKCE and the localhost callback on port
+53692. Tokens are stored with Android Keystore AES-GCM under a Claude-specific storage
+namespace, so an in-place install cannot silently reuse old Codex/OpenAI credentials.
 
-## Build and test
+## Usage mapping
 
-From this `android/` directory (or via the repo-root wrappers):
+The app reads Anthropic's OAuth usage response directly:
+
+- `five_hour.utilization` → 5-hour meter.
+- `seven_day.utilization` → weekly / 7-day meter.
+- scoped entries under `limits` → additional model limits.
+- `resets_at` → the existing reset countdown and scheduling model.
+
+Codex-only reset credits are disabled for Claude.
+
+## Checks
+
+From this directory:
 
 ```bash
 ./run-tests.sh
@@ -25,9 +30,5 @@ From this `android/` directory (or via the repo-root wrappers):
 ./build.sh
 ```
 
-Requirements: JDK 17+, Android SDK Platform 36, Build Tools 36.x, and
-`ANDROID_SDK_ROOT` / `ANDROID_HOME`. `vendor/m2` covers SESL deps offline;
-optional `GH_USERNAME` / `GH_ACCESS_TOKEN` refresh GitHub Packages.
-
-Signed local APKs land in `android/dist/`. See the repository root
-[`README.md`](../README.md) for product notes and release tagging.
+Or use the repository-root wrappers. The pure-Java self-tests include a Claude usage
+fixture and do not require an Android device.

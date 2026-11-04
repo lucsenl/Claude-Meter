@@ -183,7 +183,7 @@ public final class WidgetRenderer {
         WidgetOptions widgetOptionsDefaults = WidgetOptions.defaults();
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_compact);
         boolean zChooseDark = chooseDark(context, widgetOptionsDefaults);
-        WidgetState widgetStateError = WidgetState.error("Open Codex Meter to recover");
+        WidgetState widgetStateError = WidgetState.error("Open Claude Meter to recover");
         applyRootAndHeader(context, remoteViews, i, widgetOptionsDefaults, zChooseDark, widgetStateError);
         renderMinimal(context, remoteViews, widgetOptionsDefaults, zChooseDark, widgetStateError,
                 java.util.Collections.emptyList());
@@ -980,7 +980,7 @@ public final class WidgetRenderer {
             UsageSnapshot usageSnapshotLoadSnapshot = AppPreferences.loadSnapshot(context);
             long jCurrentTimeMillis = System.currentTimeMillis();
             if (!zIsSignedIn) {
-                return new WidgetState("", -1, -1, "Sign in", "—", "SIGN IN", "—", "Open the app to connect ChatGPT", "", "Tap to connect", "", "Open the app to connect ChatGPT", "Tap anywhere to sign in", "—", 0);
+                return new WidgetState("", -1, -1, "Sign in", "—", "SIGN IN", "—", "Open the app to connect Claude", "", "Tap to connect", "", "Open the app to connect Claude", "Tap anywhere to sign in", "—", 0);
             }
             if (usageSnapshotLoadSnapshot == null) {
                 String lastError = AppPreferences.getLastError(context);

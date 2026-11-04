@@ -459,7 +459,7 @@ public final class NowBarManager {
         String focusCritical = NowBarCopy.focusCriticalText(
                 weeklyFocus ? (longIsMonthly ? "M " : "W ") : "",
                 progressWindow, observedAt, now);
-        String title = "Codex usage";
+        String title = "Claude usage";
         String estimate = UsageFormat.estimatedRemaining(pace);
         String text = fiveHourText + " · " + weeklyText
                 + (estimate.isEmpty() ? "" : " · " + estimate);
@@ -608,7 +608,7 @@ public final class NowBarManager {
                 fiveHourText + " · " + weeklyText);
         extras.putCharSequence(SAMSUNG_ONGOING_PREFIX + "secondaryInfo",
                 accelerated && !estimate.isEmpty() ? estimate : availableWindows);
-        extras.putString(SAMSUNG_ONGOING_PREFIX + "description", "Codex usage limits");
+        extras.putString(SAMSUNG_ONGOING_PREFIX + "description", "Claude usage limits");
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "progress", used);
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "progressMax", 100);
         extras.putParcelable(SAMSUNG_ONGOING_PREFIX + "progressSegments.icon", progressDot);
@@ -646,9 +646,9 @@ public final class NowBarManager {
 
     private static void createChannel(NotificationManager manager) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                "Codex live monitor", NotificationManager.IMPORTANCE_DEFAULT);
+                "Claude live monitor", NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription(
-                "Codex allowance monitor that ends at the next reset; may start from Settings or when remaining usage hits your threshold");
+                "Claude allowance monitor that ends at the next reset; may start from Settings or when remaining usage hits your threshold");
         channel.setSound(null, null);
         channel.enableVibration(false);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
