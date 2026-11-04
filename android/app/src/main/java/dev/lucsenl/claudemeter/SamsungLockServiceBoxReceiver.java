@@ -1,10 +1,10 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import dev.bennett.claudemeter.SamsungLockWidgetSupport;
+import dev.lucsenl.claudemeter.SamsungLockWidgetSupport;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class SamsungLockServiceBoxReceiver extends BroadcastReceiver {
