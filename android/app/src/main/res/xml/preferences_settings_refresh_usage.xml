@@ -38,7 +38,7 @@
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="dashboard_additional_limits"
-            android:summary="Model-specific limits such as GPT-5.3-Codex-Spark"
+            android:summary="Model-specific limits such as GPT-5.3-Claude-Spark"
             android:title="Additional limits" />
         <SwitchPreferenceCompat
             android:defaultValue="true"

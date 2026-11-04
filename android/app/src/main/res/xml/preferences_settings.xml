@@ -50,8 +50,8 @@
     <dev.oneuiproject.oneui.preference.InsetPreferenceCategory app:height="20dp" />
 
     <Preference
-        android:key="about_codex_meter"
-        android:title="About Codex Meter"
+        android:key="about_claude_meter"
+        android:title="About Claude Meter"
         app:iconSpaceReserved="false" />
 
     <dev.oneuiproject.oneui.preference.InsetPreferenceCategory app:height="28dp" />
