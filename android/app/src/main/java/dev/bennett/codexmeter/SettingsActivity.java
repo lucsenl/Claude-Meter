@@ -454,17 +454,17 @@ public final class SettingsActivity extends AppCompatActivity {
 
             AuthTokens tokens = SecureTokenStore.load(requireContext());
             UsageSnapshot snapshot = AppPreferences.loadSnapshot(requireContext());
-            title.setText(tokens == null ? "Not connected" : "ChatGPT account");
+            title.setText(tokens == null ? "Not connected" : "Claude account");
             summary.setText(tokens == null ? "Sign in from the dashboard"
                     : (tokens.email.isEmpty() ? "Connected" : tokens.email));
             if (tokens != null && snapshot != null) {
                 String label = UsageFormat.planLabel(snapshot.planType);
-                plan.setText(label.isEmpty() ? "Codex" : label);
+                plan.setText(label.isEmpty() ? "Claude" : label);
                 plan.setVisibility(View.VISIBLE);
             } else {
                 plan.setVisibility(View.GONE);
             }
-            action.getTitleView().setText(tokens == null ? "Sign in with ChatGPT" : "Sign out");
+            action.getTitleView().setText(tokens == null ? "Sign in with Claude" : "Sign out");
             action.getTitleView().setTextColor(tokens == null
                     ? Ui.accent(requireContext(), dark)
                     : (dark ? 0xFFFF6B6B : 0xFFFF3B30));
@@ -482,7 +482,7 @@ public final class SettingsActivity extends AppCompatActivity {
         private void confirmSignOut() {
             androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                     .setTitle("Sign out?")
-                    .setMessage("This removes encrypted ChatGPT tokens and cached usage from this device.")
+                    .setMessage("This removes encrypted Claude tokens and cached usage from this device.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Sign out", (dialogInterface, which) -> {
                         AuthTokens tokens = SecureTokenStore.load(requireContext());
@@ -905,7 +905,7 @@ public final class SettingsActivity extends AppCompatActivity {
                     .setNegativeButton("Done", null);
             if (leadTimes.isEmpty()) {
                 builder.setMessage("No reminder times are configured. Add one to choose how "
-                        + "long before expiry Codex Meter should notify you.");
+                        + "long before expiry Claude Meter should notify you.");
             } else {
                 String[] labels = new String[leadTimes.size()];
                 for (int i = 0; i < leadTimes.size(); i++) {
@@ -1225,7 +1225,7 @@ public final class SettingsActivity extends AppCompatActivity {
                             + "region, and firmware build even when Android and One UI versions "
                             + "match.\n\n"
                             + "If both modes remain ordinary notifications, that firmware or "
-                            + "device does not expose a third-party Now Bar surface. Codex Meter "
+                            + "device does not expose a third-party Now Bar surface. Claude Meter "
                             + "cannot override Samsung’s system allowlist.")
                     .setNeutralButton("Developer options", (dialog, which) -> {
                         try {
@@ -1311,7 +1311,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         "Waiting for a low allowance or accelerated usage trigger");
             } else {
                 nowBarMonitorPreference.setSummary(
-                        "Show remaining Codex allowance until the next available usage reset");
+                        "Show remaining Claude allowance until the next available usage reset");
             }
             if (nowBarAutoStartPreference != null) {
                 nowBarAutoStartPreference.setChecked(
@@ -1441,7 +1441,7 @@ public final class SettingsActivity extends AppCompatActivity {
                             + "\n" + (signedIn
                             ? SettingsTransfer.sectionSummary(
                             SettingsTransfer.SECTION_AUTHENTICATION)
-                            : "Sign in first to export ChatGPT authentication")
+                            : "Sign in first to export Claude authentication")
             };
             boolean[] checked = {true, true, true, false};
             new AlertDialog.Builder(requireContext())
@@ -1480,7 +1480,7 @@ public final class SettingsActivity extends AppCompatActivity {
             new AlertDialog.Builder(requireContext())
                     .setTitle("Authentication will be included")
                     .setMessage(SettingsTransfer.SECURITY_WARNING
-                            + "\n\nOnly continue if you are moving Codex Meter to another device "
+                            + "\n\nOnly continue if you are moving Claude Meter to another device "
                             + "you control.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Export anyway", (dialog, which) ->
@@ -1518,7 +1518,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         pendingExportNowBar, pendingExportAuthentication);
                 SettingsTransferStore.write(requireContext(), uri, document);
                 String message = document.hasAuthentication()
-                        ? "Exported. Keep this file private — it includes ChatGPT authentication."
+                        ? "Exported. Keep this file private — it includes Claude authentication."
                         : "Settings exported.";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
             } catch (Exception exception) {
@@ -1556,7 +1556,7 @@ public final class SettingsActivity extends AppCompatActivity {
             for (int i = 0; i < present.size(); i++) {
                 String section = present.get(i);
                 String warning = SettingsTransfer.isAuthenticationSection(section)
-                        ? "\nWarning: replaces ChatGPT sign-in on this device"
+                        ? "\nWarning: replaces Claude sign-in on this device"
                         : "";
                 labels[i] = SettingsTransfer.sectionTitle(section)
                         + "\n" + SettingsTransfer.sectionSummary(section) + warning;
@@ -1607,7 +1607,7 @@ public final class SettingsActivity extends AppCompatActivity {
             new AlertDialog.Builder(requireContext())
                     .setTitle("Import authentication?")
                     .setMessage(SettingsTransfer.SECURITY_WARNING
-                            + "\n\nThis replaces ChatGPT sign-in on this device with the tokens "
+                            + "\n\nThis replaces Claude sign-in on this device with the tokens "
                             + "from the file.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Import anyway", (dialog, which) ->

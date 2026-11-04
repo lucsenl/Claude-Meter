@@ -95,7 +95,7 @@ public final class MainActivity extends AppCompatActivity {
             return;
         }
         this.dark = Ui.isDark(this);
-        Ui.Page page = Ui.installPage(this, "Codex Meter", false);
+        Ui.Page page = Ui.installPage(this, "Claude Meter", false);
         this.content = page.content;
         this.swipeRefresh = findViewById(R.id.dashboard_refresh);
         int refreshAccent = Ui.accent(this, this.dark);
@@ -288,7 +288,7 @@ public final class MainActivity extends AppCompatActivity {
             boolean signedIn = SecureTokenStore.isSignedIn(this);
             if (!signedIn) {
                 Button signIn = Ui.nativePrimaryButton(this,
-                        AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with ChatGPT");
+                        AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude");
                 signIn.setOnClickListener(view -> startOrContinueSignIn());
                 this.content.addView(signIn, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
                 Ui.addSpacer(this.content, 20);
@@ -309,8 +309,8 @@ public final class MainActivity extends AppCompatActivity {
                 UpdatePreferences.installedVersion(this));
         LinearLayout card = Ui.card(this, this.dark);
         TextView title = Ui.text(this, returnToStable
-                        ? "Return to Codex Meter " + release.version
-                        : "Codex Meter " + release.version + " is ready", 18,
+                        ? "Return to Claude Meter " + release.version
+                        : "Claude Meter " + release.version + " is ready", 18,
                 Ui.mainText(this.dark));
         title.setTypeface(Ui.mediumTypeface(this));
         card.addView(title);
@@ -335,7 +335,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void addHeader() {
-        TextView textViewText = Ui.text(this, "Your Codex allowance at a glance.", 15.0f, Ui.secondaryText(this.dark));
+        TextView textViewText = Ui.text(this, "Your Claude allowance at a glance.", 15.0f, Ui.secondaryText(this.dark));
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
         layoutParams.setMargins(Ui.dp(this, 4.0f), Ui.dp(this, 4.0f), 0, Ui.dp(this, 2.0f));
         this.content.addView(textViewText, layoutParams);
@@ -483,7 +483,7 @@ public final class MainActivity extends AppCompatActivity {
         card.addView(detail, detailParams);
 
         // Windows still waiting for usage data would only render a blank "Waiting for usage
-        // data" chart, so they are dropped from the card until OpenAI reports them.
+        // data" chart, so they are dropped from the card until Anthropic reports them.
         boolean hasCharts = false;
         UsageWindow fiveWindow = snapshot == null ? null : snapshot.fiveHour;
         if (fiveWindow != null && snapshot.fetchedAtMillis > 0L) {
@@ -520,7 +520,7 @@ public final class MainActivity extends AppCompatActivity {
 
         if (!hasCharts) {
             TextView waiting = Ui.text(this,
-                    "Charts appear once OpenAI reports your 5-hour, weekly, or monthly usage windows.",
+                    "Charts appear once Anthropic reports your 5-hour, weekly, or monthly usage windows.",
                     12, Ui.secondaryText(this.dark));
             LinearLayout.LayoutParams waitingParams = new LinearLayout.LayoutParams(-1, -2);
             waitingParams.setMargins(Ui.dp(this, 10), Ui.dp(this, 8),
@@ -595,9 +595,9 @@ public final class MainActivity extends AppCompatActivity {
             return "Usage-credit balance is not capped";
         }
         if (credits.balance.isEmpty() && !credits.hasCredits) {
-            return "Purchase credits in ChatGPT Codex";
+            return "Manage extra usage in Claude";
         }
-        return "Purchased Codex usage-credit balance";
+        return "Legacy purchased usage balance";
     }
 
     private static String cadenceLabel(UsageWindow window) {
@@ -644,7 +644,7 @@ public final class MainActivity extends AppCompatActivity {
         account.addView(avatar, new LinearLayout.LayoutParams(Ui.dp(this, 44.0f), Ui.dp(this, 44.0f)));
         LinearLayout identity = new LinearLayout(this);
         identity.setOrientation(LinearLayout.VERTICAL);
-        String titleText = signedIn ? "ChatGPT account" : "Not connected";
+        String titleText = signedIn ? "Claude account" : "Not connected";
         TextView title = Ui.text(this, titleText, 18.0f, Ui.mainText(this.dark));
         title.setSingleLine(true);
         identity.addView(title);
@@ -657,7 +657,7 @@ public final class MainActivity extends AppCompatActivity {
         account.addView(identity, identityParams);
         if (signedIn && snapshot != null) {
             String plan = UsageFormat.planLabel(snapshot.planType);
-            TextView badge = Ui.text(this, plan.isEmpty() ? "Codex" : plan, 14.0f, Ui.mainText(this.dark));
+            TextView badge = Ui.text(this, plan.isEmpty() ? "Claude" : plan, 14.0f, Ui.mainText(this.dark));
             badge.setTypeface(Ui.mediumTypeface(this));
             badge.setGravity(Gravity.CENTER);
             badge.setPadding(Ui.dp(this, 13.0f), Ui.dp(this, 6.0f), Ui.dp(this, 13.0f), Ui.dp(this, 6.0f));
@@ -674,7 +674,7 @@ public final class MainActivity extends AppCompatActivity {
 
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         if (!signedIn) {
-            Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with ChatGPT", true, this.dark);
+            Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude", true, this.dark);
             button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.3
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
@@ -780,7 +780,7 @@ public final class MainActivity extends AppCompatActivity {
         if (available > 0) {
             return "Expiration details unavailable";
         }
-        return "Earn credits from ChatGPT Codex";
+        return "Manage extra usage in Claude";
     }
 
     private void openResetCredits() {
@@ -805,7 +805,7 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout linearLayoutCard = Ui.card(this, this.dark);
         int length = AppWidgetManager.getInstance(this).getAppWidgetIds(new ComponentName(this, (Class<?>) CodexUsageWidget.class)).length + SamsungLockWidgetSupport.countAll(this);
         if (length == 0) {
-            str = "Add Codex Meter widgets";
+            str = "Add Claude Meter widgets";
         } else {
             str = length + " widget" + (length == 1 ? "" : "s") + " active";
         }
@@ -870,9 +870,9 @@ public final class MainActivity extends AppCompatActivity {
         try {
             startForegroundService(new Intent(this, (Class<?>) OAuthService.class).setAction(OAuthService.ACTION_START));
             if (AppPreferences.isOAuthPending(this)) {
-                str = "Resuming secure OpenAI sign-in…";
+                str = "Resuming secure Anthropic sign-in…";
             } else {
-                str = "Opening secure OpenAI sign-in…";
+                str = "Opening secure Anthropic sign-in…";
             }
             Toast.makeText(this, str, 0).show();
         } catch (RuntimeException e) {
@@ -966,7 +966,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void confirmSignOut() {
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted ChatGPT tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.10
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted Claude tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.10
             @Override // android.content.DialogInterface.OnClickListener
             public void onClick(DialogInterface dialogInterface, int i) {
                 MainActivity.this.signOut();
@@ -1001,7 +1001,7 @@ public final class MainActivity extends AppCompatActivity {
             appWidgetManager.requestPinAppWidget(componentName, null, null);
             Toast.makeText(this, "Choose a size and place the widget on your home screen.", 1).show();
         } else {
-            AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Add from your launcher").setMessage("Long-press an empty area of the home screen, open Widgets, then choose Codex Meter.").setPositiveButton("OK", (DialogInterface.OnClickListener) null).create();
+            AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Add from your launcher").setMessage("Long-press an empty area of the home screen, open Widgets, then choose Claude Meter.").setPositiveButton("OK", (DialogInterface.OnClickListener) null).create();
             dialog.show();
         }
     }

@@ -94,8 +94,8 @@ public final class AboutActivity extends AppCompatActivity {
         CardItemView oneUi = Ui.actionRow(this, "One UI Design Library", "The library that makes this app so pretty.", R.drawable.ic_oui_theme,
                 view -> openUrl("https://github.com/tribalfs/oneui-design"));
         dependencies.addView(oneUi);
-        CardItemView openAi = Ui.actionRow(this, "OpenAI API", "This app would be pretty useless without it.", R.drawable.ic_openai_figma,
-                view -> openUrl("https://openai.com"));
+        CardItemView openAi = Ui.actionRow(this, "Anthropic API", "Claude usage is read directly from Anthropic.", android.R.drawable.ic_menu_info_details,
+                view -> openUrl("https://www.anthropic.com"));
         openAi.setIconSize(Ui.dp(this, 24));
         openAi.setShowTopDivider(true);
         dependencies.addView(openAi);
@@ -112,7 +112,7 @@ public final class AboutActivity extends AppCompatActivity {
         card.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 44)));
         LinearLayout text = new LinearLayout(this);
         text.setOrientation(LinearLayout.VERTICAL);
-        text.addView(Ui.text(this, "Codex Meter", 18, Ui.mainText(dark)));
+        text.addView(Ui.text(this, "Claude Meter", 18, Ui.mainText(dark)));
         text.addView(Ui.text(this, getString(R.string.about_version, Ui.versionName(this)), 14, Ui.secondaryText(dark)));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1);
         params.setMargins(Ui.dp(this, 20), 0, 0, 0);
