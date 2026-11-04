@@ -46,7 +46,8 @@ public final class ClaudeOAuth {
                 .put("grant_type", "refresh_token")
                 .put("client_id", ClaudeOAuthProtocol.CLIENT_ID)
                 .put("refresh_token", current.refreshToken);
-        if (!current.scope.isEmpty()) body.put("scope", current.scope);
+        body.put("scope", current.scope.isEmpty()
+                ? ClaudeOAuthProtocol.SCOPES : current.scope);
 
         ClaudeOAuthCredential refreshed = tokenRequest(context, body, current);
         SecureTokenStore.save(context, refreshed);
@@ -83,7 +84,10 @@ public final class ClaudeOAuth {
             String refresh = json.optString("refresh_token",
                     previous == null ? "" : previous.refreshToken);
             long expiresIn = Math.max(60L, json.optLong("expires_in", 3600L));
-            String scope = json.optString("scope", previous == null ? "" : previous.scope);
+            String fallbackScope = previous == null || previous.scope.isEmpty()
+                    ? ClaudeOAuthProtocol.SCOPES : previous.scope;
+            String scope = json.optString("scope", fallbackScope);
+            if (scope == null || scope.trim().isEmpty()) scope = fallbackScope;
             ClaudeOAuthCredential value = new ClaudeOAuthCredential(
                     access, refresh, System.currentTimeMillis() + expiresIn * 1000L, scope);
             if (!value.isUsable()) throw new Exception("Claude returned incomplete OAuth tokens.");
