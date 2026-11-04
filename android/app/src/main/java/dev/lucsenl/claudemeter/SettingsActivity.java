@@ -98,8 +98,6 @@ public final class SettingsActivity extends AppCompatActivity {
         TextView appTitle = Ui.text(this, "Claude Meter", 20, Ui.mainText(dark));
         appTitle.setTypeface(Ui.mediumTypeface(this));
         app.addView(appTitle);
-        addAction(app, "Check for updates", () -> startActivity(
-                new Intent(this, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_FORCE_CHECK, true)));
         addAction(app, "About", () -> Ui.startSecondaryActivity(this, AboutActivity.class));
         addAction(app, "Project on GitHub", () -> open(AppConstants.PROJECT_URL));
         addAction(app, "Anthropic API documentation", () -> open(AppConstants.API_DOCS_URL));
