@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
