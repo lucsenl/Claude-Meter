@@ -1,128 +1,135 @@
 package dev.lucsenl.claudemeter;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.activity.OnBackPressedCallback;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import dev.oneuiproject.oneui.widget.RoundedLinearLayout;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-/** First-run explanation of Claude Meter's supported Anthropic data sources. */
+/** First-run setup for a user-supplied Anthropic API key. */
 public final class OnboardingActivity extends AppCompatActivity {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private LinearLayout content;
     private boolean dark;
+    private EditText keyInput;
+    private Button verify;
 
-    @Override
-    protected void onCreate(Bundle state) {
+    @Override protected void onCreate(Bundle state) {
         Ui.applySelectedTheme(this);
         super.onCreate(state);
-        if (AppPreferences.isOnboardingComplete(this)) {
-            openMain();
-            return;
-        }
         dark = Ui.isDark(this);
-        Ui.Page page = Ui.installPage(this, "Claude Meter", false);
-        content = page.content;
-        findViewById(R.id.dashboard_refresh).setEnabled(false);
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                finishAffinity();
-            }
-        });
+        content = Ui.installPage(this, "Claude Meter setup", true).content;
         render();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (content != null) render();
+    @Override protected void onDestroy() {
+        executor.shutdownNow();
+        super.onDestroy();
+    }
+
+    @Override public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private void render() {
         content.removeAllViews();
-
-        RoundedLinearLayout hero = Ui.seslCard(this, dark);
-        TextView title = Ui.text(this, "Claude Meter", 34, Ui.mainText(dark));
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "Connect Anthropic", 26, Ui.mainText(dark));
         title.setTypeface(Ui.mediumTypeface(this));
-        hero.addView(title);
-        addBody(hero,
-                "An independent Android client for documented Anthropic API data, "
-                        + "built on the native One UI foundation of the original project.");
-        content.addView(hero);
+        card.addView(title);
+
+        TextView body = Ui.text(this,
+                "Enter an Anthropic API key. Claude Meter validates it against the public Models "
+                        + "API and stores it encrypted with Android Keystore. It never asks for "
+                        + "your Claude.ai password, cookies, or Claude Code session tokens.",
+                15, Ui.secondaryText(dark));
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
+        bp.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 18));
+        card.addView(body, bp);
+
+        keyInput = new EditText(this);
+        keyInput.setHint("sk-ant-…");
+        keyInput.setSingleLine(true);
+        keyInput.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        card.addView(keyInput, new LinearLayout.LayoutParams(-1, Ui.dp(this, 56)));
+
+        verify = Ui.nativePrimaryButton(this, "Verify and save");
+        verify.setOnClickListener(v -> verifyKey());
+        LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 60));
+        vp.setMargins(0, Ui.dp(this, 14), 0, 0);
+        card.addView(verify, vp);
+
+        Button console = Ui.button(this, "Open Claude Console API keys", false, dark);
+        console.setOnClickListener(v -> startActivity(
+                new Intent(Intent.ACTION_VIEW, Uri.parse(AppConstants.CONSOLE_KEYS_URL))));
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 56));
+        cp.setMargins(0, Ui.dp(this, 8), 0, 0);
+        card.addView(console, cp);
+        content.addView(card);
 
         Ui.addSpacer(content, 16);
-        RoundedLinearLayout sources = Ui.seslCard(this, dark);
-        TextView sourcesTitle = Ui.text(this, "What it can read", 20, Ui.mainText(dark));
-        sourcesTitle.setTypeface(Ui.mediumTypeface(this));
-        sources.addView(sourcesTitle);
-        addBody(sources,
-                "• Claude API model metadata through /v1/models.\n"
-                        + "• Organization token usage, request counts and cost through the "
-                        + "Usage and Cost Analytics API when you provide an eligible "
-                        + "Admin/Analytics credential.\n"
-                        + "• Only data returned by documented Anthropic APIs.");
-        content.addView(sources);
+        LinearLayout note = Ui.card(this, dark);
+        note.addView(Ui.text(this, "What Claude Meter can show", 18, Ui.mainText(dark)));
+        TextView detail = Ui.text(this,
+                "With an Admin/Analytics-capable organization credential: token usage, request "
+                        + "counts and cost. With a regular API key: available models and connection "
+                        + "status. Claude Pro/Max subscription quota percentages are not available "
+                        + "through the public third-party API.",
+                14, Ui.secondaryText(dark));
+        LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(-1, -2);
+        dp.setMargins(0, Ui.dp(this, 8), 0, 0);
+        note.addView(detail, dp);
+        content.addView(note);
 
-        Ui.addSpacer(content, 16);
-        RoundedLinearLayout limits = Ui.seslCard(this, dark);
-        TextView limitsTitle = Ui.text(this, "What it deliberately does not read", 20,
-                Ui.mainText(dark));
-        limitsTitle.setTypeface(Ui.mediumTypeface(this));
-        limits.addView(limitsTitle);
-        addBody(limits,
-                "Claude Pro, Max and Ultra session/weekly allowances are not exposed to "
-                        + "independent third-party apps through a documented public usage API. "
-                        + "Claude Meter does not copy Claude Code OAuth credentials, scrape "
-                        + "claude.ai, capture cookies, or call private usage routes.");
-        content.addView(limits);
-
-        Ui.addSpacer(content, 16);
-        RoundedLinearLayout security = Ui.seslCard(this, dark);
-        TextView securityTitle = Ui.text(this, "Credentials stay on this device", 20,
-                Ui.mainText(dark));
-        securityTitle.setTypeface(Ui.mediumTypeface(this));
-        security.addView(securityTitle);
-        addBody(security,
-                "Anthropic credentials are encrypted with Android Keystore. "
-                        + "They are sent only to api.anthropic.com for the requests you enable.");
-        content.addView(security);
-
-        Ui.addSpacer(content, 20);
-        boolean configured = SecureCredentialStore.isConfigured(this);
-        Button configure = Ui.nativePrimaryButton(this,
-                configured ? "Review Anthropic access" : "Configure Anthropic access");
-        configure.setOnClickListener(view ->
-                startActivity(new Intent(this, CredentialActivity.class)));
-        content.addView(configure, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
-
-        Button continueButton = Ui.button(this,
-                configured ? "Open Claude Meter" : "Continue without a credential",
-                false, dark);
-        continueButton.setOnClickListener(view -> complete());
-        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 54));
-        continueParams.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 16));
-        content.addView(continueButton, continueParams);
+        if (AppPreferences.isOnboardingComplete(this)) {
+            Button cancel = Ui.button(this, "Cancel", false, dark);
+            cancel.setOnClickListener(v -> finish());
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, Ui.dp(this, 56));
+            p.setMargins(0, Ui.dp(this, 12), 0, 0);
+            content.addView(cancel, p);
+        }
     }
 
-    private void complete() {
-        AppPreferences.completeOnboarding(this);
-        openMain();
-    }
-
-    private void openMain() {
-        startActivity(new Intent(this, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-        finish();
-    }
-
-    private void addBody(LinearLayout card, String text) {
-        TextView body = Ui.text(this, text, 15, Ui.secondaryText(dark));
-        body.setLineSpacing(0, 1.16f);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
-        params.setMargins(0, Ui.dp(this, 12), 0, 0);
-        card.addView(body, params);
+    private void verifyKey() {
+        String key = keyInput.getText() == null ? "" : keyInput.getText().toString().trim();
+        if (key.isEmpty()) {
+            keyInput.setError("Enter an Anthropic API key");
+            return;
+        }
+        verify.setEnabled(false);
+        verify.setText("Verifying…");
+        executor.execute(() -> {
+            String error = "";
+            try {
+                UsageApi.validateAndStoreApiKey(getApplicationContext(), key);
+                AppPreferences.completeOnboarding(getApplicationContext());
+                try { UsageApi.refreshAndCacheLocked(getApplicationContext()); }
+                catch (Exception ignored) {}
+            } catch (Exception exception) {
+                error = UsageApi.safeMessage(exception);
+            }
+            String finalError = error;
+            runOnUiThread(() -> {
+                verify.setEnabled(true);
+                verify.setText("Verify and save");
+                if (!finalError.isEmpty()) {
+                    Toast.makeText(this, finalError, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                startActivity(new Intent(this, MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                finish();
+            });
+        });
     }
 }
