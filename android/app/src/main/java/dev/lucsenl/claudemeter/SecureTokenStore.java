@@ -14,18 +14,18 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import org.json.JSONObject;
 
-/** AES-GCM storage for the Anthropic API key. */
+/** AES-GCM storage for the Anthropic API credential. */
 @SuppressLint("ApplySharedPref")
 public final class SecureTokenStore {
-    private static final String KEY_ALIAS = "claude_meter_api_key_v1";
+    private static final String KEY_ALIAS = "claude_meter_api_key_v2";
     private static final String KEY_BLOB = "blob";
-    private static final String PREFS = "secure_anthropic_api_key_v1";
+    private static final String PREFS = "secure_anthropic_credential_v2";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final Object LOCK = new Object();
 
     private SecureTokenStore() {}
 
-    public static void save(Context context, AuthTokens credential) throws Exception {
+    public static void save(Context context, AnthropicCredential credential) throws Exception {
         if (credential == null || !credential.isUsable()) {
             throw new Exception("Enter a valid Anthropic API key.");
         }
@@ -39,12 +39,12 @@ public final class SecureTokenStore {
             envelope.put("ct", Base64.getEncoder().encodeToString(ciphertext));
             if (!context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                     .putString(KEY_BLOB, envelope.toString()).commit()) {
-                throw new Exception("Could not persist the encrypted API key.");
+                throw new Exception("Could not persist the encrypted API credential.");
             }
         }
     }
 
-    public static AuthTokens load(Context context) {
+    public static AnthropicCredential load(Context context) {
         synchronized (LOCK) {
             SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             String value = prefs.getString(KEY_BLOB, null);
@@ -55,7 +55,7 @@ public final class SecureTokenStore {
                 byte[] ciphertext = Base64.getDecoder().decode(envelope.getString("ct"));
                 Cipher cipher = Cipher.getInstance(TRANSFORMATION);
                 cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), new GCMParameterSpec(128, iv));
-                return AuthTokens.fromJson(new JSONObject(new String(
+                return AnthropicCredential.fromJson(new JSONObject(new String(
                         cipher.doFinal(ciphertext), StandardCharsets.UTF_8)));
             } catch (Exception exception) {
                 prefs.edit().remove(KEY_BLOB).commit();
@@ -65,7 +65,7 @@ public final class SecureTokenStore {
     }
 
     public static boolean isSignedIn(Context context) {
-        AuthTokens value = load(context);
+        AnthropicCredential value = load(context);
         return value != null && value.isUsable();
     }
 

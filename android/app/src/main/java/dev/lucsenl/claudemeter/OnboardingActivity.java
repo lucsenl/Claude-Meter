@@ -19,6 +19,7 @@ public final class OnboardingActivity extends AppCompatActivity {
     private LinearLayout content;
     private boolean dark;
     private EditText keyInput;
+    private EditText workspaceInput;
     private Button verify;
 
     @Override protected void onCreate(Bundle state) {
@@ -47,9 +48,8 @@ public final class OnboardingActivity extends AppCompatActivity {
         card.addView(title);
 
         TextView body = Ui.text(this,
-                "Enter an Anthropic API key. Claude Meter validates it against the public Models "
-                        + "API and stores it encrypted with Android Keystore. It never asks for "
-                        + "your Claude.ai password, cookies, or Claude Code session tokens.",
+                "Enter an Anthropic API key. Claude Meter validates it against documented "
+                        + "Anthropic APIs and stores it encrypted with Android Keystore.",
                 15, Ui.secondaryText(dark));
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
         bp.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 18));
@@ -62,10 +62,24 @@ public final class OnboardingActivity extends AppCompatActivity {
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         card.addView(keyInput, new LinearLayout.LayoutParams(-1, Ui.dp(this, 56)));
 
+        workspaceInput = new EditText(this);
+        workspaceInput.setHint("Workspace ID (optional)");
+        workspaceInput.setSingleLine(true);
+        LinearLayout.LayoutParams wp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 56));
+        wp.setMargins(0, Ui.dp(this, 8), 0, 0);
+        card.addView(workspaceInput, wp);
+
+        TextView workspaceHelp = Ui.text(this,
+                "Only needed for API keys that are not already scoped to one workspace.",
+                13, Ui.secondaryText(dark));
+        LinearLayout.LayoutParams wh = new LinearLayout.LayoutParams(-1, -2);
+        wh.setMargins(0, Ui.dp(this, 5), 0, Ui.dp(this, 10));
+        card.addView(workspaceHelp, wh);
+
         verify = Ui.nativePrimaryButton(this, "Verify and save");
         verify.setOnClickListener(v -> verifyKey());
         LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 60));
-        vp.setMargins(0, Ui.dp(this, 14), 0, 0);
+        vp.setMargins(0, Ui.dp(this, 8), 0, 0);
         card.addView(verify, vp);
 
         Button console = Ui.button(this, "Open Claude Console API keys", false, dark);
@@ -82,8 +96,8 @@ public final class OnboardingActivity extends AppCompatActivity {
         TextView detail = Ui.text(this,
                 "With an Admin/Analytics-capable organization credential: token usage, request "
                         + "counts and cost. With a regular API key: available models and connection "
-                        + "status. Claude Pro/Max subscription quota percentages are not available "
-                        + "through the public third-party API.",
+                        + "status. Claude subscription quota percentages are not exposed through "
+                        + "the supported third-party API.",
                 14, Ui.secondaryText(dark));
         LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(-1, -2);
         dp.setMargins(0, Ui.dp(this, 8), 0, 0);
@@ -101,6 +115,8 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void verifyKey() {
         String key = keyInput.getText() == null ? "" : keyInput.getText().toString().trim();
+        String workspace = workspaceInput.getText() == null
+                ? "" : workspaceInput.getText().toString().trim();
         if (key.isEmpty()) {
             keyInput.setError("Enter an Anthropic API key");
             return;
@@ -110,7 +126,7 @@ public final class OnboardingActivity extends AppCompatActivity {
         executor.execute(() -> {
             String error = "";
             try {
-                UsageApi.validateAndStoreApiKey(getApplicationContext(), key);
+                UsageApi.validateAndStoreApiKey(getApplicationContext(), key, workspace);
                 AppPreferences.completeOnboarding(getApplicationContext());
                 try { UsageApi.refreshAndCacheLocked(getApplicationContext()); }
                 catch (Exception ignored) {}

@@ -49,11 +49,13 @@ public final class SettingsActivity extends AppCompatActivity {
         TextView apiTitle = Ui.text(this, "Anthropic API", 20, Ui.mainText(dark));
         apiTitle.setTypeface(Ui.mediumTypeface(this));
         api.addView(apiTitle);
-        boolean connected = SecureTokenStore.isSignedIn(this);
-        TextView state = Ui.text(this,
-                connected ? "API key stored securely on this device"
-                        : "No API key connected",
-                14, Ui.secondaryText(dark));
+        AnthropicCredential current = SecureTokenStore.load(this);
+        boolean connected = current != null && current.isUsable();
+        String status = connected ? "API key stored securely on this device" : "No API key connected";
+        if (connected && !current.workspaceId.isEmpty()) {
+            status += " · workspace " + current.workspaceId;
+        }
+        TextView state = Ui.text(this, status, 14, Ui.secondaryText(dark));
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
         sp.setMargins(0, Ui.dp(this, 7), 0, Ui.dp(this, 14));
         api.addView(state, sp);
@@ -124,18 +126,27 @@ public final class SettingsActivity extends AppCompatActivity {
     }
 
     private void showKeyDialog() {
+        LinearLayout wrapper = new LinearLayout(this);
+        wrapper.setOrientation(LinearLayout.VERTICAL);
+        int pad = Ui.dp(this, 24);
+        wrapper.setPadding(pad, 0, pad, 0);
+
         EditText input = new EditText(this);
         input.setHint("sk-ant-…");
         input.setSingleLine(true);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        int pad = Ui.dp(this, 24);
-        LinearLayout wrapper = new LinearLayout(this);
-        wrapper.setPadding(pad, 0, pad, 0);
         wrapper.addView(input, new LinearLayout.LayoutParams(-1, -2));
+
+        EditText workspace = new EditText(this);
+        workspace.setHint("Workspace ID (optional)");
+        workspace.setSingleLine(true);
+        AnthropicCredential current = SecureTokenStore.load(this);
+        if (current != null) workspace.setText(current.workspaceId);
+        wrapper.addView(workspace, new LinearLayout.LayoutParams(-1, -2));
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Anthropic API key")
-                .setMessage("The key is validated against Anthropic and encrypted with Android Keystore.")
+                .setMessage("The credential is validated against Anthropic and encrypted with Android Keystore.")
                 .setView(wrapper)
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Verify", null)
@@ -143,6 +154,8 @@ public final class SettingsActivity extends AppCompatActivity {
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     String value = input.getText() == null ? "" : input.getText().toString().trim();
+                    String workspaceId = workspace.getText() == null
+                            ? "" : workspace.getText().toString().trim();
                     if (value.isEmpty()) {
                         input.setError("Enter an API key");
                         return;
@@ -151,7 +164,8 @@ public final class SettingsActivity extends AppCompatActivity {
                     executor.execute(() -> {
                         String error = "";
                         try {
-                            UsageApi.validateAndStoreApiKey(getApplicationContext(), value);
+                            UsageApi.validateAndStoreApiKey(
+                                    getApplicationContext(), value, workspaceId);
                             try { UsageApi.refreshAndCacheLocked(getApplicationContext()); }
                             catch (Exception ignored2) {}
                         } catch (Exception exception) {
@@ -192,7 +206,7 @@ public final class SettingsActivity extends AppCompatActivity {
     private void confirmDisconnect() {
         new AlertDialog.Builder(this)
                 .setTitle("Disconnect Anthropic API")
-                .setMessage("The encrypted API key and cached API metrics will be removed from this device.")
+                .setMessage("The encrypted API credential and cached API metrics will be removed from this device.")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Disconnect", (dialog, which) -> {
                     SecureTokenStore.clear(this);

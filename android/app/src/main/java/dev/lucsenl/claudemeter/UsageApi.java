@@ -13,18 +13,20 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import javax.net.ssl.HttpsURLConnection;
 
-/** Public Anthropic API transport. No claude.ai or Claude Code private endpoints. */
+/** Public Anthropic API transport. */
 public final class UsageApi {
     private UsageApi() {}
 
-    public static void validateAndStoreApiKey(Context context, String apiKey) throws Exception {
+    public static void validateAndStoreApiKey(
+            Context context, String apiKey, String workspaceId) throws Exception {
         String key = apiKey == null ? "" : apiKey.trim();
-        if (key.isEmpty()) throw new Exception("Enter an Anthropic credential.");
+        String workspace = workspaceId == null ? "" : workspaceId.trim();
+        if (key.isEmpty()) throw new Exception("Enter an Anthropic API key.");
 
         Response models = request(context, AppConstants.MODELS_URL + "?limit=1",
-                key, AuthMode.BEARER, false);
+                key, workspace, false);
         if (isSuccess(models)) {
-            SecureTokenStore.save(context, new AuthTokens(key));
+            SecureTokenStore.save(context, new AnthropicCredential(key, workspace));
             return;
         }
 
@@ -32,10 +34,14 @@ public final class UsageApi {
         Instant start = end.minusSeconds(24L * 60L * 60L);
         Response analytics = analytics(context, AppConstants.ANALYTICS_USAGE_URL, start, end, key);
         if (isSuccess(analytics)) {
-            SecureTokenStore.save(context, new AuthTokens(key));
+            SecureTokenStore.save(context, new AnthropicCredential(key, workspace));
             return;
         }
 
+        if (models.status == 400 && workspace.isEmpty()) {
+            throw new Exception(
+                    "This API key may require a workspace ID. Enter the workspace ID shown in Claude Console.");
+        }
         if (models.status == 401 || models.status == 403
                 || analytics.status == 401 || analytics.status == 403) {
             throw new Exception(
@@ -46,17 +52,16 @@ public final class UsageApi {
 
     public static UsageSnapshot refreshAndCacheLocked(Context context) throws Exception {
         Context app = context.getApplicationContext();
-        AuthTokens credential = SecureTokenStore.load(app);
+        AnthropicCredential credential = SecureTokenStore.load(app);
         if (credential == null || !credential.isUsable()) {
-            throw new Exception("Add an Anthropic credential first.");
+            throw new Exception("Add an Anthropic API key first.");
         }
 
         long started = SystemClock.elapsedRealtime();
-        String key = credential.accessToken;
         String modelsJson = "";
         try {
             Response models = request(app, AppConstants.MODELS_URL + "?limit=100",
-                    key, AuthMode.BEARER, false);
+                    credential.apiKey, credential.workspaceId, false);
             if (isSuccess(models)) modelsJson = models.body;
 
             Instant now = Instant.now();
@@ -66,7 +71,7 @@ public final class UsageApi {
             Instant monthStart = now.minusSeconds(30L * 24L * 60L * 60L);
 
             Response today = analytics(app, AppConstants.ANALYTICS_USAGE_URL,
-                    todayStart, now, key);
+                    todayStart, now, credential.apiKey);
             if (today.status == 401 || today.status == 403) {
                 if (modelsJson.isEmpty()) {
                     throw new Exception(
@@ -83,11 +88,11 @@ public final class UsageApi {
             requireSuccess(today, "usage analytics");
 
             Response week = analytics(app, AppConstants.ANALYTICS_USAGE_URL,
-                    weekStart, now, key);
+                    weekStart, now, credential.apiKey);
             requireSuccess(week, "7-day usage analytics");
 
             Response cost = analytics(app, AppConstants.ANALYTICS_COST_URL,
-                    monthStart, now, key);
+                    monthStart, now, credential.apiKey);
             requireSuccess(cost, "cost analytics");
 
             UsageSnapshot snapshot = UsageParser.parseAnalytics(
@@ -122,14 +127,10 @@ public final class UsageApi {
                 + "?starting_at=" + encode(start.toString())
                 + "&ending_at=" + encode(end.toString())
                 + "&limit=1000";
-        Response response = request(context, url, key, AuthMode.API_KEY, true);
-        if (response.status == 401 || response.status == 403) {
-            response = request(context, url, key, AuthMode.BEARER, true);
-        }
-        return response;
+        return request(context, url, key, "", true);
     }
 
-    private static Response request(Context context, String url, String key, AuthMode authMode,
+    private static Response request(Context context, String url, String key, String workspaceId,
             boolean analytics) throws Exception {
         HttpsURLConnection connection =
                 (HttpsURLConnection) URI.create(url).toURL().openConnection();
@@ -140,12 +141,11 @@ public final class UsageApi {
             connection.setReadTimeout(30000);
             connection.setUseCaches(false);
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + key);
             connection.setRequestProperty("anthropic-version", AppConstants.API_VERSION);
             connection.setRequestProperty("User-Agent", AppConstants.userAgent());
-            if (authMode == AuthMode.BEARER) {
-                connection.setRequestProperty("Authorization", "Bearer " + key);
-            } else {
-                connection.setRequestProperty("x-api-key", key);
+            if (!workspaceId.isEmpty()) {
+                connection.setRequestProperty("anthropic-workspace-id", workspaceId);
             }
             if (analytics) {
                 connection.setRequestProperty("anthropic-beta", AppConstants.ANALYTICS_BETA);
@@ -203,11 +203,6 @@ public final class UsageApi {
         if (message == null || message.trim().isEmpty()) return "Anthropic request failed.";
         String value = message.trim();
         return value.length() > 240 ? value.substring(0, 240) : value;
-    }
-
-    private enum AuthMode {
-        API_KEY,
-        BEARER
     }
 
     private static final class Response {

@@ -23,8 +23,8 @@ public final class AppConstants {
     public static final String API_DOCS_URL = "https://platform.claude.com/docs/en/api/overview";
     public static final String PROJECT_URL = "https://github.com/lucsenl/Claude-Meter";
 
-    public static final int VERSION_CODE = 1;
-    public static final String VERSION_NAME = "0.1.0";
+    public static final int VERSION_CODE = BuildConfig.VERSION_CODE;
+    public static final String VERSION_NAME = BuildConfig.VERSION_NAME;
 
     private AppConstants() {}
 
@@ -33,5 +33,4 @@ public final class AppConstants {
                 + (Build.VERSION.RELEASE == null ? "unknown" : Build.VERSION.RELEASE)
                 + "; " + (Build.MODEL == null ? "Android" : Build.MODEL) + ")";
     }
-
 }
