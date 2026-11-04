@@ -21,7 +21,8 @@ public final class UsageApi {
         String key = apiKey == null ? "" : apiKey.trim();
         if (key.isEmpty()) throw new Exception("Enter an Anthropic credential.");
 
-        Response models = request(context, AppConstants.MODELS_URL + "?limit=1", key, false);
+        Response models = request(context, AppConstants.MODELS_URL + "?limit=1",
+                key, AuthMode.API_KEY, false);
         if (isSuccess(models)) {
             SecureTokenStore.save(context, new AuthTokens(key));
             return;
@@ -54,7 +55,8 @@ public final class UsageApi {
         String key = credential.accessToken;
         String modelsJson = "";
         try {
-            Response models = request(app, AppConstants.MODELS_URL + "?limit=100", key, false);
+            Response models = request(app, AppConstants.MODELS_URL + "?limit=100",
+                    key, AuthMode.API_KEY, false);
             if (isSuccess(models)) modelsJson = models.body;
 
             Instant now = Instant.now();
@@ -120,11 +122,15 @@ public final class UsageApi {
                 + "?starting_at=" + encode(start.toString())
                 + "&ending_at=" + encode(end.toString())
                 + "&limit=1000";
-        return request(context, url, key, true);
+        Response response = request(context, url, key, AuthMode.API_KEY, true);
+        if (response.status == 401 || response.status == 403) {
+            response = request(context, url, key, AuthMode.BEARER, true);
+        }
+        return response;
     }
 
-    private static Response request(Context context, String url, String key, boolean analytics)
-            throws Exception {
+    private static Response request(Context context, String url, String key, AuthMode authMode,
+            boolean analytics) throws Exception {
         HttpsURLConnection connection =
                 (HttpsURLConnection) URI.create(url).toURL().openConnection();
         long started = SystemClock.elapsedRealtime();
@@ -136,11 +142,13 @@ public final class UsageApi {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("anthropic-version", AppConstants.API_VERSION);
             connection.setRequestProperty("User-Agent", AppConstants.userAgent());
-            if (analytics) {
-                connection.setRequestProperty("x-api-key", key);
-                connection.setRequestProperty("anthropic-beta", AppConstants.ANALYTICS_BETA);
-            } else {
+            if (authMode == AuthMode.BEARER) {
                 connection.setRequestProperty("Authorization", "Bearer " + key);
+            } else {
+                connection.setRequestProperty("x-api-key", key);
+            }
+            if (analytics) {
+                connection.setRequestProperty("anthropic-beta", AppConstants.ANALYTICS_BETA);
             }
 
             int status = connection.getResponseCode();
@@ -195,6 +203,11 @@ public final class UsageApi {
         if (message == null || message.trim().isEmpty()) return "Anthropic request failed.";
         String value = message.trim();
         return value.length() > 240 ? value.substring(0, 240) : value;
+    }
+
+    private enum AuthMode {
+        API_KEY,
+        BEARER
     }
 
     private static final class Response {
