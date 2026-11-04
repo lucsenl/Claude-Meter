@@ -208,7 +208,7 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void buildWelcome() {
         addIntro("Meet Claude Meter",
-                "Your Claude usage limits, reset timing, and available reset credits in one "
+                "Your Claude usage limits, reset timing, and available extra usage in one "
                         + "quick One UI view.",
                 R.drawable.ic_oui_battery);
 

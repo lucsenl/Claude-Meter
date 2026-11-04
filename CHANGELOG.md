@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 — 2026-11-04
+
+### Android UI recovery preview
+
+- Restored the original full One UI dashboard, settings, history, notifications, and home / Samsung lock-screen widgets.
+- Implemented Claude OAuth authorization-code copy/paste with PKCE S256 and minimal subscription scopes.
+- Removed Android Wear OS binaries and phone-to-watch synchronization.
+- Mapped unsupported legacy reset-credit actions to Claude-safe unavailable states.
+- Android phone package ID `dev.lucsenl.claudemeter`.
+
+**Preview:** real Claude sign-in and end-to-end visual parity require device validation.
+
+
 ## 2.8.0 — 2026-08-14
 
 ### Added

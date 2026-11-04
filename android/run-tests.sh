@@ -79,9 +79,9 @@ java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ParserSelfTest
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeOAuthProtocolTest
 
 # Claude Meter source-contract checks.
-grep -q 'VERSION_NAME = "2.8.0"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
-grep -q 'VERSION_CODE = 30' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
-grep -q 'applicationId = "dev.bennett.claudemeter"' "$ROOT/app/build.gradle.kts"
+grep -q 'VERSION_NAME = "0.2.0"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'VERSION_CODE = 2' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'applicationId = "dev.lucsenl.claudemeter"' "$ROOT/app/build.gradle.kts"
 grep -q 'https://claude.com/cai/oauth/authorize' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://platform.claude.com/v1/oauth/token' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://api.anthropic.com/api/oauth/usage' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"

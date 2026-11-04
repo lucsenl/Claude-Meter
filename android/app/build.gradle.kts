@@ -7,11 +7,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "dev.bennett.claudemeter"
+        applicationId = "dev.lucsenl.claudemeter"
         minSdk = 26
         targetSdk = 36
-        versionCode = 30
-        versionName = "2.8.0"
+        versionCode = 2
+        versionName = "0.2.0"
         providers.gradleProperty("demoVersionCode").orNull?.toIntOrNull()?.let {
             versionCode = it
         }

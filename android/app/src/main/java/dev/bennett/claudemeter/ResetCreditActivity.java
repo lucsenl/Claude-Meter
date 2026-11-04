@@ -137,7 +137,7 @@ public final class ResetCreditActivity extends AppCompatActivity {
             card.addView(missing);
         } else if (availableCount == 0) {
             card.addView(Ui.actionRow(this, "No available credits",
-                    "Earn credits from Claude Claude", 0, null));
+                    "Claude does not provide reset-credit redemption", 0, null));
         }
     }
 

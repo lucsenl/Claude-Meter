@@ -775,7 +775,7 @@ public final class MainActivity extends AppCompatActivity {
         if (available > 0) {
             return "Expiration details unavailable";
         }
-        return "Earn credits from Claude Claude";
+        return "Claude does not support reset credits";
     }
 
     private void openResetCredits() {
