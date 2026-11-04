@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
