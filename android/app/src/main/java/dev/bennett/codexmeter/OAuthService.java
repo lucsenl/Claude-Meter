@@ -100,7 +100,7 @@ public final class OAuthService extends Service {
         try {
             Pkce pkce = Pkce.generate();
             int port = bindServer();
-            String redirectUri = "http://localhost:" + port + "/auth/callback";
+            String redirectUri = "http://localhost:" + port + "/callback";
             String authUrl = buildAuthorizeUrl(redirectUri, pkce);
             AppPreferences.setOAuthPending(this, true, authUrl);
             updateNotification("Complete sign-in in your browser", authUrl);
@@ -114,7 +114,7 @@ public final class OAuthService extends Service {
                 }
                 browser.setSoTimeout(30000);
                 Callback callback = readCallback(browser);
-                if (!"/auth/callback".equals(callback.path)) {
+                if (!"/callback".equals(callback.path)) {
                     writeBrowser(browser, 404, "Not found", false);
                     closeQuietly(browser);
                     browser = null;
@@ -123,7 +123,7 @@ public final class OAuthService extends Service {
                 if (!secureEquals(pkce.state, callback.parameters.get("state"))) {
                     DiagnosticLog.warn(this, "auth", "oauth_callback_state_mismatch");
                     writeBrowser(browser, 400,
-                            "The sign-in state did not match. Return to Codex Meter and try again.", false);
+                            "The sign-in state did not match. Return to Claude Meter and try again.", false);
                     closeQuietly(browser);
                     browser = null;
                     continue;
@@ -146,9 +146,9 @@ public final class OAuthService extends Service {
                     throw new Exception("Sign-in failed because no authorization code was returned.");
                 }
 
-                updateNotification("Securing your ChatGPT session…", null);
+                updateNotification("Securing your Claude session…", null);
                 AuthTokens tokens = OAuthClient.exchangeCode(this, code, redirectUri,
-                        pkce.verifier);
+                        pkce.verifier, pkce.state);
                 SecureTokenStore.save(this, tokens);
                 credentialsCommitted = true;
                 AppPreferences.setOAuthPending(this, false, "");
@@ -158,7 +158,7 @@ public final class OAuthService extends Service {
                 // exchange into a misleading browser error page.
                 try {
                     writeBrowser(browser, 200,
-                            "Your ChatGPT account is connected. Returning to Codex Meter…", true);
+                            "Your Claude account is connected. Returning to Claude Meter…", true);
                 } catch (Exception ignored) {
                     // The user may have closed the browser after authorization. Authentication
                     // remains valid and the application still receives the result broadcast.
@@ -167,7 +167,7 @@ public final class OAuthService extends Service {
                 browser = null;
                 broadcastResult(true, "Signed in successfully.");
 
-                updateNotification("Loading Codex usage…", null);
+                updateNotification("Loading Claude usage…", null);
                 performPostAuthenticationSetup();
                 DiagnosticLog.info(this, "auth", "oauth_flow_succeeded",
                         "duration_ms", android.os.SystemClock.elapsedRealtime() - started);
@@ -233,7 +233,7 @@ public final class OAuthService extends Service {
                 last = exception;
             }
         }
-        throw new Exception("Could not open the local OAuth callback port (1455 or 1457).", last);
+        throw new Exception("Could not open the local OAuth callback port (53692).", last);
     }
 
     private static String buildAuthorizeUrl(String redirectUri, Pkce pkce) throws Exception {
@@ -244,10 +244,8 @@ public final class OAuthService extends Service {
         params.put("scope", AppConstants.OAUTH_SCOPE);
         params.put("code_challenge", pkce.challenge);
         params.put("code_challenge_method", "S256");
-        params.put("id_token_add_organizations", "true");
-        params.put("codex_cli_simplified_flow", "true");
         params.put("state", pkce.state);
-        params.put("originator", AppConstants.ORIGINATOR);
+        params.put("code", "true");
         StringBuilder query = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (query.length() > 0) query.append('&');
@@ -388,7 +386,7 @@ public final class OAuthService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_oui_notification)
-                .setContentTitle("Codex Meter sign-in")
+                .setContentTitle("Claude Meter sign-in")
                 .setContentText(text)
                 .setContentIntent(open)
                 .addAction(new Notification.Action.Builder(

@@ -162,6 +162,14 @@ public final class AppPreferences {
         }
     }
 
+    public static void clearResetCredits(Context context) {
+        prefs(context).edit()
+                .remove(KEY_RESET_CREDITS)
+                .remove(KEY_RESET_ERROR)
+                .remove(KEY_RESET_ERROR_AT)
+                .commit();
+    }
+
     public static ResetCreditsSnapshot loadResetCredits(Context context) {
         ResetCreditsSnapshot resetCreditsSnapshotFromJson = null;
         String string = prefs(context).getString(KEY_RESET_CREDITS, null);

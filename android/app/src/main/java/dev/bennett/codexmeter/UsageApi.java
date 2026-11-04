@@ -42,16 +42,16 @@ public final class UsageApi {
                 }
                 if (responseRequestUsage.status < 200 || responseRequestUsage.status >= 300) {
                     if (responseRequestUsage.status == 403) {
-                        str = "Codex usage access was denied for this account.";
+                        str = "Claude usage access was denied for this account.";
                     } else {
-                        str = responseRequestUsage.status == 404 ? "The Codex usage endpoint is unavailable or has changed." : "Usage refresh failed (HTTP " + responseRequestUsage.status + ").";
+                        str = responseRequestUsage.status == 404 ? "The Claude usage endpoint is unavailable or has changed." : "Usage refresh failed (HTTP " + responseRequestUsage.status + ").";
                     }
                     throw new Exception(OAuthClient.readError(responseRequestUsage.body, str));
                 }
                 usageSnapshot = UsageParser.parse(responseRequestUsage.body,
                         System.currentTimeMillis());
                 if (!usageSnapshot.hasDisplayableData()) {
-                    throw new Exception("OpenAI returned no recognizable Codex usage data.");
+                    throw new Exception("Anthropic returned no recognizable Claude usage data.");
                 }
                 UsageSnapshot previousSnapshot = AppPreferences.loadSnapshot(context);
                 if (!AppPreferences.saveSnapshot(context, usageSnapshot)) {
@@ -67,15 +67,9 @@ public final class UsageApi {
                     DiagnosticLog.error(context, "scheduler", "reset_alert_schedule_failed",
                             exception);
                 }
-                try {
-                    ResetCreditApi.refreshAndCacheLocked(context, authTokens);
-                } catch (Exception exception) {
-                    DiagnosticLog.error(context, "refresh", "reset_credit_side_refresh_failed",
-                            exception);
-                    ResetNotificationManager.onResetCreditSummaryUpdated(context,
-                            usageSnapshot.resetCreditsAvailable);
-                    AppPreferences.setResetCreditsError(context, safeMessage(exception));
-                }
+                // Reset credits are an OpenAI/Codex feature. Clear inherited cached state
+                // instead of contacting an unrelated service with the Claude OAuth token.
+                AppPreferences.clearResetCredits(context);
             }
         } catch (Exception exception) {
             DiagnosticLog.error(context, "refresh", "usage_refresh_failed", exception,
@@ -94,7 +88,7 @@ public final class UsageApi {
     static AuthTokens usableTokens(Context context) throws Exception {
         AuthTokens authTokensLoad = SecureTokenStore.load(context);
         if (authTokensLoad == null) {
-            throw new Exception("Sign in to ChatGPT first.");
+            throw new Exception("Sign in to Claude first.");
         }
         if (authTokensLoad.shouldRefresh(System.currentTimeMillis())) {
             DiagnosticLog.info(context, "auth", "token_refresh_due");
@@ -139,11 +133,8 @@ public final class UsageApi {
         httpsURLConnection.setUseCaches(false);
         httpsURLConnection.setRequestProperty("Accept", "application/json");
         httpsURLConnection.setRequestProperty("Authorization", "Bearer " + authTokens.accessToken);
+        httpsURLConnection.setRequestProperty("anthropic-beta", AppConstants.OAUTH_BETA);
         httpsURLConnection.setRequestProperty("User-Agent", AppConstants.userAgent());
-        httpsURLConnection.setRequestProperty("originator", AppConstants.ORIGINATOR);
-        if (!authTokens.accountId.isEmpty()) {
-            httpsURLConnection.setRequestProperty("ChatGPT-Account-Id", authTokens.accountId);
-        }
     }
 
     static void installCookieManager() {
@@ -161,7 +152,7 @@ public final class UsageApi {
     static String safeMessage(Exception exc) {
         String message = exc == null ? "" : exc.getMessage();
         if (message == null || message.trim().isEmpty()) {
-            return "Reset-credit refresh failed.";
+            return "Usage refresh failed.";
         }
         String strTrim = message.trim();
         return strTrim.length() > 240 ? strTrim.substring(0, 240) : strTrim;

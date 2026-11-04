@@ -19,16 +19,17 @@ public final class OAuthClient {
     private OAuthClient() {
     }
 
-    public static AuthTokens exchangeCode(Context context, String str, String str2, String str3)
-            throws Exception {
-        LinkedHashMap linkedHashMap = new LinkedHashMap();
-        linkedHashMap.put("grant_type", "authorization_code");
-        linkedHashMap.put("code", str);
-        linkedHashMap.put("redirect_uri", str2);
-        linkedHashMap.put("client_id", AppConstants.OAUTH_CLIENT_ID);
-        linkedHashMap.put("code_verifier", str3);
-        return parseTokens(postForm(context, "oauth_code_exchange", AppConstants.TOKEN_URL,
-                linkedHashMap), null);
+    public static AuthTokens exchangeCode(Context context, String code, String redirectUri,
+            String verifier, String state) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("grant_type", "authorization_code");
+        body.put("code", code);
+        body.put("redirect_uri", redirectUri);
+        body.put("client_id", AppConstants.OAUTH_CLIENT_ID);
+        body.put("code_verifier", verifier);
+        body.put("state", state);
+        return parseTokens(postJson(context, "oauth_code_exchange", AppConstants.TOKEN_URL,
+                body), null);
     }
 
     public static AuthTokens refresh(Context context, AuthTokens authTokens) throws Exception {
@@ -41,7 +42,7 @@ public final class OAuthClient {
     }
 
     public static void revokeBestEffort(Context context, AuthTokens authTokens) {
-        if (authTokens != null && !authTokens.refreshToken.isEmpty()) {
+        if (authTokens != null && !authTokens.refreshToken.isEmpty() && !AppConstants.REVOKE_URL.isEmpty()) {
             JSONObject jSONObject = new JSONObject();
             try {
                 jSONObject.put("token", authTokens.refreshToken);
