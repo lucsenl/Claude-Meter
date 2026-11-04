@@ -12,20 +12,6 @@ android {
         targetSdk = 36
         versionCode = 30
         versionName = "2.8.0"
-        providers.gradleProperty("demoVersionCode").orNull?.toIntOrNull()?.let {
-            versionCode = it
-        }
-        providers.gradleProperty("demoVersionName").orNull?.let {
-            versionName = it
-        }
-        val updateApiUrl = providers.gradleProperty("demoUpdateUrl").orNull
-            ?: "https://api.github.com/repos/lucsenl/Claude-Meter/releases?per_page=30" // pragma: allowlist secret
-        buildConfigField("String", "UPDATE_API_URL",
-            "\"${updateApiUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 
     signingConfigs {
@@ -80,8 +66,6 @@ configurations.configureEach {
 }
 
 dependencies {
-    implementation(project(":shared"))
-    implementation("com.google.android.gms:play-services-wearable:19.0.0")
     implementation("io.github.tribalfs:oneui-design:0.9.14+oneui8")
     implementation("io.github.oneuiproject:icons:1.1.0")
 }
