@@ -483,7 +483,7 @@ public final class NowBarManager {
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_PROGRESS)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setColor(accelerated ? Ui.warning(false) : Color.rgb(3, 129, 254))
+                .setColor(accelerated ? Ui.warning(false) : Ui.oneUiAccent(false))
                 .setShowWhen(false)
                 .addAction(new Notification.Action.Builder(
                         stopActionIcon, "Stop", stopIntent).build());
@@ -594,7 +594,7 @@ public final class NowBarManager {
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "style", 1);
         extras.putParcelable(SAMSUNG_ONGOING_PREFIX + "chipIcon", chipIcon);
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "chipBgColor",
-                accelerated ? Ui.warning(false) : Color.rgb(3, 129, 254));
+                accelerated ? Ui.warning(false) : Ui.oneUiAccent(false));
         extras.putCharSequence(SAMSUNG_ONGOING_PREFIX + "chipExpandedText",
                 NowBarCopy.chipExpandedText(weeklyFocus ? longLabel : "5-hour",
                         progressWindow, observedAt, now));
@@ -782,7 +782,7 @@ public final class NowBarManager {
                     .setProgressSegments(Collections.singletonList(
                             new Notification.ProgressStyle.Segment(100)
                                     .setColor(accelerated
-                                            ? Ui.warning(false) : Color.rgb(3, 129, 254))));
+                                            ? Ui.warning(false) : Ui.oneUiAccent(false))));
             builder.setStyle(style).setShortCriticalText(criticalText);
         }
 
