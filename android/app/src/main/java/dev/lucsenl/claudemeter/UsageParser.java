@@ -1,105 +1,119 @@
 package dev.lucsenl.claudemeter;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** Parsers for Anthropic public Analytics, Cost and Models API responses. */
+/** Defensive parser for Claude OAuth profile and subscription usage responses. */
 public final class UsageParser {
     private UsageParser() {}
 
-    public static UsageSnapshot parseAnalytics(String todayJson, String weekJson,
-            String costJson, String modelsJson, String organizationJson,
+    public static UsageSnapshot parse(String usageJson, String profileJson,
             long fetchedAtMillis) throws JSONException {
-        Totals today = usageTotals(todayJson);
-        Totals week = usageTotals(weekJson);
-        String cost = costUsd(costJson);
-        List<String> models = models(modelsJson);
-        String orgId = "";
-        String orgName = "";
-        if (organizationJson != null && !organizationJson.trim().isEmpty()) {
-            JSONObject org = new JSONObject(organizationJson);
-            JSONObject data = org.optJSONObject("data");
-            JSONObject source = data == null ? org : data;
-            orgId = source.optString("id", "");
-            orgName = firstNonEmpty(source.optString("name", ""),
-                    source.optString("display_name", ""));
-        }
-        return new UsageSnapshot(true, "", orgId, orgName,
-                today.tokens, today.requests, week.tokens, week.requests,
-                cost, models, fetchedAtMillis);
+        JSONObject usage = new JSONObject(usageJson == null ? "{}" : usageJson);
+        JSONObject profile = new JSONObject(profileJson == null ? "{}" : profileJson);
+
+        JSONObject account = profile.optJSONObject("account");
+        JSONObject organization = profile.optJSONObject("organization");
+        if (account == null) account = new JSONObject();
+        if (organization == null) organization = new JSONObject();
+
+        String email = firstNonEmpty(
+                account.optString("email", ""),
+                account.optString("email_address", ""));
+        String displayName = firstNonEmpty(
+                account.optString("display_name", ""),
+                account.optString("full_name", ""));
+        String organizationType = organization.optString("organization_type", "");
+        String rateLimitTier = organization.optString("rate_limit_tier", "");
+        String subscriptionStatus = organization.optString("subscription_status", "");
+        String plan = planLabel(account, organizationType, rateLimitTier);
+
+        Window five = window(usage.optJSONObject("five_hour"));
+        Window seven = window(usage.optJSONObject("seven_day"));
+
+        ArrayList<UsageSnapshot.ScopedLimit> scoped = parseScopedLimits(usage);
+        addLegacyScoped(scoped, usage, "seven_day_opus", "Opus · Weekly");
+        addLegacyScoped(scoped, usage, "seven_day_sonnet", "Sonnet · Weekly");
+        addLegacyScoped(scoped, usage, "seven_day_cowork", "Cowork · Weekly");
+        addLegacyScoped(scoped, usage, "seven_day_oauth_apps", "OAuth apps · Weekly");
+
+        JSONObject extra = usage.optJSONObject("extra_usage");
+        boolean extraEnabled = extra != null && extra.optBoolean("is_enabled", false);
+
+        return new UsageSnapshot(
+                email, displayName, plan, organizationType, rateLimitTier, subscriptionStatus,
+                five.utilization, five.resetsAt,
+                seven.utilization, seven.resetsAt,
+                scoped, extraEnabled,
+                usage.optBoolean("member_dashboard_available", false),
+                fetchedAtMillis);
     }
 
-    public static UsageSnapshot analyticsUnavailable(String message, String modelsJson,
-            String organizationJson, long fetchedAtMillis) throws JSONException {
-        List<String> modelList = models(modelsJson);
-        String orgId = "";
-        String orgName = "";
-        if (organizationJson != null && !organizationJson.trim().isEmpty()) {
-            JSONObject org = new JSONObject(organizationJson);
-            JSONObject data = org.optJSONObject("data");
-            JSONObject source = data == null ? org : data;
-            orgId = source.optString("id", "");
-            orgName = firstNonEmpty(source.optString("name", ""),
-                    source.optString("display_name", ""));
-        }
-        return new UsageSnapshot(false, message, orgId, orgName,
-                0, 0, 0, 0, "", modelList, fetchedAtMillis);
+    static Window window(JSONObject json) {
+        if (json == null) return new Window(-1d, "");
+        double utilization = json.has("utilization")
+                && !json.isNull("utilization")
+                ? json.optDouble("utilization", -1d) : -1d;
+        return new Window(utilization, json.optString("resets_at", ""));
     }
 
-    static Totals usageTotals(String raw) throws JSONException {
-        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
-        JSONArray data = root.optJSONArray("data");
-        long tokens = 0L;
-        long requests = 0L;
-        if (data != null) {
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject row = data.optJSONObject(i);
-                JSONObject usage = row == null ? null : row.optJSONObject("usage");
-                if (usage == null) continue;
-                tokens += Math.max(0L, usage.optLong("total_tokens", 0L));
-                requests += Math.max(0L, usage.optLong("requests", 0L));
-            }
+    static ArrayList<UsageSnapshot.ScopedLimit> parseScopedLimits(JSONObject usage) {
+        ArrayList<UsageSnapshot.ScopedLimit> values = new ArrayList<>();
+        JSONArray limits = usage.optJSONArray("limits");
+        if (limits == null) return values;
+
+        Set<String> seen = new HashSet<>();
+        for (int i = 0; i < limits.length(); i++) {
+            JSONObject item = limits.optJSONObject(i);
+            if (item == null) continue;
+            JSONObject scope = item.optJSONObject("scope");
+            JSONObject model = scope == null ? null : scope.optJSONObject("model");
+            String modelName = model == null ? "" : model.optString("display_name", "").trim();
+            if (modelName.isEmpty() || !item.has("percent") || item.isNull("percent")) continue;
+
+            double percent = item.optDouble("percent", -1d);
+            if (percent < 0d) continue;
+            String label = modelName + " · Weekly";
+            if (!seen.add(label.toLowerCase(Locale.US))) continue;
+            values.add(new UsageSnapshot.ScopedLimit(
+                    label, percent, item.optString("resets_at", ""),
+                    item.optBoolean("is_active", false)));
         }
-        return new Totals(tokens, requests);
+        return values;
     }
 
-    static String costUsd(String raw) throws JSONException {
-        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
-        JSONArray data = root.optJSONArray("data");
-        BigDecimal cents = BigDecimal.ZERO;
-        if (data != null) {
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject row = data.optJSONObject(i);
-                JSONObject cost = row == null ? null : row.optJSONObject("cost");
-                if (cost == null) continue;
-                try {
-                    cents = cents.add(new BigDecimal(cost.optString("amount", "0")));
-                } catch (NumberFormatException ignored) {}
-            }
+    private static void addLegacyScoped(List<UsageSnapshot.ScopedLimit> values,
+            JSONObject usage, String key, String label) {
+        JSONObject object = usage.optJSONObject(key);
+        if (object == null) return;
+        Window value = window(object);
+        if (value.utilization < 0d) return;
+        for (UsageSnapshot.ScopedLimit existing : values) {
+            if (existing.label.equalsIgnoreCase(label)) return;
         }
-        return cents.divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP).toPlainString();
+        values.add(new UsageSnapshot.ScopedLimit(label, value.utilization, value.resetsAt, false));
     }
 
-    static List<String> models(String raw) throws JSONException {
-        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
-        JSONArray data = root.optJSONArray("data");
-        LinkedHashSet<String> values = new LinkedHashSet<>();
-        if (data != null) {
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject model = data.optJSONObject(i);
-                if (model == null) continue;
-                String value = firstNonEmpty(model.optString("display_name", ""),
-                        model.optString("id", ""));
-                if (!value.isEmpty()) values.add(value);
-            }
+    static String planLabel(JSONObject account, String organizationType, String rateLimitTier) {
+        String type = organizationType == null ? "" : organizationType.toLowerCase(Locale.US);
+        String tier = rateLimitTier == null ? "" : rateLimitTier.toLowerCase(Locale.US);
+
+        if (type.contains("max") || account.optBoolean("has_claude_max", false)) {
+            if (tier.contains("20x")) return "Max 20×";
+            if (tier.contains("5x")) return "Max 5×";
+            return "Max";
         }
-        return new ArrayList<>(values);
+        if (type.contains("pro") || account.optBoolean("has_claude_pro", false)) return "Pro";
+        if (type.contains("team")) return "Team";
+        if (type.contains("enterprise")) return "Enterprise";
+        if (!organizationType.isEmpty()) return organizationType;
+        return "Claude";
     }
 
     static String firstNonEmpty(String... values) {
@@ -109,12 +123,13 @@ public final class UsageParser {
         return "";
     }
 
-    static final class Totals {
-        final long tokens;
-        final long requests;
-        Totals(long tokens, long requests) {
-            this.tokens = tokens;
-            this.requests = requests;
+    static final class Window {
+        final double utilization;
+        final String resetsAt;
+
+        Window(double utilization, String resetsAt) {
+            this.utilization = utilization;
+            this.resetsAt = resetsAt == null ? "" : resetsAt.trim();
         }
     }
 }
