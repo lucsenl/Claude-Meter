@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.bennett.codexmeter"
+    namespace = "dev.bennett.claudemeter"
     compileSdk {
         version = release(37) {
             minorApiLevel = 0
@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.bennett.codexmeter"
+        applicationId = "dev.bennett.claudemeter"
         minSdk = 30
         targetSdk = 36
         versionCode = 30
@@ -21,13 +21,13 @@ android {
     signingConfigs {
         create("localRelease") {
             val signingDir = rootProject.file(".local-signing")
-            val keyStore = signingDir.resolve("codex-meter-local.p12")
+            val keyStore = signingDir.resolve("claude-meter-local.p12")
             val passwordFile = signingDir.resolve("password")
             if (keyStore.isFile && passwordFile.isFile) {
                 storeFile = keyStore
                 storeType = "PKCS12"
                 storePassword = passwordFile.readText().trim()
-                keyAlias = "codexmeter"
+                keyAlias = "claudemeter"
                 keyPassword = storePassword
             }
         }

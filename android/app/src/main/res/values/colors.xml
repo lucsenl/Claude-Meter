@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Official One UI Primary / Primary dark (Samsung design guide). -->
-    <color name="oneui_primary">#0381FE</color>
-    <color name="oneui_primary_dark">#0072DE</color>
-    <color name="widget_setting_progress_color_control_normal">#66C9C9CC</color>
-    <color name="widget_setting_seek_bar_thumb_background_tint">#FCFCFF</color>
-    <color name="widget_setting_seek_bar_thumb_tint">@color/oneui_primary</color>
-    <color name="widget_setting_seek_bar_tick_mark_solid_color">#FFA6A6A9</color>
-    <color name="widget_config_divider">#E4E4E6</color>
-    <color name="oneui_bg">#F1F1F3</color>
-    <color name="oneui_card_bg">#FCFCFF</color>
-    <color name="oneui_text_primary">#000000</color>
-    <color name="oneui_text_secondary">#747477</color>
-    <color name="oneui_divider">#E4E4E6</color>
-    <color name="about_gradient_start">#F1F1F3</color>
-    <color name="about_gradient_center">#D1D0F7</color>
-    <color name="about_gradient_end">#91A7F2</color>
+    <color name="claude_dark">#141413</color>
+    <color name="claude_light">#FAF9F5</color>
+    <color name="claude_mid_gray">#B0AEA5</color>
+    <color name="claude_light_gray">#E8E6DC</color>
+    <color name="claude_orange">#D97757</color>
+    <color name="claude_blue">#6A9BCC</color>
+    <color name="claude_green">#788C5D</color>
+    <color name="oneui_primary">@color/claude_orange</color>
+    <color name="oneui_primary_dark">@color/claude_dark</color>
+    <color name="widget_setting_progress_color_control_normal">#66B0AEA5</color>
+    <color name="widget_setting_seek_bar_thumb_background_tint">@color/claude_light</color>
+    <color name="widget_setting_seek_bar_thumb_tint">@color/claude_orange</color>
+    <color name="widget_setting_seek_bar_tick_mark_solid_color">@color/claude_mid_gray</color>
+    <color name="widget_config_divider">@color/claude_light_gray</color>
+    <color name="oneui_bg">@color/claude_light</color>
+    <color name="oneui_card_bg">#FFFFFFFF</color>
+    <color name="oneui_text_primary">@color/claude_dark</color>
+    <color name="oneui_text_secondary">#6E6D67</color>
+    <color name="oneui_divider">@color/claude_light_gray</color>
+    <color name="about_gradient_start">@color/claude_light</color>
+    <color name="about_gradient_center">@color/claude_light_gray</color>
+    <color name="about_gradient_end">@color/claude_orange</color>
 </resources>
