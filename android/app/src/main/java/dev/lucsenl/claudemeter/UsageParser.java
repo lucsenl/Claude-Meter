@@ -1,172 +1,120 @@
 package dev.lucsenl.claudemeter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/* JADX INFO: loaded from: classes.dex */
+/** Parsers for Anthropic public Analytics, Cost and Models API responses. */
 public final class UsageParser {
-    private static final long FIVE_HOURS = 18000;
-    private static final long WEEK = 604800;
-    private static final long MONTH = 2592000;
-    // Free-tier accounts report a single ~30-day Claude window; accept 10-45 days so calendar
-    // months and drifting billing periods still classify while staying clear of the weekly
-    // window's 9-day ceiling.
-    private static final long MONTH_MIN = 864000;
-    private static final long MONTH_MAX = 3888000;
+    private UsageParser() {}
 
-    private UsageParser() {
+    public static UsageSnapshot parseAnalytics(String todayJson, String weekJson,
+            String costJson, String modelsJson, String organizationJson,
+            long fetchedAtMillis) throws JSONException {
+        Totals today = usageTotals(todayJson);
+        Totals week = usageTotals(weekJson);
+        String cost = costUsd(costJson);
+        List<String> models = models(modelsJson);
+        String orgId = "";
+        String orgName = "";
+        if (organizationJson != null && !organizationJson.trim().isEmpty()) {
+            JSONObject org = new JSONObject(organizationJson);
+            JSONObject data = org.optJSONObject("data");
+            JSONObject source = data == null ? org : data;
+            orgId = source.optString("id", "");
+            orgName = firstNonEmpty(source.optString("name", ""),
+                    source.optString("display_name", ""));
+        }
+        return new UsageSnapshot(true, "", orgId, orgName,
+                today.tokens, today.requests, week.tokens, week.requests,
+                cost, models, fetchedAtMillis);
     }
 
-    public static UsageSnapshot parse(String str, long j) throws JSONException {
-        boolean z;
-        boolean z2;
-        UsageWindow usageWindow;
-        JSONObject jSONObject = new JSONObject(str);
-        String strOptString = jSONObject.optString("plan_type", "");
-        JSONObject jSONObjectNullableObject = nullableObject(jSONObject, "rate_limit");
-        ArrayList arrayList = new ArrayList();
-        ArrayList<UsageLimit> additionalLimits = new ArrayList<>();
-        UsageWindow usageWindowFromJson = null;
-        if (jSONObjectNullableObject == null) {
-            z = true;
-            z2 = false;
-            usageWindow = null;
-        } else {
-            boolean zOptBoolean = jSONObjectNullableObject.optBoolean("allowed", true);
-            boolean zOptBoolean2 = jSONObjectNullableObject.optBoolean("limit_reached", false);
-            UsageWindow usageWindowFromJson2 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject, "primary_window"));
-            usageWindowFromJson = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject, "secondary_window"));
-            if (usageWindowFromJson2 != null) {
-                arrayList.add(usageWindowFromJson2);
-            }
-            if (usageWindowFromJson != null) {
-                arrayList.add(usageWindowFromJson);
-            }
-            z = zOptBoolean;
-            z2 = zOptBoolean2;
-            usageWindow = usageWindowFromJson2;
+    public static UsageSnapshot analyticsUnavailable(String message, String modelsJson,
+            String organizationJson, long fetchedAtMillis) throws JSONException {
+        List<String> modelList = models(modelsJson);
+        String orgId = "";
+        String orgName = "";
+        if (organizationJson != null && !organizationJson.trim().isEmpty()) {
+            JSONObject org = new JSONObject(organizationJson);
+            JSONObject data = org.optJSONObject("data");
+            JSONObject source = data == null ? org : data;
+            orgId = source.optString("id", "");
+            orgName = firstNonEmpty(source.optString("name", ""),
+                    source.optString("display_name", ""));
         }
-        JSONArray jSONArrayOptJSONArray = jSONObject.optJSONArray("additional_rate_limits");
-        if (jSONArrayOptJSONArray != null) {
-            for (int i = 0; i < jSONArrayOptJSONArray.length(); i++) {
-                JSONObject jSONObjectOptJSONObject = jSONArrayOptJSONArray.optJSONObject(i);
-                if (jSONObjectOptJSONObject != null) {
-                    JSONObject jSONObjectNullableObject2 = nullableObject(jSONObjectOptJSONObject, "rate_limit");
-                    if (jSONObjectNullableObject2 == null) {
-                        jSONObjectNullableObject2 = jSONObjectOptJSONObject;
-                    }
-                    UsageWindow usageWindowFromJson3 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject2, "primary_window"));
-                    UsageWindow usageWindowFromJson4 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject2, "secondary_window"));
-                    if (usageWindowFromJson3 != null || usageWindowFromJson4 != null) {
-                        String name = jSONObjectOptJSONObject.optString("limit_name", "");
-                        String feature = jSONObjectOptJSONObject.optString("metered_feature", "");
-                        String id = firstNonEmpty(
-                                jSONObjectOptJSONObject.optString("limit_id", ""),
-                                name, feature, "additional");
-                        additionalLimits.add(new UsageLimit(
-                                id + "-" + i,
-                                name,
-                                feature,
-                                jSONObjectNullableObject2.optBoolean("allowed", true),
-                                jSONObjectNullableObject2.optBoolean("limit_reached", false),
-                                usageWindowFromJson3,
-                                usageWindowFromJson4));
-                    }
-                }
-            }
-        }
-        UsageWindow usageWindowNearest = nearest(arrayList, FIVE_HOURS, 10800L, 28800L);
-        UsageWindow usageWindowNearestExcluding = nearestExcluding(arrayList, WEEK, 432000L, 777600L, usageWindowNearest);
-        UsageWindow usageWindowMonthly = nearestExcluding(arrayList, MONTH, MONTH_MIN, MONTH_MAX,
-                usageWindowNearest, usageWindowNearestExcluding);
-        JSONObject jSONObjectNullableObject3 = nullableObject(jSONObject, "rate_limit_reset_credits");
-        UsageCredits usageCredits = UsageCredits.fromJson(nullableObject(jSONObject, "credits"));
-        return new UsageSnapshot(
-                strOptString,
-                z,
-                z2,
-                usageWindowNearest,
-                usageWindowNearestExcluding,
-                usageWindowMonthly,
-                additionalLimits,
-                usageCredits,
-                jSONObjectNullableObject3 == null
-                        ? -1 : jSONObjectNullableObject3.optInt("available_count", -1),
-                j);
+        return new UsageSnapshot(false, message, orgId, orgName,
+                0, 0, 0, 0, "", modelList, fetchedAtMillis);
     }
 
-    private static String firstNonEmpty(String... values) {
+    static Totals usageTotals(String raw) throws JSONException {
+        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
+        JSONArray data = root.optJSONArray("data");
+        long tokens = 0L;
+        long requests = 0L;
+        if (data != null) {
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject row = data.optJSONObject(i);
+                JSONObject usage = row == null ? null : row.optJSONObject("usage");
+                if (usage == null) continue;
+                tokens += Math.max(0L, usage.optLong("total_tokens", 0L));
+                requests += Math.max(0L, usage.optLong("requests", 0L));
+            }
+        }
+        return new Totals(tokens, requests);
+    }
+
+    static String costUsd(String raw) throws JSONException {
+        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
+        JSONArray data = root.optJSONArray("data");
+        BigDecimal cents = BigDecimal.ZERO;
+        if (data != null) {
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject row = data.optJSONObject(i);
+                JSONObject cost = row == null ? null : row.optJSONObject("cost");
+                if (cost == null) continue;
+                try {
+                    cents = cents.add(new BigDecimal(cost.optString("amount", "0")));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return cents.divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP).toPlainString();
+    }
+
+    static List<String> models(String raw) throws JSONException {
+        JSONObject root = new JSONObject(raw == null ? "{}" : raw);
+        JSONArray data = root.optJSONArray("data");
+        LinkedHashSet<String> values = new LinkedHashSet<>();
+        if (data != null) {
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject model = data.optJSONObject(i);
+                if (model == null) continue;
+                String value = firstNonEmpty(model.optString("display_name", ""),
+                        model.optString("id", ""));
+                if (!value.isEmpty()) values.add(value);
+            }
+        }
+        return new ArrayList<>(values);
+    }
+
+    static String firstNonEmpty(String... values) {
         for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
-                return value.trim();
-            }
+            if (value != null && !value.trim().isEmpty()) return value.trim();
         }
         return "";
     }
 
-    private static JSONObject nullableObject(JSONObject jSONObject, String str) {
-        if (jSONObject == null || jSONObject.isNull(str)) {
-            return null;
+    static final class Totals {
+        final long tokens;
+        final long requests;
+        Totals(long tokens, long requests) {
+            this.tokens = tokens;
+            this.requests = requests;
         }
-        return jSONObject.optJSONObject(str);
     }
-
-    private static UsageWindow nearest(List<UsageWindow> list, long j, long j2, long j3) {
-        UsageWindow usageWindow;
-        long j4;
-        UsageWindow usageWindow2 = null;
-        long j5 = Long.MAX_VALUE;
-        for (UsageWindow usageWindow3 : list) {
-            if (usageWindow3.windowSeconds < j2 || usageWindow3.windowSeconds > j3) {
-                long j6 = j5;
-                usageWindow = usageWindow2;
-                j4 = j6;
-            } else {
-                long jAbs = Math.abs(usageWindow3.windowSeconds - j);
-                if (jAbs < j5) {
-                    usageWindow = usageWindow3;
-                    j4 = jAbs;
-                } else {
-                    long j7 = j5;
-                    usageWindow = usageWindow2;
-                    j4 = j7;
-                }
-            }
-            usageWindow2 = usageWindow;
-            j5 = j4;
-        }
-        return usageWindow2;
-    }
-
-    private static UsageWindow nearestExcluding(List<UsageWindow> list, long target,
-            long minimumSeconds, long maximumSeconds, UsageWindow... excluded) {
-        UsageWindow best = null;
-        long bestDistance = Long.MAX_VALUE;
-        for (UsageWindow candidate : list) {
-            if (isExcluded(candidate, excluded)
-                    || candidate.windowSeconds < minimumSeconds
-                    || candidate.windowSeconds > maximumSeconds) {
-                continue;
-            }
-            long distance = Math.abs(candidate.windowSeconds - target);
-            if (distance < bestDistance) {
-                best = candidate;
-                bestDistance = distance;
-            }
-        }
-        return best;
-    }
-
-    private static boolean isExcluded(UsageWindow candidate, UsageWindow[] excluded) {
-        for (UsageWindow window : excluded) {
-            if (candidate == window) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
