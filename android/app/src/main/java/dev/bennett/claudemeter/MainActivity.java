@@ -787,12 +787,8 @@ public final class MainActivity extends AppCompatActivity {
      * Unknown inventory never surfaces an empty card.
      */
     private boolean shouldShowResetCreditsCard(UsageSnapshot snapshot) {
-        ResetCreditsSnapshot credits = AppPreferences.loadResetCredits(this);
-        if (credits != null) {
-            return credits.shouldDisplay();
-        }
-        return snapshot != null
-                && ResetCreditsSnapshot.shouldDisplayCount(snapshot.resetCreditsAvailable);
+        // Claude's OAuth usage API does not provide redeemable reset credits.
+        return false;
     }
 
     private LinearLayout buildWidgetCard() {

@@ -885,7 +885,8 @@ public final class SettingsActivity extends AppCompatActivity {
                 notificationLowUsageCategory.setVisible(enabled);
             }
             if (notificationResetCreditCategory != null) {
-                notificationResetCreditCategory.setVisible(enabled);
+                // Claude subscription OAuth has no reset-credit grant or expiry events.
+                notificationResetCreditCategory.setVisible(false);
             }
             if (notificationTroubleshootingCategory != null) {
                 notificationTroubleshootingCategory.setVisible(enabled);

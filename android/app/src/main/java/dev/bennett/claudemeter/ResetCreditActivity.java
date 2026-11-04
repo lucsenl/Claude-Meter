@@ -31,10 +31,6 @@ public final class ResetCreditActivity extends AppCompatActivity {
         this.dark = Ui.isDark(this);
         this.content = Ui.installPage(this, "Claude reset", true).content;
         rebuild();
-        refreshDetailsIfNeeded();
-        if (bundle == null) {
-            maybePromptUseReset(getIntent());
-        }
     }
 
     @Override
@@ -42,7 +38,6 @@ public final class ResetCreditActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         rebuild();
-        maybePromptUseReset(intent);
     }
 
     @Override // android.app.Activity
@@ -53,48 +48,14 @@ public final class ResetCreditActivity extends AppCompatActivity {
 
     public void rebuild() {
         this.content.removeAllViews();
-        ResetCreditsSnapshot snapshot = AppPreferences.loadResetCredits(this);
-        int available = snapshot == null ? 0 : snapshot.availableCount;
-        long now = System.currentTimeMillis();
-        List<RateLimitResetCredit> availableCredits = snapshot == null
-                ? Collections.emptyList()
-                : snapshot.availableCreditsByExpiry(now);
-        long nextExpiry = snapshot == null ? 0L : snapshot.nextExpiryMillis(now);
-
-        this.content.addView(Ui.separator(this, "Available credits"));
-        RoundedLinearLayout summaryCard = Ui.seslRowCard(this, this.dark);
-        summaryCard.addView(Ui.actionRow(
-                this,
-                available <= 0
-                        ? "No resets available"
-                        : (available == 1 ? "1 reset available" : available + " resets available"),
-                summaryText(available, nextExpiry, now),
-                R.drawable.ic_oui_battery,
-                null));
-        this.content.addView(summaryCard);
-
-        this.content.addView(Ui.separator(this, "Credit expirations"));
-        RoundedLinearLayout expirations = Ui.seslRowCard(this, this.dark);
-        addCreditExpirations(expirations, availableCredits, available, now);
-        this.content.addView(expirations);
-
-        String visibleResetCreditsError = AppPreferences.getVisibleResetCreditsError(this);
-        if (!visibleResetCreditsError.isEmpty()) {
-            Ui.addSpacer(this.content, 12);
-            RoundedLinearLayout errorCard = Ui.seslCard(this, this.dark);
-            errorCard.addView(Ui.text(this, visibleResetCreditsError, 13.0f,
-                    Ui.danger(this.dark)));
-            this.content.addView(errorCard);
-        }
-
-        this.useButton = Ui.nativePrimaryButton(
-                this, available > 0 ? "Use 1 reset" : "No resets available");
-        this.useButton.setEnabled(available > 0 && SecureTokenStore.isSignedIn(this));
-        LinearLayout.LayoutParams useButtonParams =
-                new LinearLayout.LayoutParams(-1, Ui.dp(this, 60.0f));
-        useButtonParams.setMargins(0, Ui.dp(this, 22.0f), 0, Ui.dp(this, 8.0f));
-        this.useButton.setOnClickListener(view -> confirmUse());
-        this.content.addView(this.useButton, useButtonParams);
+        this.content.addView(Ui.separator(this, "Claude subscription"));
+        RoundedLinearLayout card = Ui.seslRowCard(this, this.dark);
+        card.addView(Ui.actionRow(this,
+                "Reset credits are not supported",
+                "Claude subscription OAuth does not expose credit redemption. "
+                        + "Check Extra Usage on the dashboard when your plan supports it.",
+                R.drawable.ic_oui_info_outline, null));
+        this.content.addView(card);
     }
 
     private String summaryText(int available, long nextExpiry, long now) {
