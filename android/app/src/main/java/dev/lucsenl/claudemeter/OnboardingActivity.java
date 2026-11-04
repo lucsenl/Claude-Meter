@@ -64,7 +64,7 @@ public final class OnboardingActivity extends AppCompatActivity {
 
         TextView body = Ui.text(this,
                 "Claude Meter opens Claude in your browser. Sign in with the account whose "
-                        + "subscription you want to monitor. No API key is required.",
+                        + "subscription you want to monitor. Sign-in happens entirely through Claude.",
                 15, Ui.secondaryText(dark));
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
         bp.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 18));
