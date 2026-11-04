@@ -574,30 +574,35 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private static String usageCreditBalance(UsageCredits credits) {
-        if (credits.unlimited) {
-            return "Unlimited";
+        if (!credits.usedCredits.isEmpty() && !credits.monthlyLimit.isEmpty()) {
+            return formatCreditAmount(credits.usedCredits) + " / "
+                    + formatCreditAmount(credits.monthlyLimit)
+                    + (credits.currency.isEmpty() ? "" : " " + credits.currency);
         }
-        if (credits.balance.isEmpty()) {
-            return credits.hasCredits ? "Credits available" : "No purchased credits";
+        if (!credits.usedCredits.isEmpty()) {
+            return formatCreditAmount(credits.usedCredits)
+                    + (credits.currency.isEmpty() ? " used" : " " + credits.currency + " used");
         }
-        try {
-            BigDecimal amount = new BigDecimal(credits.balance.replace(",", ""));
-            NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
-            format.setMaximumFractionDigits(2);
-            return format.format(amount) + " credits";
-        } catch (NumberFormatException ignored) {
-            return credits.balance;
-        }
+        return credits.utilization + "% used";
     }
 
     private static String usageCreditsSummary(UsageCredits credits) {
-        if (credits.unlimited) {
-            return "Usage-credit balance is not capped";
+        if (!credits.isEnabled) {
+            return "Extra usage is disabled";
         }
-        if (credits.balance.isEmpty() && !credits.hasCredits) {
-            return "Manage usage credits in Claude";
+        return "Claude Extra Usage" + (credits.utilization > 0
+                ? " · " + credits.utilization + "% of the monthly limit used" : "");
+    }
+
+    private static String formatCreditAmount(String value) {
+        try {
+            BigDecimal amount = new BigDecimal(value.replace(",", ""));
+            NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
+            format.setMaximumFractionDigits(2);
+            return format.format(amount);
+        } catch (NumberFormatException ignored) {
+            return value;
         }
-        return "Purchased Claude usage-credit balance";
     }
 
     private static String cadenceLabel(UsageWindow window) {
