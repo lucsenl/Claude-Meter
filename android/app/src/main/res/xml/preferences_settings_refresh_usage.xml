@@ -38,7 +38,7 @@
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="dashboard_additional_limits"
-            android:summary="Model-specific limits such as GPT-5.3-Claude-Spark"
+            android:summary="Model-specific limits reported by Claude"
             android:title="Additional limits" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -50,11 +50,6 @@
             android:key="dashboard_usage_history"
             android:summary="Shown only when a 5-hour or weekly window is available"
             android:title="Usage history" />
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="dashboard_reset_credits"
-            android:summary="Hidden automatically when no resets are available"
-            android:title="Reset credits" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Usage estimates">
