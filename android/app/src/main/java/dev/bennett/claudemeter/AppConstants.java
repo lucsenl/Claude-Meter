@@ -2,7 +2,6 @@ package dev.bennett.claudemeter;
 
 import android.os.Build;
 
-/* JADX INFO: loaded from: classes.dex */
 public final class AppConstants {
     public static final String ACTION_OAUTH_READY = "dev.bennett.claudemeter.action.OAUTH_READY";
     public static final String ACTION_OAUTH_RESULT = "dev.bennett.claudemeter.action.OAUTH_RESULT";
@@ -10,38 +9,33 @@ public final class AppConstants {
     public static final String ACTION_RELEASES_UPDATED = "dev.bennett.claudemeter.action.RELEASES_UPDATED";
     public static final String ACTION_REFRESH_WIDGET = "dev.bennett.claudemeter.action.REFRESH_WIDGET";
     public static final String ACTION_RESET_ALERT = "dev.bennett.claudemeter.action.RESET_ALERT";
-    public static final String ACTION_RESET_CREDIT_EXPIRY_ALERT =
-            "dev.bennett.claudemeter.action.RESET_CREDIT_EXPIRY_ALERT";
-    public static final String ACTION_RESET_CREDITS_UPDATED = "dev.bennett.claudemeter.action.RESET_CREDITS_UPDATED";
     public static final String ACTION_USAGE_UPDATED = "dev.bennett.claudemeter.action.USAGE_UPDATED";
-    public static final String APP_LINK = "claudemeter://auth/complete";
-    public static final String AUTHORIZE_URL = "https://auth.anthropic.com/oauth/authorize";
-    public static final String AUTH_BASE = "https://auth.anthropic.com";
-    public static final String CHATGPT_BACKEND = "https://claude.com/backend-api";
+
+    public static final String AUTHORIZE_URL = "https://claude.ai/oauth/authorize";
+    public static final String TOKEN_URL = "https://platform.claude.com/v1/oauth/token";
+    public static final String USAGE_URL = "https://api.anthropic.com/api/oauth/usage";
+    public static final String PROFILE_URL = "https://api.anthropic.com/api/oauth/profile";
+    public static final String OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
+    public static final String OAUTH_SCOPE =
+            "org:create_api_key user:profile user:inference user:sessions:claude_code";
+    public static final String OAUTH_BETA = "oauth-2025-04-20";
+    public static final int[] OAUTH_PORTS = {54545};
+
     public static final String EXTRA_AUTH_URL = "auth_url";
-    public static final String EXTRA_CREDIT_ID = "credit_id";
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_NOTIFICATION_ID = "notification_id";
-    public static final String EXTRA_PROMPT_USE_RESET = "prompt_use_reset";
     public static final String EXTRA_SUCCESS = "success";
     public static final String INTERNAL_PERMISSION = "dev.bennett.claudemeter.permission.INTERNAL";
-    public static final String OAUTH_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann";
-    public static final int[] OAUTH_PORTS = {1455, 1457};
-    public static final String OAUTH_SCOPE = "openid profile email offline_access";
-    public static final String ORIGINATOR = "claude-meter-android";
-    public static final String RESET_CREDITS_CONSUME_URL = "https://claude.com/backend-api/wham/rate-limit-reset-credits/consume";
-    public static final String RESET_CREDITS_URL = "https://claude.com/backend-api/wham/rate-limit-reset-credits";
-    public static final String REVOKE_URL = "https://auth.anthropic.com/oauth/revoke";
-    public static final String TOKEN_URL = "https://auth.anthropic.com/oauth/token";
-    public static final String USAGE_URL = "https://claude.com/backend-api/wham/usage";
+
     public static final int VERSION_CODE = 30;
     public static final String VERSION_NAME = "2.8.0";
 
-    private AppConstants() {
-    }
+    private AppConstants() {}
 
     public static String userAgent() {
-        return "claude-meter-android/2.8.0 (Android " + (Build.VERSION.RELEASE == null ? "unknown" : Build.VERSION.RELEASE) + "; " + (Build.MODEL == null ? "Android" : Build.MODEL) + ")";
+        return "claude-meter-android/" + VERSION_NAME + " (Android "
+                + (Build.VERSION.RELEASE == null ? "unknown" : Build.VERSION.RELEASE) + "; "
+                + (Build.MODEL == null ? "Android" : Build.MODEL) + ")";
     }
 
     public static String updaterUserAgent() {

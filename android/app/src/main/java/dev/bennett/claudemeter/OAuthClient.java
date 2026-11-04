@@ -7,236 +7,141 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.json.JSONObject;
 
-/* JADX INFO: loaded from: classes.dex */
 public final class OAuthClient {
-    private OAuthClient() {
+    private OAuthClient() {}
+
+    public static AuthTokens exchangeCode(Context context, String code, String redirectUri,
+            String verifier, String state) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("grant_type", "authorization_code");
+        body.put("code", code);
+        body.put("state", state);
+        body.put("redirect_uri", redirectUri);
+        body.put("client_id", AppConstants.OAUTH_CLIENT_ID);
+        body.put("code_verifier", verifier);
+        return parseTokens(postJson(context, "oauth_code_exchange", AppConstants.TOKEN_URL, body),
+                null);
     }
 
-    public static AuthTokens exchangeCode(Context context, String str, String str2, String str3)
+    public static AuthTokens refresh(Context context, AuthTokens previous) throws Exception {
+        if (previous == null || previous.refreshToken.isEmpty()) {
+            throw new Exception("Claude authorization must be renewed.");
+        }
+        JSONObject body = new JSONObject();
+        body.put("grant_type", "refresh_token");
+        body.put("refresh_token", previous.refreshToken);
+        body.put("client_id", AppConstants.OAUTH_CLIENT_ID);
+        return previous.mergeRefresh(parseTokens(
+                postJson(context, "oauth_token_refresh", AppConstants.TOKEN_URL, body), previous));
+    }
+
+    /**
+     * Claude's documented account controls are the source of truth for revocation.
+     * Local sign-out removes this app's tokens; no unverified revocation route is called.
+     */
+    public static void revokeBestEffort(Context context, AuthTokens tokens) {
+        DiagnosticLog.info(context, "auth", "local_sign_out_no_remote_revoke");
+    }
+
+    private static AuthTokens parseTokens(String json, AuthTokens previous) throws Exception {
+        JSONObject object = new JSONObject(json);
+        String accessToken = object.optString("access_token", "");
+        String refreshToken = object.optString("refresh_token", "");
+        if (previous != null && refreshToken.isEmpty()) {
+            refreshToken = previous.refreshToken;
+        }
+        long expiresIn = Math.max(60L, object.optLong("expires_in", 3600L));
+        AuthTokens result = new AuthTokens(
+                accessToken,
+                refreshToken,
+                "",
+                System.currentTimeMillis() + expiresIn * 1000L,
+                previous == null ? "" : previous.accountId,
+                previous == null ? "" : previous.email);
+        if (!result.isUsable()) {
+            throw new Exception("The Claude authorization server returned incomplete credentials.");
+        }
+        return result;
+    }
+
+    private static String postJson(Context context, String operation, String url, JSONObject object)
             throws Exception {
-        LinkedHashMap linkedHashMap = new LinkedHashMap();
-        linkedHashMap.put("grant_type", "authorization_code");
-        linkedHashMap.put("code", str);
-        linkedHashMap.put("redirect_uri", str2);
-        linkedHashMap.put("client_id", AppConstants.OAUTH_CLIENT_ID);
-        linkedHashMap.put("code_verifier", str3);
-        return parseTokens(postForm(context, "oauth_code_exchange", AppConstants.TOKEN_URL,
-                linkedHashMap), null);
-    }
-
-    public static AuthTokens refresh(Context context, AuthTokens authTokens) throws Exception {
-        JSONObject jSONObject = new JSONObject();
-        jSONObject.put("grant_type", "refresh_token");
-        jSONObject.put("refresh_token", authTokens.refreshToken);
-        jSONObject.put("client_id", AppConstants.OAUTH_CLIENT_ID);
-        return authTokens.mergeRefresh(parseTokens(postJson(context, "oauth_token_refresh",
-                AppConstants.TOKEN_URL, jSONObject), authTokens));
-    }
-
-    public static void revokeBestEffort(Context context, AuthTokens authTokens) {
-        if (authTokens != null && !authTokens.refreshToken.isEmpty()) {
-            JSONObject jSONObject = new JSONObject();
-            try {
-                jSONObject.put("token", authTokens.refreshToken);
-                jSONObject.put("token_type_hint", "refresh_token");
-                jSONObject.put("client_id", AppConstants.OAUTH_CLIENT_ID);
-                postJson(context, "oauth_token_revoke", AppConstants.REVOKE_URL, jSONObject);
-            } catch (Exception firstError) {
-                DiagnosticLog.warn(context, "auth", "json_revocation_failed_trying_form",
-                        "error", firstError.getClass().getSimpleName());
-                try {
-                    LinkedHashMap linkedHashMap = new LinkedHashMap();
-                    linkedHashMap.put("token", authTokens.refreshToken);
-                    linkedHashMap.put("token_type_hint", "refresh_token");
-                    linkedHashMap.put("client_id", AppConstants.OAUTH_CLIENT_ID);
-                    postForm(context, "oauth_token_revoke", AppConstants.REVOKE_URL,
-                            linkedHashMap);
-                } catch (Exception secondError) {
-                    DiagnosticLog.error(context, "auth", "token_revocation_failed", secondError);
-                }
-            }
-        }
-    }
-
-    private static AuthTokens parseTokens(String str, AuthTokens authTokens) throws Exception {
-        String str2;
-        String str3;
-        JSONObject jSONObject = new JSONObject(str);
-        String strOptString = jSONObject.optString("access_token", "");
-        String strOptString2 = jSONObject.optString("refresh_token", "");
-        String strOptString3 = jSONObject.optString("id_token", "");
-        if (authTokens == null) {
-            str2 = strOptString2;
-        } else {
-            if (strOptString2.isEmpty()) {
-                strOptString2 = authTokens.refreshToken;
-            }
-            if (strOptString3.isEmpty()) {
-                strOptString3 = authTokens.idToken;
-                str2 = strOptString2;
-            } else {
-                str2 = strOptString2;
-            }
-        }
-        long jMax = Math.max(60L, jSONObject.optLong("expires_in", 3600L));
-        JwtClaims jwtClaimsFromTokens = JwtClaims.fromTokens(strOptString3, strOptString);
-        String str4 = jwtClaimsFromTokens.accountId;
-        String str5 = jwtClaimsFromTokens.email;
-        if (authTokens == null) {
-            str3 = str4;
-        } else {
-            if (str4.isEmpty()) {
-                str4 = authTokens.accountId;
-            }
-            if (str5.isEmpty()) {
-                str5 = authTokens.email;
-                str3 = str4;
-            } else {
-                str3 = str4;
-            }
-        }
-        AuthTokens authTokens2 = new AuthTokens(strOptString, str2, strOptString3, (jMax * 1000) + System.currentTimeMillis(), str3, str5);
-        if (authTokens2.isUsable()) {
-            return authTokens2;
-        }
-        throw new Exception("The authorization server returned incomplete credentials.");
-    }
-
-    private static String postForm(Context context, String operation, String str,
-            Map<String, String> map) throws Exception {
-        return post(context, operation, str, "application/x-www-form-urlencoded",
-                formEncode(map).getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static String postJson(Context context, String operation, String str,
-            JSONObject jSONObject) throws Exception {
-        return post(context, operation, str, "application/json",
-                jSONObject.toString().getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static String post(Context context, String operation, String str, String str2,
-            byte[] bArr) throws Exception {
-        HttpsURLConnection httpsURLConnection = (HttpsURLConnection) URI.create(str).toURL().openConnection();
+        byte[] bytes = object.toString().getBytes(StandardCharsets.UTF_8);
+        HttpsURLConnection connection =
+                (HttpsURLConnection) URI.create(url).toURL().openConnection();
         long started = SystemClock.elapsedRealtime();
         DiagnosticLog.info(context, "network", "request_started",
-                "operation", operation,
-                "method", "POST",
-                "url", DiagnosticSanitizer.safeUrl(str),
-                "request_bytes", bArr.length);
+                "operation", operation, "method", "POST",
+                "url", DiagnosticSanitizer.safeUrl(url), "request_bytes", bytes.length);
         try {
-            httpsURLConnection.setRequestMethod("POST");
-            httpsURLConnection.setConnectTimeout(15000);
-            httpsURLConnection.setReadTimeout(25000);
-            httpsURLConnection.setDoOutput(true);
-            httpsURLConnection.setUseCaches(false);
-            httpsURLConnection.setRequestProperty("Content-Type", str2);
-            httpsURLConnection.setRequestProperty("Accept", "application/json");
-            httpsURLConnection.setRequestProperty("User-Agent", AppConstants.userAgent());
-            httpsURLConnection.setFixedLengthStreamingMode(bArr.length);
-            OutputStream outputStream = httpsURLConnection.getOutputStream();
-            try {
-                outputStream.write(bArr);
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-                int responseCode = httpsURLConnection.getResponseCode();
-                String body = readBody(httpsURLConnection, responseCode);
-                DiagnosticLog.info(context, "network", "request_finished",
-                        "operation", operation,
-                        "status", responseCode,
-                        "duration_ms", SystemClock.elapsedRealtime() - started,
-                        "response_bytes",
-                        body.getBytes(StandardCharsets.UTF_8).length);
-                if (responseCode < 200 || responseCode >= 300) {
-                    throw new Exception(readError(body, "Authentication failed (HTTP " + responseCode + ")."));
-                }
-                return body;
-            } finally {
+            connection.setRequestMethod("POST");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(25000);
+            connection.setDoOutput(true);
+            connection.setUseCaches(false);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("User-Agent", AppConstants.userAgent());
+            connection.setFixedLengthStreamingMode(bytes.length);
+            try (OutputStream output = connection.getOutputStream()) {
+                output.write(bytes);
             }
+            int status = connection.getResponseCode();
+            String body = readBody(connection, status);
+            DiagnosticLog.info(context, "network", "request_finished",
+                    "operation", operation, "status", status,
+                    "duration_ms", SystemClock.elapsedRealtime() - started,
+                    "response_bytes", body.getBytes(StandardCharsets.UTF_8).length);
+            if (status < 200 || status >= 300) {
+                throw new Exception(readError(body,
+                        "Claude authorization failed (HTTP " + status + ")."));
+            }
+            return body;
         } catch (Exception exception) {
             DiagnosticLog.error(context, "network", "request_failed", exception,
                     "operation", operation,
                     "duration_ms", SystemClock.elapsedRealtime() - started);
             throw exception;
         } finally {
-            httpsURLConnection.disconnect();
+            connection.disconnect();
         }
     }
 
-    static String readBody(HttpURLConnection httpURLConnection, int i) throws Exception {
-        InputStream errorStream = (i < 200 || i >= 400) ? httpURLConnection.getErrorStream() : httpURLConnection.getInputStream();
-        if (errorStream == null) {
-            return "";
-        }
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try {
-                byte[] bArr = new byte[8192];
-                do {
-                    int i2 = errorStream.read(bArr);
-                    if (i2 != -1) {
-                        byteArrayOutputStream.write(bArr, 0, i2);
-                    } else {
-                        String string = byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
-                        byteArrayOutputStream.close();
-                        if (errorStream != null) {
-                            errorStream.close();
-                            return string;
-                        }
-                        return string;
-                    }
-                } while (byteArrayOutputStream.size() <= 2097152);
-                throw new Exception("Server response was unexpectedly large.");
-            } finally {
-            }
-        } catch (Throwable th) {
-            if (errorStream != null) {
-                try {
-                    errorStream.close();
-                } catch (Throwable th2) {
-                    th.addSuppressed(th2);
+    static String readBody(HttpURLConnection connection, int status) throws Exception {
+        InputStream stream = (status < 200 || status >= 400)
+                ? connection.getErrorStream() : connection.getInputStream();
+        if (stream == null) return "";
+        try (InputStream input = stream; ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                output.write(buffer, 0, count);
+                if (output.size() > 2 * 1024 * 1024) {
+                    throw new Exception("Server response was unexpectedly large.");
                 }
             }
-            throw th;
+            return output.toString(StandardCharsets.UTF_8.name());
         }
     }
 
     static String readError(String body, String fallback) {
         try {
             JSONObject object = new JSONObject(body == null ? "" : body);
-            String description = object.optString("error_description", "");
-            if (!description.isEmpty()) return description;
             Object error = object.opt("error");
-            if (error instanceof String && !((String) error).isEmpty()) return (String) error;
             if (error instanceof JSONObject) {
                 String message = ((JSONObject) error).optString("message", "");
                 if (!message.isEmpty()) return message;
             }
+            if (error instanceof String && !((String) error).isEmpty()) return (String) error;
             String message = object.optString("message", "");
             if (!message.isEmpty()) return message;
-        } catch (Exception ignored) {
-            // Do not surface arbitrary HTML from a proxy or gateway.
-        }
+            String description = object.optString("error_description", "");
+            if (!description.isEmpty()) return description;
+        } catch (Exception ignored) {}
         return fallback;
-    }
-
-    private static String formEncode(Map<String, String> map) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (sb.length() > 0) {
-                sb.append('&');
-            }
-            sb.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            sb.append('=');
-            sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-        }
-        return sb.toString();
     }
 }

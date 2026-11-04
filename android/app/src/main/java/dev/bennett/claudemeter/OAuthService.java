@@ -233,12 +233,12 @@ public final class OAuthService extends Service {
                 last = exception;
             }
         }
-        throw new Exception("Could not open the local OAuth callback port (1455 or 1457).", last);
+        throw new Exception("Could not open the local Claude authorization callback port.", last);
     }
 
     private static String buildAuthorizeUrl(String redirectUri, Pkce pkce) throws Exception {
         Map<String, String> params = new java.util.LinkedHashMap<>();
-        params.put("response_type", "code");
+        params.put("code", "true");\n        params.put("response_type", "code");
         params.put("client_id", AppConstants.OAUTH_CLIENT_ID);
         params.put("redirect_uri", redirectUri);
         params.put("scope", AppConstants.OAUTH_SCOPE);
