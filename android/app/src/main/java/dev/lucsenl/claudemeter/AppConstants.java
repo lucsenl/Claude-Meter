@@ -6,10 +6,6 @@ import android.os.Build;
 public final class AppConstants {
     public static final String ACTION_USAGE_UPDATED =
             "dev.lucsenl.claudemeter.action.USAGE_UPDATED";
-    public static final String ACTION_RELEASES_UPDATED =
-            "dev.lucsenl.claudemeter.action.RELEASES_UPDATED";
-    public static final String ACTION_INSTALL_STATUS =
-            "dev.lucsenl.claudemeter.action.INSTALL_STATUS";
     public static final String ACTION_REFRESH_WIDGET =
             "dev.lucsenl.claudemeter.action.REFRESH_WIDGET";
     public static final String INTERNAL_PERMISSION =
@@ -17,7 +13,6 @@ public final class AppConstants {
 
     public static final String API_BASE = "https://api.anthropic.com";
     public static final String MODELS_URL = API_BASE + "/v1/models";
-    public static final String ORGANIZATION_URL = API_BASE + "/v1/organizations/me";
     public static final String ANALYTICS_USAGE_URL =
             API_BASE + "/v1/organizations/analytics/usage";
     public static final String ANALYTICS_COST_URL =
@@ -28,8 +23,8 @@ public final class AppConstants {
     public static final String API_DOCS_URL = "https://platform.claude.com/docs/en/api/overview";
     public static final String PROJECT_URL = "https://github.com/lucsenl/Claude-Meter";
 
-    public static final int VERSION_CODE = 30;
-    public static final String VERSION_NAME = "2.8.0";
+    public static final int VERSION_CODE = 1;
+    public static final String VERSION_NAME = "0.1.0";
 
     private AppConstants() {}
 
@@ -39,7 +34,4 @@ public final class AppConstants {
                 + "; " + (Build.MODEL == null ? "Android" : Build.MODEL) + ")";
     }
 
-    public static String updaterUserAgent() {
-        return "claude-meter-android/" + VERSION_NAME + " updater";
-    }
 }
