@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /**
  * In-app update policy gates. Builds before {@link #FIRST_IN_APP_UPDATE_VERSION} pointed at a
