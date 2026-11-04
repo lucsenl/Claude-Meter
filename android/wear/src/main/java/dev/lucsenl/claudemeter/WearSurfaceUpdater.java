@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,7 +9,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceSe
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester;
 
 public final class WearSurfaceUpdater {
-    private static final String TAG = "CodexWearSurfaces";
+    private static final String TAG = "ClaudeWearSurfaces";
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends TileService>[] TILE_SERVICES = new Class[] {
