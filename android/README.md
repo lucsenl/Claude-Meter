@@ -1,23 +1,25 @@
 # Claude Meter for Android
 
-Native Android + Wear OS client for viewing the Claude allowance attached to a
-signed-in Claude account. This directory is the **Android** Gradle project of
-the Claude Meter monorepo. The iOS client lives under [`../ios/`](../ios/).
+Android **phone-only** Gradle project retaining the original app's full One UI
+dashboard, history, settings, home-screen widgets, and Samsung lock-screen/AOD
+widgets. There are **no Wear OS or iOS modules** in this repository.
 
-## Layout
+## Modules
 
 | Path | Role |
-|------|------|
-| `app/` | Phone app (`dev.bennett.claudemeter`) |
-| `wear/` | Wear OS companion |
-| `shared/` | Shared phone↔watch contracts |
-| `tests/` | Pure-Java self-tests used by `./run-tests.sh` |
-| `vendor/m2/` | Cached One UI / SESL Maven artifacts |
-| `ci/` | Encrypted release keystore material for GitHub Actions |
+|---|---|
+| `app/` | Phone application (`dev.lucsenl.claudemeter` installation ID) |
+| `shared/` | Java usage models shared by phone screens and widgets |
+| `tests/` | Pure-Java regression and OAuth protocol tests |
+| `vendor/m2/` | Vendored One UI / SESL Maven artifacts |
 
-## Build and test
+The Java namespace (`dev.bennett.claudemeter`) is a historical internal
+implementation detail; the Android installation ID is
+`dev.lucsenl.claudemeter`.
 
-From this `android/` directory (or via the repo-root wrappers):
+## Build
+
+From `android/`:
 
 ```bash
 ./run-tests.sh
@@ -25,9 +27,13 @@ From this `android/` directory (or via the repo-root wrappers):
 ./build.sh
 ```
 
-Requirements: JDK 17+, Android SDK Platform 36, Build Tools 36.x, and
-`ANDROID_SDK_ROOT` / `ANDROID_HOME`. `vendor/m2` covers SESL deps offline;
-optional `GH_USERNAME` / `GH_ACCESS_TOKEN` refresh GitHub Packages.
+Requires JDK 21, Android SDK platform 36, Android Build Tools 36.x and
+`ANDROID_SDK_ROOT` or `ANDROID_HOME`. The vendored Maven repository contains
+the One UI dependencies; `GH_USERNAME` / `GH_ACCESS_TOKEN` may be needed for
+optional GitHub Packages resolution.
 
-Signed local APKs land in `android/dist/`. See the repository root
-[`README.md`](../README.md) for product notes and release tagging.
+A successful signed APK is copied into `android/dist/`, along with the SHA-256
+checksum. Without a persistent keystore, generated signatures cannot be used
+for in-place upgrades across different builds.
+
+See the repository root `README.md` for OAuth, release and validation notes.
