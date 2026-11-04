@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** One-cell Samsung lock/AOD widget for the five-hour allowance. */
 public final class SamsungLockFiveHourWidget extends SamsungLockWidgetProvider {
