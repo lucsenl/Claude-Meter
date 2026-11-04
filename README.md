@@ -1,49 +1,43 @@
 # Claude Meter
 
-Claude Meter is an Android-only fork focused on showing Claude usage information on phones,
-Samsung One UI surfaces, and Wear OS.
+Claude Meter is an **Android-phone-only** adaptation of the original usage-monitor
+interface for a Claude account. The Android dashboard, history, notifications,
+home-screen widgets, and Samsung One UI lock-screen/AOD widgets are preserved.
+There is **no iOS or Wear OS app** in this fork.
 
-The project is being migrated from the original Claude Meter implementation to Claude/Anthropic.
-Provider-specific behavior is changed only when the Claude equivalent is supported by evidence;
-legacy network contracts are removed as their real replacements are implemented.
+This is an independent, unofficial client. It is not affiliated with or endorsed
+by Anthropic.
+
+## Status: Android recovery preview (v0.2.0)
+
+The restored Android interface is in [pull request #4](https://github.com/lucsenl/claude-meter/pull/4)
+until its build and real-device checks pass. An implementation in source control
+is **not** evidence that account sign-in or every Samsung widget works on a phone.
+
+- Claude account sign-in uses browser authorization with a PKCE code verifier
+  and state; paste the returned `code#state` into the app. **No API key is
+  requested or stored.**
+- Usage data is requested with the resulting OAuth token. Claude usage endpoints
+  may change, and live login/refresh still require validation with a real account.
+- Quotas shown depend on what the provider actually returns; unsupported
+  reset-credit redemption is not offered.
+- Tokens are stored encrypted with Android Keystore; cached history stays local.
+- Existing full Android One UI layouts, home-screen widgets, and Samsung
+  lock-screen/AOD widget implementations remain in the project.
 
 ## Repository layout
 
 | Path | Purpose |
 |---|---|
-| `android/app/` | Android phone app, dashboard, settings, notifications, widgets and Samsung lock/AOD integration |
-| `android/shared/` | Shared Java models and logic used by phone and Wear |
-| `android/wear/` | Wear OS companion, tiles and complications |
+| `android/app/` | Android phone dashboard, login, settings, widgets, Samsung lock/AOD |
+| `android/shared/` | Shared Java data models and formatting |
 | `android/tests/` | Pure-Java regression tests |
-| `docs/` | Claude migration contracts and terminology evidence |
+| `docs/` | Provider mapping and terminology evidence |
 
-There is no application backend. Credentials and cached usage state stay on-device.
+## Build locally
 
-## Android features retained
-
-- Phone dashboard and usage history
-- Home-screen widgets
-- Samsung One UI lock-screen / AOD widgets where supported
-- Notifications and reset-time alerts
-- Optional live usage monitor / Now Bar integration
-- Wear OS companion, tiles and complications
-- Android Keystore encrypted credential storage
-- Local diagnostics, settings transfer and update channels
-
-Features that only existed for iOS have been removed from this fork.
-
-## Build from source
-
-Requirements:
-
-- JDK 17 or newer
-- Android SDK Platforms 36 and 37.0
-- Android Build Tools 36.x
-- `ANDROID_SDK_ROOT` or `ANDROID_HOME`
-- `GH_USERNAME` and `GH_ACCESS_TOKEN` with `read:packages` only when the vendored
-  OneUI dependencies are insufficient and Gradle must fetch them
-
-From the repository root:
+Requires JDK 21, Android SDK platform 36, Build Tools 36.x and
+`ANDROID_SDK_ROOT` or `ANDROID_HOME`.
 
 ```bash
 ./run-tests.sh
@@ -51,26 +45,28 @@ From the repository root:
 ./build.sh
 ```
 
-The root scripts forward to the Android project. Build artifacts are written under
-`android/dist/`.
+The root wrappers delegate to `android/`. A successful build creates
+`android/dist/ClaudeMeter-<version>.apk` and `SHA256SUMS.txt`.
 
-See `android/README.md` for Android-specific module and build details.
+**Signing:** without a persistent release keystore, local/CI builds can be
+signed using a freshly generated key. APKs signed with different keys cannot
+upgrade each other in place. Keep the signing key secure for any distributable
+release; do not treat a temporary CI artifact as a stable upgrade package.
 
-## Release channels
+## GitHub Actions
 
-- `main`: stable channel
-- `alpha`: rapid-iteration / prerelease channel when present
+Builds are **manual only**. Open
+[Build Claude Meter Android APK](https://github.com/lucsenl/claude-meter/actions/workflows/build-apk.yml),
+select **Run workflow**, then select the desired branch. Pushes, pull requests,
+and tag creation do not trigger builds.
 
-Creating a matching `v*` tag triggers the Android release workflow for the phone and Wear APKs.
-Do not create release tags as part of normal development work.
+The workflow uploads the Android APK and checksum only after regression tests,
+Android lint and APK signature verification pass. Release publication is a
+separate step requiring a version tag and the persistent release-signing secrets.
 
-## Claude migration
+## Provider and authorship
 
-The migration rules are documented in:
-
-- `docs/CLAUDE_UPSTREAM_MAPPING.md`
-- `docs/CLAUDE_TERMINOLOGY_EVIDENCE.md`
-
-The central rule is that Claude-specific names, limits, authentication behavior and provider
-contracts must be grounded in actual Anthropic/Claude behavior rather than obtained through blind
-string replacement.
+See `docs/CLAUDE_UPSTREAM_MAPPING.md` and
+`docs/CLAUDE_TERMINOLOGY_EVIDENCE.md`. Upstream and dependency attribution is
+retained in the application's About screen. Unsupported services must not be
+fabricated merely to preserve an old UI card.
