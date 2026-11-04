@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** Validated metadata for one installable GitHub release. */
 public final class GitHubRelease {

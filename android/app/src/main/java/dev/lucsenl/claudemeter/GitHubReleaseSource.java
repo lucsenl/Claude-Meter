@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** Canonical production repository used for release discovery and project links. */
 public final class GitHubReleaseSource {
