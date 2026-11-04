@@ -57,7 +57,7 @@ public final class DashboardReorderActivity extends AppCompatActivity {
         TextView hint = Ui.text(this,
                 "Drag the handles to arrange your usage cards and use the switches to hide the "
                         + "ones you don't need. Model-specific limits such as GPT-5.3-Codex-Spark "
-                        + "appear here automatically once OpenAI reports them for your account.",
+                        + "appear here automatically once Claude reports them for your account.",
                 14.0f, Ui.secondaryText(dark));
         LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(-1, -2);
         hintParams.setMargins(Ui.dp(this, 6), Ui.dp(this, 2), Ui.dp(this, 6), Ui.dp(this, 16));
@@ -80,7 +80,7 @@ public final class DashboardReorderActivity extends AppCompatActivity {
         TextView note = Ui.text(this,
                 "Changes are saved instantly. Usage-credit balance and reset credits stay hidden "
                         + "when they have nothing to show (zero or below), and 5-hour, weekly, "
-                        + "monthly, and usage-history cards appear only while OpenAI reports data "
+                        + "monthly, and usage-history cards appear only while Claude reports data "
                         + "for them — no matter where each card is placed or whether its switch "
                         + "is on.",
                 12.0f, Ui.secondaryText(dark));

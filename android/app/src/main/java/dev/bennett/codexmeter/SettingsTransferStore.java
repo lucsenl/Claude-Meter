@@ -36,7 +36,7 @@ public final class SettingsTransferStore {
             AuthTokens tokens = SecureTokenStore.load(app);
             if (tokens == null || !tokens.isUsable()) {
                 throw new IllegalStateException(
-                        "No ChatGPT authentication is saved on this device to export.");
+                        "No Claude authorization is saved on this device to export.");
             }
             authentication = tokens.toJson();
         }

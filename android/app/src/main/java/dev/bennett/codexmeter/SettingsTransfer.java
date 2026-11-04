@@ -25,8 +25,8 @@ public final class SettingsTransfer {
     public static final String SECTION_AUTHENTICATION = "authentication";
 
     public static final String SECURITY_WARNING =
-            "IMPORTANT: This file contains ChatGPT authentication tokens. "
-                    + "Anyone with this file can access your ChatGPT account. "
+            "IMPORTANT: This file contains Claude authorization tokens. "
+                    + "Anyone with this file can access your Claude account. "
                     + "Do not share it, upload it, or send it to anyone. "
                     + "Keep it only on devices you trust.";
 

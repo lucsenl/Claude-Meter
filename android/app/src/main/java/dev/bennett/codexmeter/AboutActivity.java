@@ -94,11 +94,11 @@ public final class AboutActivity extends AppCompatActivity {
         CardItemView oneUi = Ui.actionRow(this, "One UI Design Library", "The library that makes this app so pretty.", R.drawable.ic_oui_theme,
                 view -> openUrl("https://github.com/tribalfs/oneui-design"));
         dependencies.addView(oneUi);
-        CardItemView openAi = Ui.actionRow(this, "OpenAI API", "This app would be pretty useless without it.", R.drawable.ic_openai_figma,
-                view -> openUrl("https://openai.com"));
-        openAi.setIconSize(Ui.dp(this, 24));
-        openAi.setShowTopDivider(true);
-        dependencies.addView(openAi);
+        CardItemView claudeApi = Ui.actionRow(this, "Claude API", "This app would be pretty useless without it.", R.drawable.ic_openai_figma,
+                view -> openUrl("https://platform.claude.com/docs/en/api/overview"));
+        claudeApi.setIconSize(Ui.dp(this, 24));
+        claudeApi.setShowTopDivider(true);
+        dependencies.addView(claudeApi);
         content.addView(dependencies);
     }
 

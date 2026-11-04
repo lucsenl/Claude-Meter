@@ -125,7 +125,7 @@ public final class UsageHistoryActivity extends AppCompatActivity {
         if (!hasCharts) {
             LinearLayout waiting = Ui.card(this, dark);
             waiting.addView(Ui.text(this,
-                    "Charts appear once OpenAI reports your 5-hour, weekly, or monthly usage "
+                    "Charts appear once Claude reports your 5-hour, weekly, or monthly usage "
                             + "windows. Refresh usage from the dashboard to check again.",
                     13, Ui.secondaryText(dark)));
             content.addView(waiting);
