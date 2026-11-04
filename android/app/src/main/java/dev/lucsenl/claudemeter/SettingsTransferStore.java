@@ -1,8 +1,8 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.net.Uri;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
+import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;

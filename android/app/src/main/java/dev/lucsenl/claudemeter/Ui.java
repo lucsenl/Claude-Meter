@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -507,7 +507,7 @@ public final class Ui {
     public static Spinner spinner(final Context context, String[] strArr, final boolean z) {
         final boolean zIsOneUi = isOneUi(context);
         Spinner spinner = new AppCompatSpinner(context, 1);
-        spinner.setAdapter((SpinnerAdapter) new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, strArr) { // from class: dev.bennett.claudemeter.Ui.1
+        spinner.setAdapter((SpinnerAdapter) new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, strArr) { // from class: dev.lucsenl.claudemeter.Ui.1
             @Override // android.widget.ArrayAdapter, android.widget.Adapter
             public View getView(int i, View view, ViewGroup viewGroup) {
                 return style((TextView) super.getView(i, view, viewGroup), false);
@@ -604,7 +604,7 @@ public final class Ui {
             final int paddingTop = view.getPaddingTop();
             final int paddingRight = view.getPaddingRight();
             final int paddingBottom = view.getPaddingBottom();
-            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() { // from class: dev.bennett.claudemeter.Ui.2
+            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() { // from class: dev.lucsenl.claudemeter.Ui.2
                 @Override // android.view.View.OnApplyWindowInsetsListener
                 public WindowInsets onApplyWindowInsets(View view2, WindowInsets windowInsets) {
                     Insets insets = windowInsets.getInsets(WindowInsets.Type.systemBars());
