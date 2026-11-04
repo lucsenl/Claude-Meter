@@ -42,6 +42,8 @@ public final class ParserSelfTest {
                 "unsupported reset credits are not selectable");
         check(!WidgetMeters.defaultVisible().contains(WidgetMeters.RESET_CREDITS),
                 "new widgets never display reset credits");
+        check(!DashboardSections.defaultOrder(null).contains(DashboardSections.RESET_CREDITS),
+                "edit dashboard cannot re-enable reset-credit sections");
         List<String> migrated = WidgetMeters.resolveVisibleForWidget(
                 WidgetMeters.RESET_CREDITS, catalog, WidgetOptions.METRIC_BOTH);
         check(migrated.contains(WidgetMeters.FIVE_HOUR)
