@@ -1,5 +1,6 @@
 package dev.bennett.codexmeter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -25,6 +26,9 @@ public final class UsageParser {
         boolean z2;
         UsageWindow usageWindow;
         JSONObject jSONObject = new JSONObject(str);
+        if (isClaudeUsage(jSONObject)) {
+            return parseClaude(jSONObject, j);
+        }
         String strOptString = jSONObject.optString("plan_type", "");
         JSONObject jSONObjectNullableObject = nullableObject(jSONObject, "rate_limit");
         ArrayList arrayList = new ArrayList();
@@ -96,6 +100,121 @@ public final class UsageParser {
                 jSONObjectNullableObject3 == null
                         ? -1 : jSONObjectNullableObject3.optInt("available_count", -1),
                 j);
+    }
+
+    private static boolean isClaudeUsage(JSONObject root) {
+        return root.has("five_hour") || root.has("seven_day") || root.has("limits");
+    }
+
+    private static UsageSnapshot parseClaude(JSONObject root, long fetchedAtMillis) {
+        UsageWindow fiveHour = claudeWindow(nullableObject(root, "five_hour"), FIVE_HOURS,
+                fetchedAtMillis);
+        UsageWindow weekly = claudeWindow(nullableObject(root, "seven_day"), WEEK,
+                fetchedAtMillis);
+        ArrayList<UsageLimit> additionalLimits = new ArrayList<>();
+
+        JSONArray scopedLimits = root.optJSONArray("limits");
+        if (scopedLimits != null && scopedLimits.length() > 0) {
+            for (int i = 0; i < scopedLimits.length(); i++) {
+                JSONObject item = scopedLimits.optJSONObject(i);
+                if (item == null) continue;
+                double percent = item.optDouble("percent", Double.NaN);
+                if (Double.isNaN(percent) || Double.isInfinite(percent)) continue;
+
+                String group = item.optString("group", "");
+                String kind = item.optString("kind", "");
+                String normalized = (group + " " + kind).toLowerCase(java.util.Locale.ROOT);
+                long windowSeconds = normalized.contains("5h")
+                        || normalized.contains("five_hour") || normalized.contains("5-hour")
+                        ? FIVE_HOURS : WEEK;
+                UsageWindow window = claudeWindowFromPercent(percent,
+                        item.optString("resets_at", ""), windowSeconds, fetchedAtMillis);
+                if (window == null) continue;
+
+                JSONObject scope = item.optJSONObject("scope");
+                JSONObject model = scope == null ? null : scope.optJSONObject("model");
+                String modelName = model == null ? "" : model.optString("display_name", "");
+                String cadence = windowSeconds == FIVE_HOURS ? "5-hour" : "weekly";
+                String name = modelName.isEmpty()
+                        ? firstNonEmpty(group, kind, "Additional Claude limit")
+                        : modelName + " " + cadence;
+                additionalLimits.add(new UsageLimit(
+                        firstNonEmpty(item.optString("id", ""), modelName, group, kind,
+                                "claude-limit") + "-" + i,
+                        name,
+                        firstNonEmpty(group, kind),
+                        window.usedPercent < 100,
+                        window.usedPercent >= 100,
+                        window,
+                        null));
+            }
+        } else {
+            addLegacyClaudeLimit(additionalLimits, root, "seven_day_sonnet",
+                    "Sonnet weekly", "sonnet", fetchedAtMillis);
+            addLegacyClaudeLimit(additionalLimits, root, "seven_day_opus",
+                    "Opus weekly", "opus", fetchedAtMillis);
+            addLegacyClaudeLimit(additionalLimits, root, "seven_day_oauth_apps",
+                    "OAuth apps weekly", "oauth_apps", fetchedAtMillis);
+            addLegacyClaudeLimit(additionalLimits, root, "seven_day_cowork",
+                    "Cowork weekly", "cowork", fetchedAtMillis);
+        }
+
+        boolean limitReached = (fiveHour != null && fiveHour.usedPercent >= 100)
+                || (weekly != null && weekly.usedPercent >= 100);
+        for (UsageLimit limit : additionalLimits) {
+            limitReached = limitReached || limit.limitReached;
+        }
+        return new UsageSnapshot(
+                "claude",
+                !limitReached,
+                limitReached,
+                fiveHour,
+                weekly,
+                null,
+                additionalLimits,
+                null,
+                -1,
+                fetchedAtMillis);
+    }
+
+    private static void addLegacyClaudeLimit(List<UsageLimit> target, JSONObject root,
+            String key, String name, String feature, long fetchedAtMillis) {
+        UsageWindow window = claudeWindow(nullableObject(root, key), WEEK, fetchedAtMillis);
+        if (window == null) return;
+        target.add(new UsageLimit(
+                "claude-" + feature,
+                name,
+                feature,
+                window.usedPercent < 100,
+                window.usedPercent >= 100,
+                window,
+                null));
+    }
+
+    private static UsageWindow claudeWindow(JSONObject object, long windowSeconds,
+            long fetchedAtMillis) {
+        if (object == null || object.isNull("utilization")) return null;
+        double utilization = object.optDouble("utilization", Double.NaN);
+        if (Double.isNaN(utilization) || Double.isInfinite(utilization)) return null;
+        return claudeWindowFromPercent(utilization, object.optString("resets_at", ""),
+                windowSeconds, fetchedAtMillis);
+    }
+
+    private static UsageWindow claudeWindowFromPercent(double utilization, String resetsAt,
+            long windowSeconds, long fetchedAtMillis) {
+        long resetAt = parseResetEpochSeconds(resetsAt);
+        long fetchedAtSeconds = Math.max(0L, fetchedAtMillis / 1000L);
+        long resetAfter = resetAt > fetchedAtSeconds ? resetAt - fetchedAtSeconds : 0L;
+        return new UsageWindow((int) Math.round(utilization), windowSeconds, resetAfter, resetAt);
+    }
+
+    private static long parseResetEpochSeconds(String value) {
+        if (value == null || value.trim().isEmpty()) return 0L;
+        try {
+            return Instant.parse(value.trim()).getEpochSecond();
+        } catch (Exception ignored) {
+            return 0L;
+        }
     }
 
     private static String firstNonEmpty(String... values) {

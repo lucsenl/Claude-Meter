@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public final class ParserSelfTest {
     public static void main(String[] args) throws Exception {
         testStandardUsage();
+        testClaudeUsage();
         testMonthlyWindow();
         testWindowIdentification();
         testAdditionalLimits();
@@ -61,6 +62,32 @@ public final class ParserSelfTest {
         testDiagnosticSanitizer();
         testSettingsTransfer();
         System.out.println("All parser, updater, OAuth, onboarding, and widget-option self-tests passed.");
+    }
+
+    private static void testClaudeUsage() throws Exception {
+        long fetchedAt = 2_000_000_000_000L;
+        String json = "{"
+                + "\"five_hour\":{\"utilization\":25.4,\"resets_at\":\"2033-05-19T00:00:00Z\"},"
+                + "\"seven_day\":{\"utilization\":40,\"resets_at\":\"2033-05-25T00:00:00Z\"},"
+                + "\"limits\":[{\"kind\":\"weekly_scoped\",\"group\":\"weekly\","
+                + "\"percent\":12,\"resets_at\":\"2033-05-25T00:00:00Z\","
+                + "\"scope\":{\"model\":{\"display_name\":\"Sonnet\"}}}]}";
+        UsageSnapshot snapshot = UsageParser.parse(json, fetchedAt);
+        check("claude".equals(snapshot.planType), "Claude plan marker");
+        check(snapshot.fiveHour != null && snapshot.fiveHour.usedPercent == 25,
+                "Claude five-hour utilization");
+        check(snapshot.fiveHour.windowSeconds == TimeUnit.HOURS.toSeconds(5),
+                "Claude five-hour duration");
+        check(snapshot.weekly != null && snapshot.weekly.usedPercent == 40,
+                "Claude seven-day utilization");
+        check(snapshot.weekly.windowSeconds == TimeUnit.DAYS.toSeconds(7),
+                "Claude seven-day duration");
+        check(snapshot.additionalLimits.size() == 1
+                        && snapshot.additionalLimits.get(0).displayName().contains("Sonnet"),
+                "Claude model-scoped weekly limit");
+        check(snapshot.resetCreditsAvailable < 0 && snapshot.usageCredits == null,
+                "Codex-only credit surfaces stay hidden for Claude");
+        System.out.println("Claude OAuth usage maps to 5-hour, 7-day, and scoped limits.");
     }
 
     private static void testDiagnosticSanitizer() {

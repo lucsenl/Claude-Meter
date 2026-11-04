@@ -82,12 +82,17 @@ grep -q 'versionName = "2.8.0"' "$ROOT/app/build.gradle.kts"
 grep -q 'versionCode = 30' "$ROOT/app/build.gradle.kts"
 grep -q 'versionName = "2.8.0"' "$ROOT/wear/build.gradle.kts"
 grep -q 'versionCode = 30' "$ROOT/wear/build.gradle.kts"
-grep -q 'codex-meter-android/2.8.0' "$ROOT/app/src/main/java/dev/bennett/codexmeter/AppConstants.java"
+grep -q 'claude-meter-android/2.8.0' "$ROOT/app/src/main/java/dev/bennett/codexmeter/AppConstants.java"
 grep -q 'VERSION_NAME="2.8.0"' "$ROOT/build.sh"
+grep -q 'https://api.anthropic.com/api/oauth/usage' "$ROOT/app/src/main/java/dev/bennett/codexmeter/AppConstants.java"
+grep -q 'https://platform.claude.com/v1/oauth/token' "$ROOT/app/src/main/java/dev/bennett/codexmeter/AppConstants.java"
+grep -q 'anthropic-beta' "$ROOT/app/src/main/java/dev/bennett/codexmeter/UsageApi.java"
+grep -q 'testClaudeUsage' "$ROOT/tests/ParserSelfTest.java"
+! grep -q 'ChatGPT-Account-Id' "$ROOT/app/src/main/java/dev/bennett/codexmeter/UsageApi.java"
 WORKFLOW="$ROOT/../.github/workflows/build-apk.yml"
 grep -Fq 'release-dist/CodexMeter-Wear-$VERSION_NAME.apk' "$WORKFLOW"
 grep -Fq '"platforms;android-37.0"' "$WORKFLOW"
-grep -q 'BenItBuhner/Codex-Meter/releases?per_page=30' "$ROOT/app/build.gradle.kts" # pragma: allowlist secret
+grep -q 'lucsenl/Claude-Meter/releases?per_page=30' "$ROOT/app/build.gradle.kts" # pragma: allowlist secret
 ! grep -R -q 'thatjoshguy67/Codex-Meter' \
   "$ROOT/app/src" "$ROOT/app/build.gradle.kts"
 

@@ -131,6 +131,9 @@ public final class ResetCreditApi {
 
     private static Response request(Context context, String operation, String str, String str2,
             AuthTokens authTokens, byte[] bArr) throws Exception {
+        if (str2 == null || str2.isEmpty()) {
+            throw new Exception("Reset credits are not available for Claude.");
+        }
         HttpsURLConnection httpsURLConnection = (HttpsURLConnection) URI.create(str2).toURL().openConnection();
         long started = SystemClock.elapsedRealtime();
         DiagnosticLog.info(context, "network", "request_started",
