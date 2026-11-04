@@ -1,16 +1,16 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ProtoLayoutScope;
 
-public final class WeeklyTileService extends CodexTileService {
+public final class WeeklyTileService extends ClaudeTileService {
     @Override
     protected LayoutElement tileLayout(DeviceParameters deviceParameters, ProtoLayoutScope scope) {
         // Free-tier accounts report a monthly window instead of a weekly one; the tile
         // follows whichever long-cadence window the subscription currently has.
-        return CodexTileLayouts.progress(this, deviceParameters,
-                CodexTileLayouts.longWindowLabel(this),
-                CodexTileLayouts.longWindow(this), scope);
+        return ClaudeTileLayouts.progress(this, deviceParameters,
+                ClaudeTileLayouts.longWindowLabel(this),
+                ClaudeTileLayouts.longWindow(this), scope);
     }
 }
