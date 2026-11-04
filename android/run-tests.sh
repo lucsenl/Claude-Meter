@@ -19,6 +19,7 @@ mkdir -p "$OUT"
 javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/UsageSnapshot.java" \
   "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/UsageParser.java" \
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java" \
   "$ROOT/tests/ParserSelfTest.java"
 
 java -ea -cp "$OUT:$JSON_JAR" dev.lucsenl.claudemeter.ParserSelfTest
@@ -26,18 +27,18 @@ java -ea -cp "$OUT:$JSON_JAR" dev.lucsenl.claudemeter.ParserSelfTest
 grep -q 'applicationId = "dev.lucsenl.claudemeter"' "$ROOT/app/build.gradle.kts"
 grep -q 'rootProject.name = "Claude-Meter"' "$ROOT/settings.gradle.kts"
 grep -q 'include(":app")' "$ROOT/settings.gradle.kts"
-grep -q 'OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
-grep -q 'OAUTH_AUTHORIZE_URL = "https://claude.com/cai/oauth/authorize"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
-grep -q 'OAUTH_TOKEN_URL = "https://platform.claude.com/v1/oauth/token"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
+grep -q 'CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"' \
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
+grep -q 'AUTHORIZE_URL = "https://claude.com/cai/oauth/authorize"' \
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
+grep -q 'TOKEN_URL = "https://platform.claude.com/v1/oauth/token"' \
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
 grep -q 'OAUTH_BETA = "oauth-2025-04-20"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
 grep -q 'USAGE_URL = "https://api.anthropic.com/api/oauth/usage"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
 grep -q 'PROFILE_URL = "https://api.anthropic.com/api/oauth/profile"' \
-  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
+  "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/ClaudeOAuthProtocol.java"
 
 ! grep -R -E -q 'x-api-key|API key|api_key|analytics/usage|analytics/cost|workspace[_ -]?id' \
   "$ROOT/app/src/main"

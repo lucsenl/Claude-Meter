@@ -5,6 +5,7 @@ public final class ParserSelfTest {
         testUsageAndProfile();
         testNullWindows();
         testSnapshotRoundTrip();
+        testOAuthProtocol();
         System.out.println("Claude Meter subscription parser tests passed.");
     }
 
@@ -52,6 +53,30 @@ public final class ParserSelfTest {
         assert !value.hasFiveHour();
         assert !value.hasSevenDay();
         assert "Claude".equals(value.plan);
+    }
+
+    private static void testOAuthProtocol() throws Exception {
+        ClaudeOAuthProtocol.LoginRequest request = ClaudeOAuthProtocol.beginLogin();
+        assert request.url.startsWith("https://claude.com/cai/oauth/authorize?");
+        assert request.url.contains("client_id=9d1c250a-e61b-44d9-88ed-5944d1962f5e");
+        assert request.url.contains("code_challenge_method=S256");
+        assert request.url.contains("scope=user%3Aprofile+user%3Ainference");
+        assert request.verifier.length() >= 43;
+        assert !request.state.isEmpty();
+
+        ClaudeOAuthProtocol.AuthorizationResult pasted =
+                ClaudeOAuthProtocol.parseAuthorizationResult("abc#state123");
+        assert "abc".equals(pasted.code);
+        assert "state123".equals(pasted.state);
+
+        ClaudeOAuthProtocol.AuthorizationResult callback =
+                ClaudeOAuthProtocol.parseAuthorizationResult(
+                        "https://platform.claude.com/oauth/code/callback"
+                                + "?code=hello%20world&state=s1");
+        assert "hello world".equals(callback.code);
+        assert "s1".equals(callback.state);
+        assert ClaudeOAuthProtocol.stateMatches("same", "same");
+        assert !ClaudeOAuthProtocol.stateMatches("one", "two");
     }
 
     private static void testSnapshotRoundTrip() throws Exception {

@@ -18,17 +18,17 @@ public final class UsageApi {
         long started = SystemClock.elapsedRealtime();
         try {
             ClaudeOAuthCredential credential = ClaudeOAuth.validCredential(app, false);
-            Response usage = get(app, AppConstants.USAGE_URL, credential.accessToken);
+            Response usage = get(app, ClaudeOAuthProtocol.USAGE_URL, credential.accessToken);
             if (usage.status == 401) {
                 credential = ClaudeOAuth.validCredential(app, true);
-                usage = get(app, AppConstants.USAGE_URL, credential.accessToken);
+                usage = get(app, ClaudeOAuthProtocol.USAGE_URL, credential.accessToken);
             }
             requireSuccess(usage, "subscription usage");
 
-            Response profile = get(app, AppConstants.PROFILE_URL, credential.accessToken);
+            Response profile = get(app, ClaudeOAuthProtocol.PROFILE_URL, credential.accessToken);
             if (profile.status == 401) {
                 credential = ClaudeOAuth.validCredential(app, true);
-                profile = get(app, AppConstants.PROFILE_URL, credential.accessToken);
+                profile = get(app, ClaudeOAuthProtocol.PROFILE_URL, credential.accessToken);
             }
             requireSuccess(profile, "profile");
 
@@ -66,7 +66,7 @@ public final class UsageApi {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-            connection.setRequestProperty("anthropic-beta", AppConstants.OAUTH_BETA);
+            connection.setRequestProperty("anthropic-beta", ClaudeOAuthProtocol.OAUTH_BETA);
             connection.setRequestProperty("User-Agent", AppConstants.userAgent());
 
             int status = connection.getResponseCode();

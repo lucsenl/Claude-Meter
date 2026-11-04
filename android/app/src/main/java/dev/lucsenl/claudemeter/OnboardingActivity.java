@@ -124,7 +124,7 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void beginLogin() {
         try {
-            ClaudeOAuth.LoginRequest request = ClaudeOAuth.beginLogin();
+            ClaudeOAuthProtocol.LoginRequest request = ClaudeOAuthProtocol.beginLogin();
             verifier = request.verifier;
             expectedState = request.state;
             completeButton.setEnabled(true);
