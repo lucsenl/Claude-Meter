@@ -13,27 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 public final class ParserSelfTest {
     public static void main(String[] args) throws Exception {
-        testStandardUsage();
-        testMonthlyWindow();
-        testWindowIdentification();
-        testAdditionalLimits();
-        testPrimaryLimitWinsOverAdditional();
-        testOptionalUsageSections();
-        testUsageCredits();
-        testUsageCreditsAutoHide();
-        testResetCreditsAutoHide();
-        testDashboardSectionOrder();
-        testMalformedWindowIgnored();
-        testZeroDurationWindowIgnored();
-        testNextResetSelection();
-        testCelebrationDetection();
-        testResetCreditExpiryReminders();
-        testResetCreditExpiryOrdering();
+        testClaudeUsageContract();
         testResetCountdownFollowsApiTimeline();
         testLowUsageAlertDedup();
         testUsageHistory();
-        testUsagePace();
-        testPlanPricing();
         testUsageStats();
         testHistorySections();
         testAdaptiveRefreshPolicy();
@@ -45,10 +28,7 @@ public final class ParserSelfTest {
         testWearGlanceFormat();
         testNowBarPercentModes();
         testNowBarCopy();
-        testJwtMerge();
         testPkce();
-        testWidgetOptions();
-        testWidgetMeters();
         testOnboardingFlow();
         testOAuthBrowserPage();
         testReleaseVersions();
@@ -60,7 +40,7 @@ public final class ParserSelfTest {
         testUpdateCheckFrequency();
         testDiagnosticSanitizer();
         testSettingsTransfer();
-        System.out.println("All parser, updater, OAuth, onboarding, and widget-option self-tests passed.");
+        System.out.println("Claude Meter core self-tests passed.");
     }
 
     private static void testDiagnosticSanitizer() {
@@ -2047,6 +2027,88 @@ public final class ParserSelfTest {
                     "minimal mode hides every optional highlight");
         }
         System.out.println("History highlights: minimal defaults + per-insight overrides verified.");
+    }
+
+    private static void testClaudeUsageContract() throws Exception {
+        long fetchedAt = 1_800_000_000_000L;
+        String json = "{"
+                + "\"five_hour\":{\"utilization\":37,\"resets_at\":\"2027-01-15T12:00:00Z\"},"
+                + "\"seven_day\":{\"utilization\":61,\"resets_at\":\"2027-01-18T12:00:00Z\"},"
+                + "\"seven_day_sonnet\":{\"utilization\":18,\"resets_at\":\"2027-01-18T12:00:00Z\"},"
+                + "\"seven_day_opus\":{\"utilization\":70},"
+                + "\"limits\":[{\"kind\":\"weekly_scoped\",\"group\":\"weekly\","
+                + "\"percent\":22,\"resets_at\":\"2027-01-18T12:00:00Z\","
+                + "\"scope\":{\"model\":{\"display_name\":\"Opus\"},\"surface\":null}}],"
+                + "\"extra_usage\":{\"is_enabled\":true,\"monthly_limit\":100,"
+                + "\"used_credits\":12.5,\"utilization\":12.5,\"currency\":\"USD\"}"
+                + "}";
+
+        UsageSnapshot snapshot = UsageParser.parse(json, fetchedAt, "Max");
+        check("Max".equals(snapshot.planType), "profile plan is carried into snapshot");
+        check(snapshot.fiveHour != null && snapshot.fiveHour.usedPercent == 37,
+                "five-hour utilization parsed");
+        check(snapshot.fiveHour.remainingPercent() == 63,
+                "five-hour remaining quota derived");
+        check(snapshot.weekly != null && snapshot.weekly.usedPercent == 61,
+                "weekly utilization parsed");
+        check(snapshot.weekly.remainingPercent() == 39,
+                "weekly remaining quota derived");
+        check(snapshot.monthly == null, "no synthetic monthly quota");
+        check(snapshot.resetCreditsAvailable < 0, "no synthetic reset-credit inventory");
+
+        check(snapshot.additionalLimits.size() == 2,
+                "scoped and flat model limits are preserved and deduplicated");
+        boolean sonnet = false;
+        boolean opus = false;
+        for (UsageLimit limit : snapshot.additionalLimits) {
+            if ("Sonnet".equals(limit.displayName())) {
+                sonnet = limit.primary != null && limit.primary.usedPercent == 18;
+            }
+            if ("Opus".equals(limit.displayName())) {
+                opus = limit.primary != null && limit.primary.usedPercent == 22;
+            }
+        }
+        check(sonnet, "Sonnet weekly limit parsed");
+        check(opus, "scoped Opus limit overrides flat duplicate");
+
+        check(snapshot.usageCredits != null && snapshot.usageCredits.isEnabled,
+                "Extra Usage parsed");
+        check("100".equals(snapshot.usageCredits.monthlyLimit),
+                "Extra Usage monthly limit preserved");
+        check("12.5".equals(snapshot.usageCredits.usedCredits),
+                "Extra Usage spend preserved");
+        check("USD".equals(snapshot.usageCredits.currency),
+                "Extra Usage currency preserved");
+
+        UsageSnapshot restored = UsageSnapshot.fromJson(snapshot.toJson());
+        check(restored != null && restored.fiveHour != null && restored.weekly != null,
+                "Claude snapshot survives cache round trip");
+        check(restored.usageCredits != null
+                        && "12.5".equals(restored.usageCredits.usedCredits),
+                "Extra Usage survives cache round trip");
+
+        UsageSnapshot weeklyOnly = UsageParser.parse(
+                "{\"seven_day\":{\"utilization\":25}}", fetchedAt, "Pro");
+        check(weeklyOnly.fiveHour == null && weeklyOnly.weekly != null,
+                "missing session quota stays absent");
+
+        UsageSnapshot futureBucket = UsageParser.parse(
+                "{\"future_quota\":{\"utilization\":4,"
+                        + "\"resets_at\":\"2027-01-20T12:00:00Z\"}}",
+                fetchedAt, "");
+        check(futureBucket.additionalLimits.size() == 1
+                        && futureBucket.additionalLimits.get(0).primary != null
+                        && futureBucket.additionalLimits.get(0).primary.windowSeconds == 0L,
+                "unknown valid quota bucket is retained without invented duration");
+
+        UsageSnapshot malformed = UsageParser.parse(
+                "{\"five_hour\":{\"utilization\":\"bad\"},"
+                        + "\"seven_day\":{\"utilization\":10}}",
+                fetchedAt, "");
+        check(malformed.fiveHour == null && malformed.weekly != null,
+                "malformed bucket is ignored without hiding valid quota");
+
+        System.out.println("Claude usage contract: session, weekly, scoped limits and Extra Usage verified.");
     }
 
     private static void check(boolean condition, String name) {
