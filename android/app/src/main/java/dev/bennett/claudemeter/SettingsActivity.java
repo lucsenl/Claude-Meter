@@ -370,8 +370,7 @@ public final class SettingsActivity extends AppCompatActivity {
             String themeLabel = WidgetOptions.THEME_SYSTEM.equals(theme)
                     ? "System default"
                     : WidgetOptions.THEME_DARK.equals(theme) ? "Dark" : "Light";
-            findPreference("settings_appearance").setSummary(themeLabel + " · Material You "
-                    + (AppPreferences.isMaterialYouEnabled(requireContext()) ? "on" : "off"));
+            findPreference("settings_appearance").setSummary(themeLabel + " · Claude colors");
 
             int refreshMinutes = AppPreferences.getAutomaticRefresh(requireContext())
                     ? RefreshScheduler.effectiveRefreshMinutes(requireContext())
@@ -533,14 +532,9 @@ public final class SettingsActivity extends AppCompatActivity {
                 requireActivity().recreate();
                 return true;
             });
-            materialYou.setPersistent(false);
-            materialYou.setChecked(AppPreferences.isMaterialYouEnabled(requireContext()));
-            materialYou.setOnPreferenceChangeListener((preference, value) -> {
-                AppPreferences.setMaterialYouEnabled(requireContext(), (Boolean) value);
-                WidgetRenderer.updateAll(requireContext());
-                requireActivity().recreate();
-                return true;
-            });
+            // Material You is intentionally unavailable: it overrides Claude's palette.
+            // Retain the XML key only for compatibility with older preference screens.
+            if (materialYou != null) materialYou.setVisible(false);
         }
 
         private void bindRefresh() {

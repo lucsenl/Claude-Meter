@@ -84,9 +84,10 @@ public final class Ui {
             }
             ((AppCompatActivity) activity).getDelegate().setLocalNightMode(mode);
         }
-        activity.setTheme(AppPreferences.isMaterialYouEnabled(activity)
-                ? R.style.AppTheme_MaterialYou
-                : R.style.AppTheme);
+        // The product identity remains Claude regardless of Samsung/Android wallpaper.
+        // Follow the OS for light/dark mode, never for branding colors.
+        AppPreferences.migrateClaudeAppearance(activity);
+        activity.setTheme(R.style.AppTheme);
     }
 
     public static Page installPage(AppCompatActivity activity, String title, boolean back) {
@@ -167,61 +168,44 @@ public final class Ui {
     }
 
     public static int background(Context context, boolean z) {
-        if (isOneUi(context)) {
-            return z ? Color.rgb(5, 6, 8) : Color.rgb(241, 241, 243);
-        }
-        return systemColor(context, z ? "system_neutral1_900" : "system_neutral1_10", z ? Color.rgb(18, 18, 22) : Color.rgb(249, 247, 251));
+        return z ? Color.rgb(20, 20, 19) : Color.rgb(250, 249, 245);
     }
 
     public static int background(boolean z) {
-        return z ? Color.rgb(18, 18, 22) : Color.rgb(249, 247, 251);
+        return z ? Color.rgb(20, 20, 19) : Color.rgb(250, 249, 245);
     }
 
     public static int cardColor(Context context, boolean z) {
-        if (!isOneUi(context)) {
-            return systemColor(context, z ? "system_neutral1_800" : "system_neutral1_50", z ? Color.rgb(31, 30, 36) : Color.rgb(242, 239, 246));
-        }
-        if (z) {
-            return Color.rgb(22, 24, 28);
-        }
-        return Color.rgb(252, 252, 255);
+        return z ? Color.rgb(48, 48, 46) : Color.rgb(255, 255, 255);
     }
 
     public static int card(boolean z) {
-        return z ? Color.rgb(31, 30, 36) : Color.rgb(242, 239, 246);
+        return z ? Color.rgb(48, 48, 46) : Color.rgb(240, 238, 230);
     }
 
     public static int controlSurface(Context context, boolean z) {
-        if (isOneUi(context)) {
-            return z ? Color.rgb(42, 44, 50) : Color.rgb(238, 238, 241);
-        }
-        return systemColor(context, z ? "system_neutral1_700" : "system_neutral1_100", z ? Color.rgb(46, 44, 52) : Color.rgb(232, 228, 236));
+        return z ? Color.rgb(61, 61, 58) : Color.rgb(232, 230, 220);
     }
 
     public static int mainText(boolean z) {
-        return z ? Color.rgb(248, 248, 250) : Color.BLACK;
+        return z ? Color.rgb(250, 249, 245) : Color.rgb(20, 20, 19);
     }
 
     public static int secondaryText(boolean z) {
-        return z ? Color.rgb(183, 186, 194) : Color.rgb(132, 132, 135);
+        return z ? Color.rgb(176, 174, 165) : Color.rgb(110, 109, 103);
     }
 
     public static int divider(boolean z) {
-        return z ? Color.rgb(55, 58, 64) : Color.rgb(228, 228, 228);
+        return z ? Color.rgb(61, 61, 58) : Color.rgb(232, 230, 220);
     }
 
-    /** Official One UI Primary (#0381FE) / dark-mode accent (#5CA9FF). */
+    /** Claude brand orange (#D97757) in every One UI surface and Android theme. */
     public static int oneUiAccent(boolean dark) {
-        return dark ? Color.rgb(92, 169, 255) : Color.rgb(3, 129, 254);
+        return Color.rgb(217, 119, 87);
     }
 
-    public static int accent(Context context, boolean z) {
-        int oneUi = oneUiAccent(z);
-        if (AppPreferences.isMaterialYouEnabled(context)) {
-            // Material You system accents; fall back to One UI blues when unavailable.
-            return systemColor(context, z ? "system_accent1_200" : "system_accent1_600", oneUi);
-        }
-        return oneUi;
+    public static int accent(Context context, boolean dark) {
+        return oneUiAccent(dark);
     }
 
     public static int desaturatedAccent(Context context, boolean dark) {
@@ -250,7 +234,7 @@ public final class Ui {
     }
 
     public static int accent(boolean z) {
-        return z ? Color.rgb(117, 220, 179) : Color.rgb(0, 113, 83);
+        return Color.rgb(217, 119, 87);
     }
 
     public static int onAccent(Context context, boolean z) {

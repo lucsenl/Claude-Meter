@@ -149,7 +149,7 @@ public final class WidgetGraphics {
             return Color.rgb(217, 119, 87);
         }
         if (WidgetOptions.ACCENT_BLUE.equals(str)) {
-            return z ? Color.rgb(92, 169, 255) : Color.rgb(3, 129, 254);
+            return Color.rgb(106, 155, 204); // Claude secondary blue, user-selectable only.
         }
         if (WidgetOptions.ACCENT_AMBER.equals(str)) {
             return Color.rgb(244, 185, 95);
@@ -166,7 +166,9 @@ public final class WidgetGraphics {
         if (WidgetOptions.ACCENT_LIME.equals(str)) {
             return Color.rgb(164, 214, 94);
         }
-        return WidgetOptions.ACCENT_MONO.equals(str) ? z ? Color.rgb(244, 247, 248) : Color.rgb(32, 35, 38) : z ? Color.rgb(66, 214, 164) : Color.rgb(20, 168, 121);
+        return WidgetOptions.ACCENT_MONO.equals(str)
+                ? (z ? Color.rgb(250, 249, 245) : Color.rgb(20, 20, 19))
+                : Color.rgb(217, 119, 87);
     }
 
     public static int trackColor(boolean z) {

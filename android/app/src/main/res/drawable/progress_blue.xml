@@ -4,6 +4,6 @@
     android:clipOrientation="horizontal">
     <shape android:shape="rectangle">
         <corners android:radius="999dp"/>
-        <solid android:color="#70a7ff"/>
+        <solid android:color="#6A9BCC"/>
     </shape>
 </clip>

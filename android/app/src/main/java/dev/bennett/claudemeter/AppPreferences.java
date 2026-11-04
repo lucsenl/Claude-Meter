@@ -19,6 +19,7 @@ public final class AppPreferences {
     private static final String KEY_DASHBOARD_WEEKLY = "dashboard_weekly";
     private static final String KEY_HISTORY_SECTION_OVERRIDES = "history_section_overrides";
     private static final String KEY_MATERIAL_YOU = "material_you";
+    private static final String KEY_CLAUDE_APPEARANCE_MIGRATION = "claude_appearance_migrated_v3";
     private static final String KEY_ERROR = "last_error";
     private static final String KEY_ERROR_AT = "last_error_at";
     private static final String KEY_OAUTH_PENDING = "oauth_pending";
@@ -412,13 +413,35 @@ public final class AppPreferences {
         prefs(context).edit().putString(KEY_APP_THEME, str).commit();
     }
 
-    /** When enabled, accents follow Android Material You system colors (API 31+). */
+    /** Claude identity must not be replaced with a wallpaper-derived or One UI blue. */
     public static boolean isMaterialYouEnabled(Context context) {
-        return prefs(context).getBoolean(KEY_MATERIAL_YOU, false);
+        return false;
     }
 
     public static void setMaterialYouEnabled(Context context, boolean enabled) {
-        prefs(context).edit().putBoolean(KEY_MATERIAL_YOU, enabled).commit();
+        prefs(context).edit().putBoolean(KEY_MATERIAL_YOU, false).commit();
+    }
+
+    /**
+     * One-time migration for 0.2.0 installs: replace inherited Samsung-blue widget
+     * accents with Claude orange without discarding the user's other widget options.
+     * Later user-selected custom colors remain available in the widget editor.
+     */
+    public static synchronized void migrateClaudeAppearance(Context context) {
+        SharedPreferences stored = prefs(context);
+        if (stored.getBoolean(KEY_CLAUDE_APPEARANCE_MIGRATION, false)) return;
+        SharedPreferences.Editor edit = stored.edit();
+        for (java.util.Map.Entry<String, ?> entry : stored.getAll().entrySet()) {
+            String key = entry.getKey();
+            if (("default_accent".equals(key)
+                    || (key.startsWith("widget_") && key.endsWith("_accent")))
+                    && WidgetOptions.ACCENT_BLUE.equals(entry.getValue())) {
+                edit.putString(key, WidgetOptions.ACCENT_APP);
+            }
+        }
+        edit.putBoolean(KEY_MATERIAL_YOU, false);
+        edit.putBoolean(KEY_CLAUDE_APPEARANCE_MIGRATION, true);
+        edit.commit();
     }
 
     public static String getAppStyle(Context context) {
@@ -430,6 +453,7 @@ public final class AppPreferences {
     }
 
     public static WidgetOptions loadDefaultWidgetOptions(Context context) {
+        migrateClaudeAppearance(context);
         SharedPreferences sharedPreferencesPrefs = prefs(context);
         return normalizeLoaded(new WidgetOptions(
                 sharedPreferencesPrefs.getString("default_style", WidgetOptions.STYLE_AUTO),
