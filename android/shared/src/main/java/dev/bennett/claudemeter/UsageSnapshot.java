@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ public final class UsageSnapshot {
     public final long fetchedAtMillis;
     public final UsageWindow fiveHour;
     public final boolean limitReached;
-    /** Monthly Codex window (~30 days); reported instead of 5-hour/weekly on the Free tier. */
+    /** Monthly Claude window (~30 days); reported instead of 5-hour/weekly on the Free tier. */
     public final UsageWindow monthly;
     public final String planType;
     public final int resetCreditsAvailable;
@@ -54,7 +54,7 @@ public final class UsageSnapshot {
     }
 
     /**
-     * The longer-cadence Codex window: weekly when present, otherwise the monthly window that
+     * The longer-cadence Claude window: weekly when present, otherwise the monthly window that
      * free-tier accounts report. Surfaces that used to hardcode "weekly" adapt through this so a
      * subscription change (for example Pro 20x expiring to Free) swaps windows automatically.
      */

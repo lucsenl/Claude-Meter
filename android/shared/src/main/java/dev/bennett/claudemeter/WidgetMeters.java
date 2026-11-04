@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -131,8 +131,8 @@ public final class WidgetMeters {
 
     /**
      * Catalog of meters that can be offered in widget config. Model-specific additional limits
-     * (for example GPT-5.3-Codex-Spark) stay on the in-app dashboard only — widgets stick to the
-     * Codex 5-hour/weekly windows plus next-reset and reset-credit helpers.
+     * (for example GPT-5.3-Claude-Spark) stay on the in-app dashboard only — widgets stick to the
+     * Claude 5-hour/weekly windows plus next-reset and reset-credit helpers.
      */
     public static List<String> availableKeys(UsageSnapshot snapshot) {
         LinkedHashSet<String> keys = new LinkedHashSet<>();
@@ -232,7 +232,7 @@ public final class WidgetMeters {
         return keys != null && key != null && keys.contains(key);
     }
 
-    /** Number of usage-window meters (Codex + additional limits), excluding reset helpers. */
+    /** Number of usage-window meters (Claude + additional limits), excluding reset helpers. */
     public static int usageMeterCount(List<String> keys) {
         if (keys == null) {
             return 0;
@@ -376,10 +376,10 @@ public final class WidgetMeters {
     /** Config-row title for a meter key. */
     public static String configLabel(String key, UsageSnapshot snapshot) {
         if (FIVE_HOUR.equals(key)) {
-            return "Codex · 5 hours";
+            return "Claude · 5 hours";
         }
         if (WEEKLY.equals(key)) {
-            return weeklyMeterIsMonthly(snapshot) ? "Codex · Monthly" : "Codex · Weekly";
+            return weeklyMeterIsMonthly(snapshot) ? "Claude · Monthly" : "Claude · Weekly";
         }
         if (NEXT_RESET.equals(key)) {
             return "Next reset";

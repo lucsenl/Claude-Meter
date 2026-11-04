@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import org.json.JSONException;
 import org.json.JSONObject;

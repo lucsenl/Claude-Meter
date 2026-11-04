@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -143,7 +143,7 @@ public final class WearGlanceFormat {
         if (!snapshot.allowed) return "Usage access unavailable";
         if (snapshot.limitReached) return "Limit reached";
         String plan = snapshot.planType == null ? "" : snapshot.planType.trim();
-        if (plan.isEmpty()) return "Codex usage";
+        if (plan.isEmpty()) return "Claude usage";
         return Character.toUpperCase(plan.charAt(0)) + plan.substring(1) + " plan";
     }
 
