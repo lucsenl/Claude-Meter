@@ -1,9 +1,9 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import dev.bennett.codexmeter.wear.WearSyncPaths;
+import dev.bennett.claudemeter.wear.WearSyncPaths;
 
 public final class WearMonitorActionReceiver extends BroadcastReceiver {
     @Override

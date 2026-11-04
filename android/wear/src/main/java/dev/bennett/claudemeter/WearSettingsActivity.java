@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.Manifest;
 import android.app.Activity;
@@ -18,9 +18,9 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSurfaceMode;
-import dev.bennett.codexmeter.wear.WearSyncPaths;
+import dev.bennett.claudemeter.wear.WearSettingsState;
+import dev.bennett.claudemeter.wear.WearSurfaceMode;
+import dev.bennett.claudemeter.wear.WearSyncPaths;
 
 public final class WearSettingsActivity extends Activity {
     private static final int REQUEST_NOTIFICATIONS = 8715;
@@ -247,7 +247,7 @@ public final class WearSettingsActivity extends Activity {
     private View styleSpinnerText(View view, boolean dropdown) {
         if (view instanceof TextView) {
             TextView text = (TextView) view;
-            text.setTextColor(getColor(dropdown ? R.color.codex_text : R.color.codex_blue));
+            text.setTextColor(getColor(dropdown ? R.color.claude_text : R.color.claude_blue));
             text.setAlpha(1f);
             text.setSingleLine(true);
             text.setIncludeFontPadding(false);

@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.Manifest;
 import android.app.Notification;
@@ -19,22 +19,22 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.wear.ongoing.OngoingActivity;
 import androidx.wear.ongoing.Status;
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSurfaceMode;
-import dev.bennett.codexmeter.wear.WearSyncPaths;
+import dev.bennett.claudemeter.wear.WearSettingsState;
+import dev.bennett.claudemeter.wear.WearSurfaceMode;
+import dev.bennett.claudemeter.wear.WearSyncPaths;
 import java.util.Collections;
 
 public final class WearOngoingMonitor {
-    public static final String ACTION_REFRESH = "dev.bennett.codexmeter.action.WEAR_REFRESH";
-    public static final String ACTION_STOP = "dev.bennett.codexmeter.action.WEAR_STOP";
+    public static final String ACTION_REFRESH = "dev.bennett.claudemeter.action.WEAR_REFRESH";
+    public static final String ACTION_STOP = "dev.bennett.claudemeter.action.WEAR_STOP";
 
-    private static final String CHANNEL_ID = "codex_wear_live_monitor_v1";
+    private static final String CHANNEL_ID = "claude_wear_live_monitor_v1";
     private static final String EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing";
     private static final int NOTIFICATION_ID = 8710;
     private static final int REQUEST_CONTENT = 8711;
     private static final int REQUEST_STOP = 8712;
     private static final int REQUEST_REFRESH = 8713;
-    private static final String TAG = "CodexWearMonitor";
+    private static final String TAG = "ClaudeWearMonitor";
 
     private WearOngoingMonitor() {
     }
@@ -172,7 +172,7 @@ public final class WearOngoingMonitor {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("Codex usage")
+                .setContentTitle("Claude usage")
                 .setContentText(contentText)
                 .setContentIntent(contentIntent)
                 .setDeleteIntent(stopIntent)
@@ -190,7 +190,7 @@ public final class WearOngoingMonitor {
                         R.drawable.ic_refresh, "Refresh", refreshIntent).build());
 
         Status status = new Status.Builder()
-                .addTemplate("Codex #remaining# · #timer#")
+                .addTemplate("Claude #remaining# · #timer#")
                 .addPart("remaining", new Status.TextPart(criticalText))
                 .addPart("timer", new Status.TimerPart(elapsedTimeZero(until, now)))
                 .build();
