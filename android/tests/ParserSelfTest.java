@@ -1,55 +1,71 @@
 package dev.lucsenl.claudemeter;
 
-import java.util.List;
-
 public final class ParserSelfTest {
     public static void main(String[] args) throws Exception {
-        testUsageTotals();
-        testCostConversion();
-        testModels();
+        testUsageAndProfile();
+        testNullWindows();
         testSnapshotRoundTrip();
-        System.out.println("Claude Meter parser tests passed.");
+        System.out.println("Claude Meter subscription parser tests passed.");
     }
 
-    private static void testUsageTotals() throws Exception {
-        String json = "{\"data\":["
-                + "{\"usage\":{\"total_tokens\":1200,\"requests\":4}},"
-                + "{\"usage\":{\"total_tokens\":800,\"requests\":2}}]}";
-        UsageParser.Totals totals = UsageParser.usageTotals(json);
-        assert totals.tokens == 2000L : totals.tokens;
-        assert totals.requests == 6L : totals.requests;
+    private static void testUsageAndProfile() throws Exception {
+        String usage = "{"
+                + "\"five_hour\":{\"utilization\":15.0,"
+                + "\"resets_at\":\"2026-11-04T18:00:00+00:00\"},"
+                + "\"seven_day\":{\"utilization\":36.0,"
+                + "\"resets_at\":\"2026-11-09T18:00:00+00:00\"},"
+                + "\"extra_usage\":{\"is_enabled\":true},"
+                + "\"member_dashboard_available\":true,"
+                + "\"limits\":["
+                + "{\"kind\":\"session\",\"percent\":15,\"scope\":null},"
+                + "{\"kind\":\"weekly_scoped\",\"percent\":71,"
+                + "\"resets_at\":\"2026-11-09T18:00:00+00:00\","
+                + "\"scope\":{\"model\":{\"display_name\":\"Fable\"}},"
+                + "\"is_active\":true}"
+                + "]}";
+        String profile = "{"
+                + "\"account\":{\"email\":\"user@example.com\","
+                + "\"display_name\":\"Example User\"},"
+                + "\"organization\":{\"organization_type\":\"claude_max\","
+                + "\"rate_limit_tier\":\"default_claude_max_20x\","
+                + "\"subscription_status\":\"active\"}}";
+
+        UsageSnapshot value = UsageParser.parse(usage, profile, 123456L);
+        assert "Example User".equals(value.displayName);
+        assert "user@example.com".equals(value.email);
+        assert "Max 20×".equals(value.plan) : value.plan;
+        assert value.fiveHourUtilization == 15d;
+        assert value.sevenDayUtilization == 36d;
+        assert value.extraUsageEnabled;
+        assert value.memberDashboardAvailable;
+        assert value.scopedLimits.size() == 1 : value.scopedLimits.size();
+        assert "Fable · Weekly".equals(value.scopedLimits.get(0).label);
+        assert value.scopedLimits.get(0).utilization == 71d;
+        assert value.scopedLimits.get(0).active;
     }
 
-    private static void testCostConversion() throws Exception {
-        String json = "{\"data\":[{\"cost\":{\"amount\":\"123.450000\"}},"
-                + "{\"cost\":{\"amount\":\"126.550000\"}}]}";
-        assert "2.50".equals(UsageParser.costUsd(json)) : UsageParser.costUsd(json);
-    }
-
-    private static void testModels() throws Exception {
-        String json = "{\"data\":["
-                + "{\"id\":\"claude-a\",\"display_name\":\"Claude A\"},"
-                + "{\"id\":\"claude-b\",\"display_name\":\"Claude B\"},"
-                + "{\"id\":\"claude-a\",\"display_name\":\"Claude A\"}]}";
-        List<String> models = UsageParser.models(json);
-        assert models.size() == 2 : models;
-        assert "Claude A".equals(models.get(0));
-        assert "Claude B".equals(models.get(1));
+    private static void testNullWindows() throws Exception {
+        UsageSnapshot value = UsageParser.parse(
+                "{\"five_hour\":null,\"seven_day\":null}",
+                "{\"account\":{},\"organization\":{}}",
+                1L);
+        assert !value.hasFiveHour();
+        assert !value.hasSevenDay();
+        assert "Claude".equals(value.plan);
     }
 
     private static void testSnapshotRoundTrip() throws Exception {
-        UsageSnapshot original = new UsageSnapshot(
-                true, "", "org_1", "Example Org",
-                100L, 2L, 700L, 8L, "3.21",
-                List.of("Claude A", "Claude B"), 123456L);
+        UsageSnapshot original = UsageParser.parse(
+                "{\"five_hour\":{\"utilization\":22.5},"
+                        + "\"seven_day\":{\"utilization\":48.0}}",
+                "{\"account\":{\"email\":\"a@b.test\"},"
+                        + "\"organization\":{\"organization_type\":\"claude_pro\"}}",
+                999L);
         UsageSnapshot restored = UsageSnapshot.fromJson(original.toJson());
         assert restored != null;
-        assert restored.analyticsAvailable;
-        assert restored.todayTokens == 100L;
-        assert restored.weekTokens == 700L;
-        assert restored.weekRequests == 8L;
-        assert "3.21".equals(restored.monthCostUsd);
-        assert restored.activeModels.size() == 2;
-        assert restored.fetchedAtMillis == 123456L;
+        assert "Pro".equals(restored.plan);
+        assert restored.fiveHourUtilization == 22.5d;
+        assert restored.sevenDayUtilization == 48d;
+        assert restored.fetchedAtMillis == 999L;
     }
 }
