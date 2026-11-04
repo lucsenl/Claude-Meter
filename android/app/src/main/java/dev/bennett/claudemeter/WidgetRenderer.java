@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -39,7 +39,7 @@ public final class WidgetRenderer {
             }
             try {
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, (Class<?>) CodexUsageWidget.class));
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, (Class<?>) ClaudeUsageWidget.class));
                 int length = appWidgetIds.length;
                 DiagnosticLog.info(context, "widget", "update_all_started",
                         "home_widget_count", length,
@@ -51,7 +51,7 @@ public final class WidgetRenderer {
                 DiagnosticLog.info(context, "widget", "update_all_finished");
             } catch (RuntimeException e) {
                 DiagnosticLog.error(context, "widget", "update_all_failed", e);
-                Log.w("CodexMeterWidget", "Widget update failed: " + safeMessage(e));
+                Log.w("ClaudeMeterWidget", "Widget update failed: " + safeMessage(e));
             }
         }
     }
@@ -73,7 +73,7 @@ public final class WidgetRenderer {
             } catch (RuntimeException e) {
                 DiagnosticLog.error(context, "widget", "render_failed", e,
                         "widget_id", i);
-                Log.w("CodexMeterWidget", "Widget render failed: " + safeMessage(e));
+                Log.w("ClaudeMeterWidget", "Widget render failed: " + safeMessage(e));
                 try {
                     appWidgetManager.updateAppWidget(i, buildFallback(context, i));
                 } catch (RuntimeException e2) {
@@ -183,7 +183,7 @@ public final class WidgetRenderer {
         WidgetOptions widgetOptionsDefaults = WidgetOptions.defaults();
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_compact);
         boolean zChooseDark = chooseDark(context, widgetOptionsDefaults);
-        WidgetState widgetStateError = WidgetState.error("Open Codex Meter to recover");
+        WidgetState widgetStateError = WidgetState.error("Open Claude Meter to recover");
         applyRootAndHeader(context, remoteViews, i, widgetOptionsDefaults, zChooseDark, widgetStateError);
         renderMinimal(context, remoteViews, widgetOptionsDefaults, zChooseDark, widgetStateError,
                 java.util.Collections.emptyList());
@@ -290,14 +290,14 @@ public final class WidgetRenderer {
         } else if (WidgetOptions.TAP_USE_RESET.equals(tapAction)) {
             rootAction = PendingIntent.getActivity(context, 74000 + i,
                     new Intent(context, (Class<?>) ResetCreditActivity.class)
-                            .setAction("dev.bennett.codexmeter.action.WIDGET_RESET")
+                            .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
                             .setData(widgetUri(i, "root-reset"))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
             rootAction = PendingIntent.getActivity(context, 74000 + i,
                     new Intent(context, (Class<?>) MainActivity.class)
-                            .setAction("dev.bennett.codexmeter.action.WIDGET_OPEN")
+                            .setAction("dev.bennett.claudemeter.action.WIDGET_OPEN")
                             .setData(widgetUri(i, "root-open"))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -313,7 +313,7 @@ public final class WidgetRenderer {
         remoteViews.setOnClickPendingIntent(R.id.reset_credit_button,
                 PendingIntent.getActivity(context, 76000 + i,
                         new Intent(context, (Class<?>) ResetCreditActivity.class)
-                                .setAction("dev.bennett.codexmeter.action.WIDGET_RESET")
+                                .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
                                 .setData(widgetUri(i, "reset"))
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                         | Intent.FLAG_ACTIVITY_CLEAR_TOP),
@@ -321,7 +321,7 @@ public final class WidgetRenderer {
     }
 
     private static Uri widgetUri(int appWidgetId, String action) {
-        return Uri.parse("codexmeter://widget/home/v" + AppConstants.VERSION_CODE + "/"
+        return Uri.parse("claudemeter://widget/home/v" + AppConstants.VERSION_CODE + "/"
                 + appWidgetId + "/" + action);
     }
 
@@ -774,7 +774,7 @@ public final class WidgetRenderer {
         remoteViews.setTextViewText(R.id.reset_credit_button, i2 > GRAPHIC_LARGE ? "Use reset (" + i2 + ")" : "Use reset");
         remoteViews.setTextColor(R.id.reset_credit_button, WidgetGraphics.mainTextColor(z));
         remoteViews.setInt(R.id.reset_credit_button, "setBackgroundResource", z ? R.drawable.widget_action_dark : R.drawable.widget_action_light);
-        remoteViews.setContentDescription(R.id.reset_credit_button, "Use one Codex reset credit. " + str2);
+        remoteViews.setContentDescription(R.id.reset_credit_button, "Use one Claude reset credit. " + str2);
     }
 
     private static int progressResource(String str, boolean z) {

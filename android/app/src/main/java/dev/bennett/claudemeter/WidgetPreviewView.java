@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -72,7 +72,7 @@ public final class WidgetPreviewView extends View {
         float f4 = width - (18.0f * f);
         float f5 = 29.0f * f;
         if (this.options.showTitle) {
-            text(canvas, "CODEX", f3, f5, 12.0f * f, iRgb2, Paint.Align.LEFT, true);
+            text(canvas, "CLAUDE", f3, f5, 12.0f * f, iRgb2, Paint.Align.LEFT, true);
         }
         if (this.options.showPlan) {
             text(canvas, "PRO", width - (48.0f * f), f5, 11.0f * f, iArgb2, Paint.Align.RIGHT, true);

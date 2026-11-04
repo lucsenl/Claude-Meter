@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
 import android.net.Uri;
 import android.util.Log;
@@ -8,14 +8,14 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.WearableListenerService;
-import dev.bennett.codexmeter.AppPreferences;
-import dev.bennett.codexmeter.DiagnosticLog;
-import dev.bennett.codexmeter.NowBarManager;
-import dev.bennett.codexmeter.UsageApi;
+import dev.bennett.claudemeter.AppPreferences;
+import dev.bennett.claudemeter.DiagnosticLog;
+import dev.bennett.claudemeter.NowBarManager;
+import dev.bennett.claudemeter.UsageApi;
 import org.json.JSONObject;
 
 public final class PhoneWearListenerService extends WearableListenerService {
-    private static final String TAG = "CodexWearListener";
+    private static final String TAG = "ClaudeWearListener";
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
@@ -96,6 +96,6 @@ public final class PhoneWearListenerService extends WearableListenerService {
             }
             DiagnosticLog.info(app, "wear", "wear_refresh_succeeded");
             PhoneWearSync.pushStatus(app, false, "");
-        }, "codex-wear-refresh").start();
+        }, "claude-wear-refresh").start();
     }
 }

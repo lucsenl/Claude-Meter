@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -12,7 +12,7 @@ import java.io.File;
 /** Rebinds widget components and RemoteViews after APK replacement or restore. */
 public final class WidgetUpgradeRepair {
     private static final int JOB_ID = 73500;
-    private static final String PREFS = "codex_meter_migrations_v1";
+    private static final String PREFS = "claude_meter_migrations_v1";
     private static final String KEY_CLEAN_AFTER_REPLACE = "clean_after_replace";
     private static final String KEY_REPAIRED_VERSION = "widget_repaired_version";
 
@@ -73,7 +73,7 @@ public final class WidgetUpgradeRepair {
     private static void repair(Context context, long version) {
         try {
             context.getPackageManager().setComponentEnabledSetting(
-                    new ComponentName(context, CodexUsageWidget.class),
+                    new ComponentName(context, ClaudeUsageWidget.class),
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP);
         } catch (RuntimeException ignored) {
