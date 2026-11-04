@@ -1,8 +1,8 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.net.Uri;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -161,7 +161,7 @@ public final class SettingsTransferStore {
                     AppPreferences.setLastError(app, message);
                     WidgetRenderer.updateAll(app);
                 }
-            }, "codex-transfer-refresh").start();
+            }, "claude-transfer-refresh").start();
         }
 
         return new ApplyResult(applied, themeChanged, authImported);
