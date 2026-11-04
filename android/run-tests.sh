@@ -76,8 +76,8 @@ java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeOAuthProtocolTest
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeAccountProfileTest
 
 # Claude Meter source-contract checks.
-grep -q 'VERSION_NAME = "0.2.1"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
-grep -q 'VERSION_CODE = 3' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'VERSION_NAME = "0.2.2"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
+grep -q 'VERSION_CODE = 4' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'applicationId = "dev.lucsenl.claudemeter"' "$ROOT/app/build.gradle.kts"
 grep -q 'https://claude.com/cai/oauth/authorize' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"
 grep -q 'https://platform.claude.com/v1/oauth/token' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"

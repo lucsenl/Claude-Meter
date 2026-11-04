@@ -8,7 +8,7 @@ There is **no iOS or Wear OS app** in this fork.
 This is an independent, unofficial client. It is not affiliated with or endorsed
 by Anthropic.
 
-## Status: Android recovery preview (v0.2.1)
+## Status: Android recovery preview (v0.2.2)
 
 The restored Android interface is in [pull request #4](https://github.com/lucsenl/claude-meter/pull/4)
 until its build and real-device checks pass. An implementation in source control

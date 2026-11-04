@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.2 — 2026-11-04
+
+### Subscription-accurate Fable indicators
+
+- Corrected automatic display of the Anthropic `iguana_necktie` usage
+  bucket as a Fable subscription entitlement for Pro accounts.
+- Pro, Free, standard/unknown Team, and unknown plans do not show the
+  Fable-specific subscription-limit card. Reported Max/Ultra plan Fable
+  buckets remain available.
+- Extra Usage / paid usage credits stay independent from the included
+  Fable allowance; no paid access is inferred from a quota bucket.
+- Reprocesses cached usage data to remove stale Fable cards without a
+  reinstall or clearing other history.
+- Added regression tests for Pro, Max, Ultra, unknown tiers and old caches.
+
+**Limitation:** premium Team/Enterprise seat entitlement is not exposed by
+the current profile parser, so Fable remains hidden there rather than
+claiming that an unverified seat includes it.
+
+
 ## 0.2.1 — 2026-11-04
 
 ### Claude branding and subscription correction
