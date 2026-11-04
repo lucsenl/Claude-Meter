@@ -1,47 +1,46 @@
 # Claude Meter
 
-Claude Meter is an Android-only fork focused on showing Claude usage information on phones,
-Samsung One UI surfaces, and Wear OS.
+Claude Meter is an Android phone app for viewing documented Anthropic API analytics.
 
-The project is being migrated from the original Codex Meter implementation to Claude/Anthropic.
-Provider-specific behavior is changed only when the Claude equivalent is supported by evidence;
-legacy network contracts are removed as their real replacements are implemented.
+The app uses only public Anthropic API contracts. It does not sign in to Claude.ai, impersonate
+Claude Code, or use private subscription-quota endpoints.
 
-## Repository layout
+## What it shows
 
-| Path | Purpose |
-|---|---|
-| `android/app/` | Android phone app, dashboard, settings, notifications, widgets and Samsung lock/AOD integration |
-| `android/shared/` | Shared Java models and logic used by phone and Wear |
-| `android/wear/` | Wear OS companion, tiles and complications |
-| `android/tests/` | Pure-Java regression tests |
-| `docs/` | Claude migration contracts and terminology evidence |
+With an Anthropic credential that has Analytics access:
 
-There is no application backend. Credentials and cached usage state stay on-device.
+- token usage today
+- token usage over the last 7 days
+- request counts
+- API cost over the last 30 days
 
-## Android features retained
+With a regular Anthropic API key:
 
-- Phone dashboard and usage history
-- Home-screen widgets
-- Samsung One UI lock-screen / AOD widgets where supported
-- Notifications and reset-time alerts
-- Optional live usage monitor / Now Bar integration
-- Wear OS companion, tiles and complications
-- Android Keystore encrypted credential storage
-- Local diagnostics, settings transfer and update channels
+- connection status
+- models available to that key
 
-Features that only existed for iOS have been removed from this fork.
+Claude subscription session/weekly allowance percentages are not exposed through the public
+third-party API, so Claude Meter does not fabricate them.
 
-## Build from source
+## Android
+
+Claude Meter is phone-only. There is no iOS or Wear OS module.
+
+- package: `dev.lucsenl.claudemeter`
+- minimum Android: API 26
+- target/compile SDK: 36
+- interface: One UI / SESL
+- credential storage: Android Keystore
+- widget: today + 7-day token totals
+
+## Build
 
 Requirements:
 
-- JDK 17 or newer
-- Android SDK Platforms 36 and 37.0
+- JDK 17+
+- Android SDK Platform 36
 - Android Build Tools 36.x
 - `ANDROID_SDK_ROOT` or `ANDROID_HOME`
-- `GH_USERNAME` and `GH_ACCESS_TOKEN` with `read:packages` only when the vendored
-  OneUI dependencies are insufficient and Gradle must fetch them
 
 From the repository root:
 
@@ -51,26 +50,4 @@ From the repository root:
 ./build.sh
 ```
 
-The root scripts forward to the Android project. Build artifacts are written under
-`android/dist/`.
-
-See `android/README.md` for Android-specific module and build details.
-
-## Release channels
-
-- `main`: stable channel
-- `alpha`: rapid-iteration / prerelease channel when present
-
-Creating a matching `v*` tag triggers the Android release workflow for the phone and Wear APKs.
-Do not create release tags as part of normal development work.
-
-## Claude migration
-
-The migration rules are documented in:
-
-- `docs/CLAUDE_UPSTREAM_MAPPING.md`
-- `docs/CLAUDE_TERMINOLOGY_EVIDENCE.md`
-
-The central rule is that Claude-specific names, limits, authentication behavior and provider
-contracts must be grounded in actual Anthropic/Claude behavior rather than obtained through blind
-string replacement.
+Artifacts are written to `android/dist/`.
