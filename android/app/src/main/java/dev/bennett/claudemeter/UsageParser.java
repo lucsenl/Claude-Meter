@@ -1,172 +1,187 @@
 package dev.bennett.claudemeter;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/* JADX INFO: loaded from: classes.dex */
+/** Parses the Claude OAuth usage response into the app's provider-neutral snapshot. */
 public final class UsageParser {
-    private static final long FIVE_HOURS = 18000;
-    private static final long WEEK = 604800;
-    private static final long MONTH = 2592000;
-    // Free-tier accounts report a single ~30-day Claude window; accept 10-45 days so calendar
-    // months and drifting billing periods still classify while staying clear of the weekly
-    // window's 9-day ceiling.
-    private static final long MONTH_MIN = 864000;
-    private static final long MONTH_MAX = 3888000;
+    private static final long FIVE_HOURS = 5L * 60L * 60L;
+    private static final long WEEK = 7L * 24L * 60L * 60L;
 
-    private UsageParser() {
+    private UsageParser() {}
+
+    public static UsageSnapshot parse(String json, long fetchedAtMillis) throws JSONException {
+        return parse(json, fetchedAtMillis, "");
     }
 
-    public static UsageSnapshot parse(String str, long j) throws JSONException {
-        boolean z;
-        boolean z2;
-        UsageWindow usageWindow;
-        JSONObject jSONObject = new JSONObject(str);
-        String strOptString = jSONObject.optString("plan_type", "");
-        JSONObject jSONObjectNullableObject = nullableObject(jSONObject, "rate_limit");
-        ArrayList arrayList = new ArrayList();
-        ArrayList<UsageLimit> additionalLimits = new ArrayList<>();
-        UsageWindow usageWindowFromJson = null;
-        if (jSONObjectNullableObject == null) {
-            z = true;
-            z2 = false;
-            usageWindow = null;
-        } else {
-            boolean zOptBoolean = jSONObjectNullableObject.optBoolean("allowed", true);
-            boolean zOptBoolean2 = jSONObjectNullableObject.optBoolean("limit_reached", false);
-            UsageWindow usageWindowFromJson2 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject, "primary_window"));
-            usageWindowFromJson = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject, "secondary_window"));
-            if (usageWindowFromJson2 != null) {
-                arrayList.add(usageWindowFromJson2);
-            }
-            if (usageWindowFromJson != null) {
-                arrayList.add(usageWindowFromJson);
-            }
-            z = zOptBoolean;
-            z2 = zOptBoolean2;
-            usageWindow = usageWindowFromJson2;
-        }
-        JSONArray jSONArrayOptJSONArray = jSONObject.optJSONArray("additional_rate_limits");
-        if (jSONArrayOptJSONArray != null) {
-            for (int i = 0; i < jSONArrayOptJSONArray.length(); i++) {
-                JSONObject jSONObjectOptJSONObject = jSONArrayOptJSONArray.optJSONObject(i);
-                if (jSONObjectOptJSONObject != null) {
-                    JSONObject jSONObjectNullableObject2 = nullableObject(jSONObjectOptJSONObject, "rate_limit");
-                    if (jSONObjectNullableObject2 == null) {
-                        jSONObjectNullableObject2 = jSONObjectOptJSONObject;
-                    }
-                    UsageWindow usageWindowFromJson3 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject2, "primary_window"));
-                    UsageWindow usageWindowFromJson4 = UsageWindow.fromJson(nullableObject(jSONObjectNullableObject2, "secondary_window"));
-                    if (usageWindowFromJson3 != null || usageWindowFromJson4 != null) {
-                        String name = jSONObjectOptJSONObject.optString("limit_name", "");
-                        String feature = jSONObjectOptJSONObject.optString("metered_feature", "");
-                        String id = firstNonEmpty(
-                                jSONObjectOptJSONObject.optString("limit_id", ""),
-                                name, feature, "additional");
-                        additionalLimits.add(new UsageLimit(
-                                id + "-" + i,
-                                name,
-                                feature,
-                                jSONObjectNullableObject2.optBoolean("allowed", true),
-                                jSONObjectNullableObject2.optBoolean("limit_reached", false),
-                                usageWindowFromJson3,
-                                usageWindowFromJson4));
-                    }
-                }
-            }
-        }
-        UsageWindow usageWindowNearest = nearest(arrayList, FIVE_HOURS, 10800L, 28800L);
-        UsageWindow usageWindowNearestExcluding = nearestExcluding(arrayList, WEEK, 432000L, 777600L, usageWindowNearest);
-        UsageWindow usageWindowMonthly = nearestExcluding(arrayList, MONTH, MONTH_MIN, MONTH_MAX,
-                usageWindowNearest, usageWindowNearestExcluding);
-        JSONObject jSONObjectNullableObject3 = nullableObject(jSONObject, "rate_limit_reset_credits");
-        UsageCredits usageCredits = UsageCredits.fromJson(nullableObject(jSONObject, "credits"));
+    public static UsageSnapshot parse(String json, long fetchedAtMillis, String planType)
+            throws JSONException {
+        JSONObject root = new JSONObject(json);
+        UsageWindow fiveHour = parseWindow(root.optJSONObject("five_hour"), FIVE_HOURS);
+        UsageWindow weekly = parseWindow(root.optJSONObject("seven_day"), WEEK);
+
+        List<UsageLimit> additional = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+
+        parseScopedLimits(root.optJSONArray("limits"), additional, ids);
+        parseFlatWindows(root, additional, ids);
+
+        UsageCredits extraUsage = UsageCredits.fromExtraUsage(root.optJSONObject("extra_usage"));
         return new UsageSnapshot(
-                strOptString,
-                z,
-                z2,
-                usageWindowNearest,
-                usageWindowNearestExcluding,
-                usageWindowMonthly,
-                additionalLimits,
-                usageCredits,
-                jSONObjectNullableObject3 == null
-                        ? -1 : jSONObjectNullableObject3.optInt("available_count", -1),
-                j);
+                planType,
+                true,
+                false,
+                fiveHour,
+                weekly,
+                null,
+                additional,
+                extraUsage,
+                -1,
+                fetchedAtMillis);
     }
 
-    private static String firstNonEmpty(String... values) {
-        for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
-                return value.trim();
+    private static void parseScopedLimits(JSONArray limits, List<UsageLimit> output,
+            Set<String> ids) {
+        if (limits == null) return;
+        for (int i = 0; i < limits.length(); i++) {
+            JSONObject limit = limits.optJSONObject(i);
+            if (limit == null) continue;
+            double percent = finiteNumber(limit.opt("percent"));
+            if (Double.isNaN(percent) || percent < 0.0d) continue;
+
+            JSONObject scope = limit.optJSONObject("scope");
+            JSONObject model = scope == null ? null : scope.optJSONObject("model");
+            String displayName = model == null ? "" : model.optString("display_name", "").trim();
+            if (displayName.isEmpty()) {
+                displayName = limit.optString("name", "").trim();
             }
+            if (displayName.isEmpty()) continue;
+
+            String id = "weekly_" + slug(displayName);
+            if (!ids.add(id)) continue;
+            long duration = "weekly".equalsIgnoreCase(limit.optString("group", "")) ? WEEK : 0L;
+            UsageWindow window = new UsageWindow(
+                    (int) Math.round(percent),
+                    duration,
+                    0L,
+                    parseResetSeconds(limit.optString("resets_at", "")));
+            output.add(new UsageLimit(id, displayName, "model", true,
+                    window.usedPercent >= 100, window, null));
         }
-        return "";
     }
 
-    private static JSONObject nullableObject(JSONObject jSONObject, String str) {
-        if (jSONObject == null || jSONObject.isNull(str)) {
-            return null;
-        }
-        return jSONObject.optJSONObject(str);
-    }
-
-    private static UsageWindow nearest(List<UsageWindow> list, long j, long j2, long j3) {
-        UsageWindow usageWindow;
-        long j4;
-        UsageWindow usageWindow2 = null;
-        long j5 = Long.MAX_VALUE;
-        for (UsageWindow usageWindow3 : list) {
-            if (usageWindow3.windowSeconds < j2 || usageWindow3.windowSeconds > j3) {
-                long j6 = j5;
-                usageWindow = usageWindow2;
-                j4 = j6;
-            } else {
-                long jAbs = Math.abs(usageWindow3.windowSeconds - j);
-                if (jAbs < j5) {
-                    usageWindow = usageWindow3;
-                    j4 = jAbs;
-                } else {
-                    long j7 = j5;
-                    usageWindow = usageWindow2;
-                    j4 = j7;
-                }
-            }
-            usageWindow2 = usageWindow;
-            j5 = j4;
-        }
-        return usageWindow2;
-    }
-
-    private static UsageWindow nearestExcluding(List<UsageWindow> list, long target,
-            long minimumSeconds, long maximumSeconds, UsageWindow... excluded) {
-        UsageWindow best = null;
-        long bestDistance = Long.MAX_VALUE;
-        for (UsageWindow candidate : list) {
-            if (isExcluded(candidate, excluded)
-                    || candidate.windowSeconds < minimumSeconds
-                    || candidate.windowSeconds > maximumSeconds) {
+    private static void parseFlatWindows(JSONObject root, List<UsageLimit> output, Set<String> ids) {
+        Iterator<String> keys = root.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if ("five_hour".equals(key) || "seven_day".equals(key)
+                    || "extra_usage".equals(key) || "limits".equals(key)) {
                 continue;
             }
-            long distance = Math.abs(candidate.windowSeconds - target);
-            if (distance < bestDistance) {
-                best = candidate;
-                bestDistance = distance;
-            }
+            JSONObject object = root.optJSONObject(key);
+            if (object == null || Double.isNaN(finiteNumber(object.opt("utilization")))) continue;
+
+            String id = normalizeFlatId(key);
+            if (!ids.add(id)) continue;
+            UsageWindow window = parseWindow(object, durationForKey(key));
+            if (window == null) continue;
+            output.add(new UsageLimit(id, labelForKey(key), "model", true,
+                    window.usedPercent >= 100, window, null));
         }
-        return best;
     }
 
-    private static boolean isExcluded(UsageWindow candidate, UsageWindow[] excluded) {
-        for (UsageWindow window : excluded) {
-            if (candidate == window) {
-                return true;
-            }
-        }
-        return false;
+    private static UsageWindow parseWindow(JSONObject object, long durationSeconds) {
+        if (object == null) return null;
+        double utilization = finiteNumber(object.opt("utilization"));
+        if (Double.isNaN(utilization) || utilization < 0.0d) return null;
+        return new UsageWindow(
+                (int) Math.round(utilization),
+                durationSeconds,
+                0L,
+                parseResetSeconds(object.optString("resets_at", "")));
     }
 
+    private static double finiteNumber(Object raw) {
+        if (raw instanceof Number) {
+            double value = ((Number) raw).doubleValue();
+            return Double.isFinite(value) ? value : Double.NaN;
+        }
+        if (raw instanceof String) {
+            try {
+                double value = Double.parseDouble((String) raw);
+                return Double.isFinite(value) ? value : Double.NaN;
+            } catch (NumberFormatException ignored) {}
+        }
+        return Double.NaN;
+    }
+
+    private static long parseResetSeconds(String value) {
+        if (value == null || value.trim().isEmpty()) return 0L;
+        try {
+            return Instant.parse(value.trim()).getEpochSecond();
+        } catch (Exception ignored) {
+            try {
+                return OffsetDateTime.parse(value.trim()).toInstant().getEpochSecond();
+            } catch (Exception ignoredAgain) {
+                return 0L;
+            }
+        }
+    }
+
+    private static long durationForKey(String key) {
+        String normalized = key.toLowerCase(Locale.ROOT);
+        if (normalized.startsWith("seven_day") || "iguana_necktie".equals(normalized)) {
+            return WEEK;
+        }
+        if (normalized.startsWith("five_hour")) return FIVE_HOURS;
+        return 0L;
+    }
+
+    private static String normalizeFlatId(String key) {
+        if ("iguana_necktie".equalsIgnoreCase(key)) return "weekly_fable";
+        return slug(key);
+    }
+
+    private static String labelForKey(String key) {
+        String normalized = key.toLowerCase(Locale.ROOT);
+        if ("iguana_necktie".equals(normalized) || normalized.contains("fable")) return "Fable";
+        if (normalized.contains("opus")) return "Opus";
+        if (normalized.contains("sonnet")) return "Sonnet";
+        if (normalized.contains("cowork")) return "Cowork";
+        return titleCase(key.replace("seven_day_", "").replace("five_hour_", ""));
+    }
+
+    private static String slug(String value) {
+        String result = value.trim().toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "_")
+                .replaceAll("^_+|_+$", "");
+        return result.isEmpty() ? "usage" : result;
+    }
+
+    private static String titleCase(String value) {
+        String normalized = value.replace('_', ' ').replace('-', ' ').trim();
+        if (normalized.isEmpty()) return "Additional usage";
+        StringBuilder out = new StringBuilder();
+        boolean upper = true;
+        for (int i = 0; i < normalized.length(); i++) {
+            char c = normalized.charAt(i);
+            if (Character.isWhitespace(c)) {
+                out.append(c);
+                upper = true;
+            } else {
+                out.append(upper ? Character.toUpperCase(c) : c);
+                upper = false;
+            }
+        }
+        return out.toString();
+    }
 }

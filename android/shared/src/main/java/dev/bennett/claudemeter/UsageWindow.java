@@ -90,12 +90,12 @@ public final class UsageWindow {
     }
 
     public static UsageWindow fromJson(JSONObject jSONObject) {
-        if (jSONObject == null || jSONObject.isNull("used_percent") || jSONObject.isNull("limit_window_seconds") || !jSONObject.has("used_percent") || !jSONObject.has("limit_window_seconds")) {
+        if (jSONObject == null || jSONObject.isNull("used_percent") || !jSONObject.has("used_percent")) {
             return null;
         }
         double dOptDouble = jSONObject.optDouble("used_percent", Double.NaN);
-        long jOptLong = jSONObject.optLong("limit_window_seconds", -1L);
-        if (Double.isNaN(dOptDouble) || Double.isInfinite(dOptDouble) || jOptLong <= 0) {
+        long jOptLong = jSONObject.optLong("limit_window_seconds", 0L);
+        if (Double.isNaN(dOptDouble) || Double.isInfinite(dOptDouble) || jOptLong < 0) {
             return null;
         }
         return new UsageWindow((int) Math.round(dOptDouble), jOptLong, jSONObject.optLong("reset_after_seconds", 0L), jSONObject.optLong("reset_at", 0L));

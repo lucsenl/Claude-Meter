@@ -14,7 +14,7 @@ public final class UsageSnapshot {
     public final long fetchedAtMillis;
     public final UsageWindow fiveHour;
     public final boolean limitReached;
-    /** Monthly Claude window (~30 days); reported instead of 5-hour/weekly on the Free tier. */
+    /** Compatibility field for old local snapshots. Claude usage parsing leaves this null. */
     public final UsageWindow monthly;
     public final String planType;
     public final int resetCreditsAvailable;
@@ -59,12 +59,12 @@ public final class UsageSnapshot {
      * subscription change (for example Pro 20x expiring to Free) swaps windows automatically.
      */
     public UsageWindow longWindow() {
-        return this.weekly != null ? this.weekly : this.monthly;
+        return this.weekly;
     }
 
     /** Whether {@link #longWindow()} is the monthly window rather than the weekly one. */
     public boolean longWindowIsMonthly() {
-        return this.weekly == null && this.monthly != null;
+        return false;
     }
 
     public JSONObject toJson() throws JSONException {
@@ -155,7 +155,7 @@ public final class UsageSnapshot {
     public boolean hasDisplayableData() {
         return fiveHour != null || weekly != null || monthly != null || !additionalLimits.isEmpty()
                 || (usageCredits != null && usageCredits.shouldDisplay())
-                || resetCreditsAvailable > 0;
+;
     }
 
     private long earlierFutureReset(long current, UsageWindow window, long now) {
