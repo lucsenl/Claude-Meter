@@ -132,9 +132,11 @@ public final class UsageApi {
         httpsURLConnection.setReadTimeout(25000);
         httpsURLConnection.setUseCaches(false);
         httpsURLConnection.setRequestProperty("Accept", "application/json");
+        httpsURLConnection.setRequestProperty("Content-Type", "application/json");
         httpsURLConnection.setRequestProperty("Authorization", "Bearer " + authTokens.accessToken);
         httpsURLConnection.setRequestProperty("anthropic-beta", AppConstants.OAUTH_BETA);
-        httpsURLConnection.setRequestProperty("User-Agent", AppConstants.userAgent());
+        httpsURLConnection.setRequestProperty("User-Agent",
+                AppConstants.CLAUDE_CODE_USAGE_USER_AGENT);
     }
 
     static void installCookieManager() {

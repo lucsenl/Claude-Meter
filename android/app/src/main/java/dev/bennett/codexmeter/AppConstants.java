@@ -29,6 +29,9 @@ public final class AppConstants {
     public static final int[] OAUTH_PORTS = {53692};
     public static final String OAUTH_SCOPE = "user:profile user:inference user:sessions:claude_code user:mcp_servers user:file_upload";
     public static final String OAUTH_BETA = "oauth-2025-04-20";
+    // The private usage route rate-limits unknown clients more aggressively.
+    // Keep this isolated to quota reads; normal OAuth traffic uses Claude Meter's own UA.
+    public static final String CLAUDE_CODE_USAGE_USER_AGENT = "claude-code/2.1.303";
     public static final String ORIGINATOR = "claude-meter-android";
     public static final String RESET_CREDITS_CONSUME_URL = "";
     public static final String RESET_CREDITS_URL = "";
