@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,8 +33,8 @@ public final class NowBarCopy {
     }
 
     /**
-     * Samsung expanded-chip label: {@code Codex · 5-hour 12%} or, when exhausted,
-     * {@code Codex · Weekly 2d 4h}. {@code windowLabel} names the focused window
+     * Samsung expanded-chip label: {@code Claude · 5-hour 12%} or, when exhausted,
+     * {@code Claude · Weekly 2d 4h}. {@code windowLabel} names the focused window
      * ({@code "5-hour"}, {@code "Weekly"}, or {@code "Monthly"}).
      */
     public static String chipExpandedText(String windowLabel, UsageWindow window,
@@ -42,16 +42,16 @@ public final class NowBarCopy {
         String focusLabel = (windowLabel == null || windowLabel.isEmpty()
                 ? "5-hour" : windowLabel) + " ";
         if (window == null) {
-            return "Codex · " + focusLabel + "unavailable";
+            return "Claude · " + focusLabel + "unavailable";
         }
         int remaining = window.remainingPercent();
         if (remaining > 0) {
-            return "Codex · " + focusLabel + remaining + "%";
+            return "Claude · " + focusLabel + remaining + "%";
         }
         String duration = resetDurationText(window, observedAtMillis, nowMillis);
         return duration == null
-                ? "Codex · " + focusLabel + "0%"
-                : "Codex · " + focusLabel + duration;
+                ? "Claude · " + focusLabel + "0%"
+                : "Claude · " + focusLabel + duration;
     }
 
     /**

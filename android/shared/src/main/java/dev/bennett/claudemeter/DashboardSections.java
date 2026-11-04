@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -8,7 +8,7 @@ import java.util.Locale;
 /**
  * Stable keys and ordering rules for the movable dashboard sections: the built-in 5-hour and
  * weekly windows, every automatically detected additional limit (for example
- * GPT-5.3-Codex-Spark), the usage-credit balance, and the local usage-history charts. The saved
+ * GPT-5.3-Claude-Spark), the usage-credit balance, and the local usage-history charts. The saved
  * order is a comma-separated key list; unknown saved keys are dropped and newly detected
  * sections slot into their default position, so accounts gaining or losing model-specific
  * limits never lose their arrangement. A separate comma-separated hidden-key list tracks the

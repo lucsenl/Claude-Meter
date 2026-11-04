@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /**
  * Pure helpers for deciding when the live usage monitor should auto-start.

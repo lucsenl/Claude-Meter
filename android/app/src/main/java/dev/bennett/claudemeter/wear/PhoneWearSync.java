@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,14 +7,14 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-import dev.bennett.codexmeter.AppPreferences;
-import dev.bennett.codexmeter.DiagnosticLog;
-import dev.bennett.codexmeter.NowBarManager;
-import dev.bennett.codexmeter.NowBarPreferences;
-import dev.bennett.codexmeter.RefreshScheduler;
-import dev.bennett.codexmeter.SecureTokenStore;
-import dev.bennett.codexmeter.UsageSnapshot;
-import dev.bennett.codexmeter.UsagePacePreferences;
+import dev.bennett.claudemeter.AppPreferences;
+import dev.bennett.claudemeter.DiagnosticLog;
+import dev.bennett.claudemeter.NowBarManager;
+import dev.bennett.claudemeter.NowBarPreferences;
+import dev.bennett.claudemeter.RefreshScheduler;
+import dev.bennett.claudemeter.SecureTokenStore;
+import dev.bennett.claudemeter.UsageSnapshot;
+import dev.bennett.claudemeter.UsagePacePreferences;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -22,9 +22,9 @@ public final class PhoneWearSync {
     private static final String KEY_LAST_APPLIED_SETTINGS_AT = "last_applied_settings_at";
     private static final String KEY_LOCAL_SETTINGS_AT = "local_settings_at";
     private static final String KEY_PAYLOAD = "payload";
-    private static final String PREFS = "codex_meter_wear_sync_v1";
+    private static final String PREFS = "claude_meter_wear_sync_v1";
     private static final ThreadLocal<Boolean> SUPPRESS_SETTINGS_PUSH = new ThreadLocal<>();
-    private static final String TAG = "CodexWearSync";
+    private static final String TAG = "ClaudeWearSync";
 
     private PhoneWearSync() {
     }

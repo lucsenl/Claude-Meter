@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Confirms Data Layer traffic is from the Codex Wear companion.
+ * Confirms Data Layer traffic is from the Claude Wear companion.
  *
  * Wearable Data Layer items/messages are already private to the same applicationId and
  * signing certificate across nodes. Capability checks alone are not enough (any app can
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * installed package.
  */
 public final class PhoneWearTrust {
-    private static final String TAG = "CodexWearTrust";
+    private static final String TAG = "ClaudeWearTrust";
     private static final long CAPABILITY_TIMEOUT_MS = 2500L;
 
     private PhoneWearTrust() {
