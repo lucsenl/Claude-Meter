@@ -3,41 +3,27 @@ plugins {
 }
 
 android {
-    namespace = "dev.bennett.codexmeter"
+    namespace = "dev.lucsenl.claudemeter"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "dev.bennett.codexmeter"
+        applicationId = "dev.lucsenl.claudemeter"
         minSdk = 26
         targetSdk = 36
-        versionCode = 30
-        versionName = "2.8.0"
-        providers.gradleProperty("demoVersionCode").orNull?.toIntOrNull()?.let {
-            versionCode = it
-        }
-        providers.gradleProperty("demoVersionName").orNull?.let {
-            versionName = it
-        }
-        val updateApiUrl = providers.gradleProperty("demoUpdateUrl").orNull
-            ?: "https://api.github.com/repos/BenItBuhner/Codex-Meter/releases?per_page=30" // pragma: allowlist secret
-        buildConfigField("String", "UPDATE_API_URL",
-            "\"${updateApiUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
-    }
-
-    buildFeatures {
-        buildConfig = true
+        versionCode = 1
+        versionName = "0.1.0"
     }
 
     signingConfigs {
         create("localRelease") {
             val signingDir = rootProject.file(".local-signing")
-            val keyStore = signingDir.resolve("codex-meter-local.p12")
+            val keyStore = signingDir.resolve("claude-meter-local.p12")
             val passwordFile = signingDir.resolve("password")
             if (keyStore.isFile && passwordFile.isFile) {
                 storeFile = keyStore
                 storeType = "PKCS12"
                 storePassword = passwordFile.readText().trim()
-                keyAlias = "codexmeter"
+                keyAlias = "claudemeter"
                 keyPassword = storePassword
             }
         }
@@ -59,9 +45,6 @@ android {
         resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1", "META-INF/LICENSE*")
     }
 
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
 }
 
 configurations.configureEach {
@@ -80,8 +63,6 @@ configurations.configureEach {
 }
 
 dependencies {
-    implementation(project(":shared"))
-    implementation("com.google.android.gms:play-services-wearable:19.0.0")
     implementation("io.github.tribalfs:oneui-design:0.9.14+oneui8")
     implementation("io.github.oneuiproject:icons:1.1.0")
 }

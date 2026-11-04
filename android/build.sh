@@ -2,11 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-VERSION_NAME="2.8.0"
+VERSION_NAME="$(awk -F'"' '/versionName = "/ { print $2; exit }' "$ROOT/app/build.gradle.kts")"
+[[ -n "$VERSION_NAME" ]] || { echo "Unable to read versionName" >&2; exit 1; }
 DIST="$ROOT/dist"
 SIGNING_DIR="$ROOT/.local-signing"
-KEYSTORE="$SIGNING_DIR/codex-meter-local.p12"
+KEYSTORE="$SIGNING_DIR/claude-meter-local.p12"
 PASS_FILE="$SIGNING_DIR/password"
+KEY_ALIAS="claudemeter"
 
 if [[ -z "${JAVA_HOME:-}" && -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ]]; then
   export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
@@ -20,30 +22,16 @@ if [[ ! -f "$KEYSTORE" ]]; then
   openssl rand -hex 24 > "$PASS_FILE"
   chmod 600 "$PASS_FILE"
   STORE_PASS="$(<"$PASS_FILE")"
-  "$JAVA_HOME/bin/keytool" -genkeypair \
-    -storetype PKCS12 \
-    -keystore "$KEYSTORE" -storepass "$STORE_PASS" -keypass "$STORE_PASS" \
-    -alias codexmeter -keyalg RSA -keysize 3072 -validity 10000 \
-    -dname "CN=Codex Meter Local Build, OU=Personal Android App, O=Local Build" \
-    >/dev/null 2>&1
+  "$JAVA_HOME/bin/keytool" -genkeypair     -storetype PKCS12     -keystore "$KEYSTORE" -storepass "$STORE_PASS" -keypass "$STORE_PASS"     -alias "$KEY_ALIAS" -keyalg RSA -keysize 3072 -validity 10000     -dname "CN=Claude Meter Local Build, OU=Android, O=Local Build"     >/dev/null 2>&1
 fi
 
-"$ROOT/gradlew" --project-dir "$ROOT" \
-  :app:assembleRelease \
-  :wear:assembleRelease \
-  --console=plain
+"$ROOT/gradlew" --project-dir "$ROOT" :app:assembleRelease --console=plain
 
 SOURCE_APK="$ROOT/app/build/outputs/apk/release/app-release.apk"
-OUT="$DIST/CodexMeter-$VERSION_NAME.apk"
+OUT="$DIST/ClaudeMeter-$VERSION_NAME.apk"
 cp "$SOURCE_APK" "$OUT"
-
-WEAR_SOURCE_APK="$ROOT/wear/build/outputs/apk/release/wear-release.apk"
-WEAR_OUT="$DIST/CodexMeter-Wear-$VERSION_NAME.apk"
-cp "$WEAR_SOURCE_APK" "$WEAR_OUT"
 
 APKSIGNER="$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort | tail -1)"
 "$APKSIGNER" verify --verbose --print-certs "$OUT"
-"$APKSIGNER" verify --verbose --print-certs "$WEAR_OUT"
-(cd "$DIST" && sha256sum "$(basename "$OUT")" "$(basename "$WEAR_OUT")") | tee "$DIST/SHA256SUMS.txt"
+(cd "$DIST" && sha256sum "$(basename "$OUT")") | tee "$DIST/SHA256SUMS.txt"
 echo "Built $OUT"
-echo "Built $WEAR_OUT"
