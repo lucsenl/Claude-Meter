@@ -1,6 +1,6 @@
-package dev.bennett.claudemeter.wear;
+package dev.lucsenl.claudemeter.wear;
 
-import dev.bennett.claudemeter.UsageSnapshot;
+import dev.lucsenl.claudemeter.UsageSnapshot;
 import org.json.JSONException;
 import org.json.JSONObject;
 

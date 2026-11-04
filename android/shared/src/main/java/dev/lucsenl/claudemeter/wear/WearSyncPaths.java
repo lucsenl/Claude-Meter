@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter.wear;
+package dev.lucsenl.claudemeter.wear;
 
 public final class WearSyncPaths {
     public static final String CAPABILITY_PHONE = "claude_meter_phone";

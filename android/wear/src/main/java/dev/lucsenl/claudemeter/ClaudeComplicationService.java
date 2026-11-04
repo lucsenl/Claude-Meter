@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,8 +23,8 @@ import androidx.wear.watchface.complications.data.SmallImageType;
 import androidx.wear.watchface.complications.data.ShortTextComplicationData;
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService;
 import androidx.wear.watchface.complications.datasource.ComplicationRequest;
-import dev.bennett.claudemeter.wear.WearSettingsState;
-import dev.bennett.claudemeter.wear.WearSyncStatus;
+import dev.lucsenl.claudemeter.wear.WearSettingsState;
+import dev.lucsenl.claudemeter.wear.WearSyncStatus;
 import java.util.concurrent.TimeUnit;
 
 abstract class ClaudeComplicationService extends ComplicationDataSourceService {
