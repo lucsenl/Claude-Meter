@@ -20,6 +20,9 @@ public final class ResetCreditExpiryScheduler {
     private static final String KEY_ALARM_URIS = "alarm_uris";
     private static final String PREFS = "claude_meter_reset_expiry_alarms_v1";
     private static final int REQUEST_CODE = 74209;
+    // Preserve the old action solely to cancel alarms left by earlier builds.
+    private static final String LEGACY_ALARM_ACTION =
+            "dev.bennett.claudemeter.action.RESET_CREDIT_EXPIRY_ALERT";
 
     private ResetCreditExpiryScheduler() {
     }
@@ -63,7 +66,7 @@ public final class ResetCreditExpiryScheduler {
 
     private static Intent baseIntent(Context context, Uri data) {
         return new Intent(context, ResetCreditExpiryReceiver.class)
-                .setAction(AppConstants.ACTION_RESET_CREDIT_EXPIRY_ALERT)
+                .setAction(LEGACY_ALARM_ACTION)
                 .setData(data);
     }
 

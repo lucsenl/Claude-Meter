@@ -642,7 +642,7 @@ public final class WidgetConfigActivity extends AppCompatActivity {
                         Gravity.CENTER);
                 this.previewContainer.removeAllViews();
                 ImageView backdrop = new ImageView(this);
-                backdrop.setImageResource(R.drawable.claude_meter_icon_bg);
+                backdrop.setImageResource(R.drawable.claude_meter_adaptive_bg);
                 backdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 backdrop.setContentDescription(null);
                 this.previewContainer.addView(backdrop, new FrameLayout.LayoutParams(-1, -1));
