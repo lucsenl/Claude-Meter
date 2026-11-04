@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -32,9 +32,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class OAuthService extends Service {
-    public static final String ACTION_START = "dev.bennett.codexmeter.oauth.START";
-    public static final String ACTION_CANCEL = "dev.bennett.codexmeter.oauth.CANCEL";
-    public static final String ACTION_CANCEL_SILENT = "dev.bennett.codexmeter.oauth.CANCEL_SILENT";
+    public static final String ACTION_START = "dev.bennett.claudemeter.oauth.START";
+    public static final String ACTION_CANCEL = "dev.bennett.claudemeter.oauth.CANCEL";
+    public static final String ACTION_CANCEL_SILENT = "dev.bennett.claudemeter.oauth.CANCEL_SILENT";
     private static final String CHANNEL_ID = "oauth_sign_in";
     private static final int NOTIFICATION_ID = 7301;
 
@@ -123,7 +123,7 @@ public final class OAuthService extends Service {
                 if (!secureEquals(pkce.state, callback.parameters.get("state"))) {
                     DiagnosticLog.warn(this, "auth", "oauth_callback_state_mismatch");
                     writeBrowser(browser, 400,
-                            "The sign-in state did not match. Return to Codex Meter and try again.", false);
+                            "The sign-in state did not match. Return to Claude Meter and try again.", false);
                     closeQuietly(browser);
                     browser = null;
                     continue;
@@ -146,7 +146,7 @@ public final class OAuthService extends Service {
                     throw new Exception("Sign-in failed because no authorization code was returned.");
                 }
 
-                updateNotification("Securing your ChatGPT session…", null);
+                updateNotification("Securing your Claude session…", null);
                 AuthTokens tokens = OAuthClient.exchangeCode(this, code, redirectUri,
                         pkce.verifier);
                 SecureTokenStore.save(this, tokens);
@@ -158,7 +158,7 @@ public final class OAuthService extends Service {
                 // exchange into a misleading browser error page.
                 try {
                     writeBrowser(browser, 200,
-                            "Your ChatGPT account is connected. Returning to Codex Meter…", true);
+                            "Your Claude account is connected. Returning to Claude Meter…", true);
                 } catch (Exception ignored) {
                     // The user may have closed the browser after authorization. Authentication
                     // remains valid and the application still receives the result broadcast.
@@ -167,7 +167,7 @@ public final class OAuthService extends Service {
                 browser = null;
                 broadcastResult(true, "Signed in successfully.");
 
-                updateNotification("Loading Codex usage…", null);
+                updateNotification("Loading Claude usage…", null);
                 performPostAuthenticationSetup();
                 DiagnosticLog.info(this, "auth", "oauth_flow_succeeded",
                         "duration_ms", android.os.SystemClock.elapsedRealtime() - started);
@@ -245,7 +245,7 @@ public final class OAuthService extends Service {
         params.put("code_challenge", pkce.challenge);
         params.put("code_challenge_method", "S256");
         params.put("id_token_add_organizations", "true");
-        params.put("codex_cli_simplified_flow", "true");
+        params.put("claude_cli_simplified_flow", "true");
         params.put("state", pkce.state);
         params.put("originator", AppConstants.ORIGINATOR);
         StringBuilder query = new StringBuilder();
@@ -388,7 +388,7 @@ public final class OAuthService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_oui_notification)
-                .setContentTitle("Codex Meter sign-in")
+                .setContentTitle("Claude Meter sign-in")
                 .setContentText(text)
                 .setContentIntent(open)
                 .addAction(new Notification.Action.Builder(

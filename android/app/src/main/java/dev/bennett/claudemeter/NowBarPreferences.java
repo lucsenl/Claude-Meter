@@ -1,8 +1,8 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 
 /**
  * User settings for automatically starting the live usage monitor when allowance
@@ -17,7 +17,7 @@ public final class NowBarPreferences {
     private static final String KEY_PERCENT_MODE = "percent_mode";
     private static final String KEY_SUPPRESS_UNTIL = "suppress_until";
     private static final String KEY_THRESHOLD = "threshold";
-    private static final String PREFS = "codex_meter_now_bar_prefs_v1";
+    private static final String PREFS = "claude_meter_now_bar_prefs_v1";
 
     private NowBarPreferences() {
     }

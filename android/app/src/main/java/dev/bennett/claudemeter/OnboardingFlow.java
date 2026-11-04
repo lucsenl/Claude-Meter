@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /** Pure onboarding navigation rules shared by the activity and JVM self-tests. */
 public final class OnboardingFlow {
