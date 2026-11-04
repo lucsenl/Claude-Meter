@@ -1,1024 +1,284 @@
 package dev.lucsenl.claudemeter;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.ColorStateList;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import dev.lucsenl.claudemeter.wear.PhoneWearSync;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-/* JADX INFO: loaded from: classes.dex */
+/**
+ * Claude Meter dashboard backed only by documented Anthropic APIs.
+ */
 public final class MainActivity extends AppCompatActivity {
-    private static final int MENU_SETTINGS = 8101;
-    private static final int MENU_REORDER = 8102;
-    private String appliedTheme;
-    private boolean appliedMaterialYou;
     private LinearLayout content;
-    private SwipeRefreshLayout swipeRefresh;
     private boolean dark;
-    private boolean receiverRegistered;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private String lastLaunchedAuthUrl = "";
-    private boolean launchSignInRequested;
-    private final BroadcastReceiver authReceiver = new BroadcastReceiver() { // from class: dev.lucsenl.claudemeter.MainActivity.1
-        @Override // android.content.BroadcastReceiver
-        public void onReceive(Context context, Intent intent) {
-            String action = intent == null ? null : intent.getAction();
-            if (AppConstants.ACTION_OAUTH_READY.equals(action)) {
-                String stringExtra = intent.getStringExtra(AppConstants.EXTRA_AUTH_URL);
-                if (stringExtra != null && !stringExtra.isEmpty()) {
-                    MainActivity.this.openAuthUrl(stringExtra);
-                    return;
-                }
-                return;
-            }
-            if (AppConstants.ACTION_OAUTH_RESULT.equals(action)) {
-                boolean booleanExtra = intent.getBooleanExtra(AppConstants.EXTRA_SUCCESS, false);
-                String stringExtra2 = intent.getStringExtra(AppConstants.EXTRA_MESSAGE);
-                MainActivity mainActivity = MainActivity.this;
-                if (stringExtra2 == null) {
-                    stringExtra2 = booleanExtra ? "Signed in." : "Sign-in failed.";
-                }
-                Toast.makeText(mainActivity, stringExtra2, 1).show();
-                PhoneWearSync.pushAll(MainActivity.this);
-                MainActivity.this.rebuild();
-                return;
-            }
-            if (AppConstants.ACTION_USAGE_UPDATED.equals(action) || AppConstants.ACTION_RESET_CREDITS_UPDATED.equals(action)) {
-                MainActivity.this.rebuild();
-                return;
-            }
-            if (AppConstants.ACTION_RELEASES_UPDATED.equals(action)) {
-                MainActivity.this.rebuild();
-            }
-        }
-    };
+    private boolean refreshing;
 
-    @Override // android.app.Activity
-    protected void onCreate(Bundle bundle) {
-        this.appliedTheme = AppPreferences.getAppTheme(this);
-        this.appliedMaterialYou = AppPreferences.isMaterialYouEnabled(this);
+    @Override
+    protected void onCreate(Bundle state) {
         Ui.applySelectedTheme(this);
-        super.onCreate(bundle);
-        PhoneWearSync.pushAll(this);
-        if (routeToOnboarding(getIntent())) {
+        super.onCreate(state);
+
+        if (!AppPreferences.isOnboardingComplete(this)) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
             return;
         }
-        this.dark = Ui.isDark(this);
+
+        dark = Ui.isDark(this);
         Ui.Page page = Ui.installPage(this, "Claude Meter", false);
-        this.content = page.content;
-        this.swipeRefresh = findViewById(R.id.dashboard_refresh);
-        int refreshAccent = Ui.accent(this, this.dark);
-        // OneUI's four-dot SwipeRefresh drawable indexes two palette entries while drawing.
-        this.swipeRefresh.setColorSchemeColors(refreshAccent, refreshAccent);
-        this.swipeRefresh.setProgressBackgroundColorSchemeColor(Ui.cardColor(this, this.dark));
-        this.swipeRefresh.setOnRefreshListener(this::refreshFromPull);
-        handleLaunchIntent(getIntent());
-        WidgetUpgradeRepair.runIfNeeded(this);
-        rebuild();
-        RefreshScheduler.schedulePeriodic(this);
-        ReleaseUpdateScheduler.ensureScheduled(this);
+        content = page.content;
+        View refreshContainer = findViewById(R.id.dashboard_refresh);
+        if (refreshContainer != null) refreshContainer.setEnabled(false);
+        render();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, MENU_REORDER, 0, "Edit dashboard")
-                .setIcon(R.drawable.ic_oui_edit_outline)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(Menu.NONE, MENU_SETTINGS, 1, "Settings")
-                .setIcon(R.drawable.ic_oui_settings_outline)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == MENU_SETTINGS) {
-            DiagnosticLog.info(this, "user", "settings_opened");
-            Ui.startSecondaryActivity(this, SettingsActivity.class);
-            return true;
-        }
-        if (item.getItemId() == MENU_REORDER) {
-            DiagnosticLog.info(this, "user", "dashboard_editor_opened");
-            Ui.startSecondaryActivity(this, DashboardReorderActivity.class);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override // android.app.Activity
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        if (routeToOnboarding(intent)) {
-            return;
-        }
-        handleLaunchIntent(intent);
-        rebuild();
-    }
-
-    @Override // android.app.Activity
     protected void onResume() {
         super.onResume();
-        String appTheme = AppPreferences.getAppTheme(this);
-        boolean zIsDark = Ui.isDark(this);
-        boolean materialYou = AppPreferences.isMaterialYouEnabled(this);
-        if (!appTheme.equals(this.appliedTheme) || zIsDark != this.dark
-                || materialYou != this.appliedMaterialYou) {
-            recreate();
+        if (content != null) render();
+    }
+
+    private void render() {
+        content.removeAllViews();
+        AnthropicCredential credential = SecureCredentialStore.load(this);
+        AnthropicSnapshot snapshot = AnthropicStateStore.load(this);
+
+        buildConnectionCard(credential, snapshot);
+        Ui.addSpacer(content, 16);
+
+        if (credential == null) {
+            buildNoCredentialState();
         } else {
-            handleLaunchIntent(getIntent());
-            rebuild();
+            buildDataCards(snapshot);
         }
+
+        Ui.addSpacer(content, 18);
+        buildSubscriptionLimitsNotice();
+        Ui.addSpacer(content, 18);
+        buildNavigation();
+        Ui.addSpacer(content, 24);
     }
 
-    @Override // android.app.Activity
-    @SuppressLint({"UnspecifiedRegisterReceiverFlag"})
-    protected void onStart() {
-        super.onStart();
-        RefreshEngagement.onForeground(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AppConstants.ACTION_OAUTH_READY);
-        intentFilter.addAction(AppConstants.ACTION_OAUTH_RESULT);
-        intentFilter.addAction(AppConstants.ACTION_USAGE_UPDATED);
-        intentFilter.addAction(AppConstants.ACTION_RESET_CREDITS_UPDATED);
-        intentFilter.addAction(AppConstants.ACTION_RELEASES_UPDATED);
-        try {
-            if (Build.VERSION.SDK_INT >= 33) {
-                registerReceiver(this.authReceiver, intentFilter, "dev.lucsenl.claudemeter.permission.INTERNAL", null, 4);
-            } else {
-                registerReceiver(this.authReceiver, intentFilter, "dev.lucsenl.claudemeter.permission.INTERNAL", null);
-            }
-            this.receiverRegistered = true;
-        } catch (RuntimeException e) {
-            this.receiverRegistered = false;
-            AppPreferences.setSchedulerError(this, "App update receiver: " + safeMessage(e));
-        }
-        rebuild();
-        if (this.launchSignInRequested) {
-            this.launchSignInRequested = false;
-            startOrContinueSignIn();
-        }
-        if (SecureTokenStore.isSignedIn(this)) {
-            AppPreferences.setOAuthPending(this, false, "");
-            UsageSnapshot usageSnapshotLoadSnapshot = AppPreferences.loadSnapshot(this);
-            if (AppPreferences.getRefreshOnLaunch(this)
-                    && (usageSnapshotLoadSnapshot == null || System.currentTimeMillis() - usageSnapshotLoadSnapshot.fetchedAtMillis > 300000)) {
-                RefreshScheduler.scheduleImmediate(this);
-            }
-        }
-    }
-
-    @Override // android.app.Activity
-    protected void onStop() {
-        RefreshEngagement.onBackground(this);
-        if (AppPreferences.getAutomaticRefresh(this)) {
-            RefreshScheduler.schedulePeriodic(this);
-        }
-        if (this.receiverRegistered) {
-            try {
-                unregisterReceiver(this.authReceiver);
-            } catch (RuntimeException e) {
-            }
-            this.receiverRegistered = false;
-        }
-        super.onStop();
-    }
-
-    @Override // android.app.Activity
-    protected void onDestroy() {
-        this.executor.shutdownNow();
-        super.onDestroy();
-    }
-
-    private void handleLaunchIntent(Intent intent) {
-        if (intent != null && intent.getBooleanExtra("start_sign_in", false)) {
-            this.launchSignInRequested = true;
-            intent.removeExtra("start_sign_in");
-        }
-        Uri data = intent == null ? null : intent.getData();
-        if (data != null && "claudemeter".equals(data.getScheme()) && "auth".equals(data.getHost())) {
-            if (SecureTokenStore.isSignedIn(this)) {
-                AppPreferences.setOAuthPending(this, false, "");
-                RefreshScheduler.scheduleImmediate(this);
-            }
-            intent.setData(null);
-        }
-    }
-
-    private boolean routeToOnboarding(Intent intent) {
-        boolean oauthReturn = isOAuthReturnIntent(intent);
-        int action = OnboardingFlow.launchAction(
-                AppPreferences.isOnboardingComplete(this),
-                SecureTokenStore.isSignedIn(this),
-                oauthReturn);
-        if (action == OnboardingFlow.LAUNCH_MAIN_AND_COMPLETE) {
-            // Existing signed-in installs predate onboarding and should not be interrupted.
-            AppPreferences.completeOnboarding(this);
-            return false;
-        }
-        if (action != OnboardingFlow.LAUNCH_ONBOARDING) {
-            return false;
-        }
-        if (oauthReturn) {
-            if (SecureTokenStore.isSignedIn(this)) {
-                AppPreferences.setOAuthPending(this, false, "");
-            }
-            intent.setData(null);
-        }
-        startActivity(new Intent(this, OnboardingActivity.class)
-                .putExtra(OnboardingActivity.EXTRA_AUTH_RETURN, oauthReturn)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-        finish();
-        return true;
-    }
-
-    private static boolean isOAuthReturnIntent(Intent intent) {
-        Uri data = intent == null ? null : intent.getData();
-        return data != null
-                && "claudemeter".equals(data.getScheme())
-                && "auth".equals(data.getHost())
-                && data.getPath() != null
-                && data.getPath().startsWith("/complete");
-    }
-
-    public void rebuild() {
-        if (this.content != null) {
-            this.content.removeAllViews();
-            GitHubRelease update = UpdatePreferences.availableUpdate(this);
-            if (update != null) {
-                this.content.addView(buildUpdateCard(update));
-                Ui.addSpacer(this.content, 20);
-            }
-            LinearLayout dashboard = buildUsageDashboard();
-            if (dashboard.getChildCount() > 0) {
-                this.content.addView(dashboard);
-                Ui.addSpacer(this.content, 20);
-            }
-            boolean signedIn = SecureTokenStore.isSignedIn(this);
-            if (!signedIn) {
-                Button signIn = Ui.nativePrimaryButton(this,
-                        AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude");
-                signIn.setOnClickListener(view -> startOrContinueSignIn());
-                this.content.addView(signIn, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
-                Ui.addSpacer(this.content, 20);
-            }
-            if (signedIn && dashboard.getChildCount() == 0) {
-                TextView empty = Ui.text(this,
-                        "No dashboard items are available. Refresh usage or choose items in "
-                                + "Settings → Refresh & usage.",
-                        14.0f, Ui.secondaryText(this.dark));
-                empty.setGravity(Gravity.CENTER);
-                this.content.addView(empty, new LinearLayout.LayoutParams(-1, -2));
-            }
-        }
-    }
-
-    private LinearLayout buildUpdateCard(GitHubRelease release) {
-        boolean returnToStable = UpdateChannel.isReturnToStable(release,
-                UpdatePreferences.installedVersion(this));
-        LinearLayout card = Ui.card(this, this.dark);
-        TextView title = Ui.text(this, returnToStable
-                        ? "Return to Claude Meter " + release.version
-                        : "Claude Meter " + release.version + " is ready", 18,
-                Ui.mainText(this.dark));
+    private void buildConnectionCard(AnthropicCredential credential, AnthropicSnapshot snapshot) {
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "Anthropic access", 20, Ui.mainText(dark));
         title.setTypeface(Ui.mediumTypeface(this));
         card.addView(title);
-        TextView summary = Ui.text(this,
-                returnToStable
-                        ? "You are back on the stable channel. The stable APK installs in place "
-                        + "over this alpha build after checksum verification."
-                        : release.prerelease
-                        ? "A signed alpha release is available. The APK will be checksum-verified "
-                        + "before Android asks you to approve installation."
-                        : "A signed GitHub release is available. The APK will be checksum-verified "
-                        + "before Android asks you to approve installation.",
-                13, Ui.secondaryText(this.dark));
+
+        String status = credential == null
+                ? "No credential configured"
+                : credential.displayType()
+                        + (snapshot == null ? " · not refreshed yet" : " · verified");
+        TextView summary = Ui.text(this, status, 14, Ui.secondaryText(dark));
         LinearLayout.LayoutParams summaryParams = new LinearLayout.LayoutParams(-1, -2);
-        summaryParams.setMargins(0, Ui.dp(this, 7), 0, Ui.dp(this, 14));
+        summaryParams.setMargins(0, Ui.dp(this, 8), 0, 0);
         card.addView(summary, summaryParams);
-        Button update = Ui.nativePrimaryButton(this, "Review update");
-        update.setOnClickListener(view -> startActivity(new Intent(this, UpdateActivity.class)
-                .putExtra(UpdateActivity.EXTRA_VERSION, release.version)));
-        card.addView(update, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
-        return card;
-    }
 
-    private void addHeader() {
-        TextView textViewText = Ui.text(this, "Your Claude allowance at a glance.", 15.0f, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
-        layoutParams.setMargins(Ui.dp(this, 4.0f), Ui.dp(this, 4.0f), 0, Ui.dp(this, 2.0f));
-        this.content.addView(textViewText, layoutParams);
-    }
-
-    private LinearLayout buildUsageDashboard() {
-        UsageSnapshot snapshot = AppPreferences.loadSnapshot(this);
-        boolean signedIn = SecureTokenStore.isSignedIn(this);
-        LinearLayout column = new LinearLayout(this);
-        column.setOrientation(LinearLayout.VERTICAL);
-        if (!signedIn) {
-            return column;
-        }
-        Map<String, List<UsageLimit>> limitsByKey = new LinkedHashMap<>();
-        List<String> available = new ArrayList<>();
-        if (snapshot != null) {
-            for (UsageLimit limit : snapshot.additionalLimits) {
-                String key = DashboardSections.limitKey(limit);
-                List<UsageLimit> group = limitsByKey.get(key);
-                if (group == null) {
-                    group = new ArrayList<>();
-                    limitsByKey.put(key, group);
-                }
-                group.add(limit);
-            }
-            if (AppPreferences.showDashboardFiveHour(this) && snapshot.fiveHour != null) {
-                available.add(DashboardSections.FIVE_HOUR);
-            }
-            if (AppPreferences.showDashboardWeekly(this) && snapshot.weekly != null) {
-                available.add(DashboardSections.WEEKLY);
-            }
-            if (AppPreferences.showDashboardMonthly(this) && snapshot.monthly != null) {
-                available.add(DashboardSections.MONTHLY);
-            }
-            if (AppPreferences.showDashboardAdditionalLimits(this)) {
-                for (String key : limitsByKey.keySet()) {
-                    if (!AppPreferences.isDashboardSectionHidden(this, key)) {
-                        available.add(key);
-                    }
-                }
-            }
-            // Zero, near-zero, and negative balances are always hidden regardless of settings.
-            if (AppPreferences.showDashboardUsageCredits(this) && snapshot.usageCredits != null
-                    && snapshot.usageCredits.shouldDisplay()) {
-                available.add(DashboardSections.USAGE_CREDITS);
-            }
-            // Usage history only appears once at least one window can feed a burn chart.
-            if (AppPreferences.showDashboardUsageHistory(this)
-                    && snapshot.fetchedAtMillis > 0L
-                    && (snapshot.fiveHour != null || snapshot.weekly != null
-                            || snapshot.monthly != null)) {
-                available.add(DashboardSections.USAGE_HISTORY);
-            }
-        }
-        // Zero available resets always hide the card, even when the Edit dashboard switch is on.
-        if (AppPreferences.showDashboardResetCredits(this) && shouldShowResetCreditsCard(snapshot)) {
-            available.add(DashboardSections.RESET_CREDITS);
-        }
-        boolean inverted = false;
-        for (String key : DashboardSections.resolveOrder(
-                AppPreferences.getDashboardOrder(this), available)) {
-            if (DashboardSections.FIVE_HOUR.equals(key)) {
-                addDashboardCard(column, buildMetricCard(
-                        "5-hour", snapshot, snapshot.fiveHour, inverted));
-                inverted = !inverted;
-            } else if (DashboardSections.WEEKLY.equals(key)) {
-                addDashboardCard(column, buildMetricCard(
-                        "Weekly", snapshot, snapshot.weekly, inverted));
-                inverted = !inverted;
-            } else if (DashboardSections.MONTHLY.equals(key)) {
-                addDashboardCard(column, buildMetricCard(
-                        "Monthly", snapshot, snapshot.monthly, inverted));
-                inverted = !inverted;
-            } else if (DashboardSections.USAGE_CREDITS.equals(key)) {
-                addDashboardCard(column, buildUsageCreditsCard(snapshot.usageCredits));
-            } else if (DashboardSections.USAGE_HISTORY.equals(key)) {
-                addDashboardCard(column, buildUsageHistoryCard());
-            } else if (DashboardSections.RESET_CREDITS.equals(key)) {
-                addDashboardCard(column, buildResetCreditsCard());
+        Button action = Ui.nativePrimaryButton(this,
+                credential == null ? "Configure Anthropic access" : "Refresh");
+        action.setEnabled(!refreshing);
+        if (refreshing) action.setText("Refreshing…");
+        action.setOnClickListener(view -> {
+            if (credential == null) {
+                openCredentialSettings();
             } else {
-                List<UsageLimit> group = limitsByKey.get(key);
-                if (group == null) {
-                    continue;
-                }
-                for (UsageLimit limit : group) {
-                    if (limit.primary != null) {
-                        addDashboardCard(column, buildMetricCard(
-                                limitTitle(limit) + " · " + cadenceLabel(limit.primary),
-                                snapshot, limit.primary, inverted));
-                        inverted = !inverted;
-                    }
-                    if (limit.secondary != null) {
-                        addDashboardCard(column, buildMetricCard(
-                                limitTitle(limit) + " · " + cadenceLabel(limit.secondary),
-                                snapshot, limit.secondary, inverted));
-                        inverted = !inverted;
-                    }
-                }
-            }
-        }
-        return column;
-    }
-
-    private void addDashboardCard(LinearLayout column, View card) {
-        if (column.getChildCount() > 0) {
-            Ui.addSpacer(column, 20);
-        }
-        column.addView(card);
-    }
-
-    private LinearLayout buildMetricCard(String label, UsageSnapshot snapshot, UsageWindow window,
-            boolean invertedWave) {
-        LinearLayout card = Ui.card(this, this.dark);
-        card.setPadding(0, 0, 0, 0);
-        card.setMinimumHeight(Ui.dp(this, 103.0f));
-        long now = System.currentTimeMillis();
-        String reset = UsageFormat.reset(this, window, WidgetOptions.RESET_RELATIVE,
-                snapshot.fetchedAtMillis, now);
-        UsagePace.Assessment pace = UsagePacePreferences.assess(this, snapshot, window, now);
-        UsageWaveView wave = new UsageWaveView(this);
-        wave.setUsage(label, reset, UsageFormat.estimatedRemaining(pace),
-                window.remainingPercent(),
-                window.windowSeconds >= 86_400L
-                        ? R.drawable.ic_oui_calendar_week : R.drawable.ic_oui_time,
-                invertedWave, pace.accelerated);
-        card.addView(wave, new LinearLayout.LayoutParams(-1, Ui.dp(this, 103.0f)));
-        return card;
-    }
-
-    private LinearLayout buildUsageHistoryCard() {
-        LinearLayout card = Ui.card(this, this.dark);
-        card.setPadding(Ui.dp(this, 10), Ui.dp(this, 14), Ui.dp(this, 10), Ui.dp(this, 12));
-        UsageSnapshot snapshot = AppPreferences.loadSnapshot(this);
-        long now = System.currentTimeMillis();
-        TextView title = Ui.text(this, "Usage history", 18, Ui.mainText(this.dark));
-        title.setTypeface(Ui.mediumTypeface(this));
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, -2);
-        titleParams.setMargins(Ui.dp(this, 10), 0, Ui.dp(this, 10), 0);
-        card.addView(title, titleParams);
-        TextView detail = Ui.text(this,
-                "On-device burn trends improve estimates as samples accumulate.",
-                12, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
-        detailParams.setMargins(Ui.dp(this, 10), Ui.dp(this, 4), Ui.dp(this, 10), Ui.dp(this, 4));
-        card.addView(detail, detailParams);
-
-        // Windows still waiting for usage data would only render a blank "Waiting for usage
-        // data" chart, so they are dropped from the card until Claude reports them.
-        boolean hasCharts = false;
-        UsageWindow fiveWindow = snapshot == null ? null : snapshot.fiveHour;
-        if (fiveWindow != null && snapshot.fetchedAtMillis > 0L) {
-            UsageBurnChartView fiveChart = new UsageBurnChartView(this);
-            fiveChart.setData("5-hour", fiveWindow,
-                    AppPreferences.loadUsageHistory(this, UsageHistory.FIVE_HOUR),
-                    snapshot.fetchedAtMillis,
-                    UsagePacePreferences.assess(this, snapshot, fiveWindow, now));
-            card.addView(fiveChart, new LinearLayout.LayoutParams(-1, Ui.dp(this, 126)));
-            hasCharts = true;
-        }
-
-        UsageWindow weeklyWindow = snapshot == null ? null : snapshot.weekly;
-        if (weeklyWindow != null && snapshot.fetchedAtMillis > 0L) {
-            UsageBurnChartView weeklyChart = new UsageBurnChartView(this);
-            weeklyChart.setData("Weekly", weeklyWindow,
-                    AppPreferences.loadUsageHistory(this, UsageHistory.WEEKLY),
-                    snapshot.fetchedAtMillis,
-                    UsagePacePreferences.assess(this, snapshot, weeklyWindow, now));
-            card.addView(weeklyChart, new LinearLayout.LayoutParams(-1, Ui.dp(this, 126)));
-            hasCharts = true;
-        }
-
-        UsageWindow monthlyWindow = snapshot == null ? null : snapshot.monthly;
-        if (monthlyWindow != null && snapshot.fetchedAtMillis > 0L) {
-            UsageBurnChartView monthlyChart = new UsageBurnChartView(this);
-            monthlyChart.setData("Monthly", monthlyWindow,
-                    AppPreferences.loadUsageHistory(this, UsageHistory.MONTHLY),
-                    snapshot.fetchedAtMillis,
-                    UsagePacePreferences.assess(this, snapshot, monthlyWindow, now));
-            card.addView(monthlyChart, new LinearLayout.LayoutParams(-1, Ui.dp(this, 126)));
-            hasCharts = true;
-        }
-
-        if (!hasCharts) {
-            TextView waiting = Ui.text(this,
-                    "Charts appear once Claude reports your 5-hour, weekly, or monthly usage windows.",
-                    12, Ui.secondaryText(this.dark));
-            LinearLayout.LayoutParams waitingParams = new LinearLayout.LayoutParams(-1, -2);
-            waitingParams.setMargins(Ui.dp(this, 10), Ui.dp(this, 8),
-                    Ui.dp(this, 10), Ui.dp(this, 8));
-            card.addView(waiting, waitingParams);
-        }
-
-        Button open = Ui.button(this, "View history", false, this.dark);
-        open.setOnClickListener(view -> Ui.startSecondaryActivity(this, UsageHistoryActivity.class));
-        LinearLayout.LayoutParams openParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 54));
-        openParams.setMargins(Ui.dp(this, 10), Ui.dp(this, 4), Ui.dp(this, 10), 0);
-        card.addView(open, openParams);
-        return card;
-    }
-
-    private LinearLayout buildUsageCreditsCard(UsageCredits credits) {
-        LinearLayout card = Ui.card(this, this.dark);
-        TextView title = Ui.text(this, "Usage credits", 18, Ui.mainText(this.dark));
-        title.setTypeface(Ui.mediumTypeface(this));
-        card.addView(title);
-        card.addView(buildIconDetailRow(R.drawable.ic_oui_credit_card_outline,
-                usageCreditBalance(credits), usageCreditsSummary(credits)));
-        return card;
-    }
-
-    /** Left-aligned icon + value + summary row used inside the credit dashboard cards. */
-    private LinearLayout buildIconDetailRow(int icon, String value, String summary) {
-        LinearLayout row = Ui.horizontal(this, Gravity.CENTER_VERTICAL);
-        ImageView image = new ImageView(this);
-        image.setImageResource(icon);
-        image.setImageTintList(ColorStateList.valueOf(Ui.mainText(this.dark)));
-        row.addView(image, new LinearLayout.LayoutParams(Ui.dp(this, 30), Ui.dp(this, 30)));
-
-        LinearLayout labels = new LinearLayout(this);
-        labels.setOrientation(LinearLayout.VERTICAL);
-        TextView valueText = Ui.text(this, value, 17.0f, Ui.mainText(this.dark));
-        valueText.setTypeface(Ui.mediumTypeface(this));
-        labels.addView(valueText);
-        TextView summaryText = Ui.text(this, summary, 13.0f, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams summaryParams = new LinearLayout.LayoutParams(-2, -2);
-        summaryParams.setMargins(0, Ui.dp(this, 2), 0, 0);
-        labels.addView(summaryText, summaryParams);
-        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
-        labelParams.setMargins(Ui.dp(this, 16), 0, 0, 0);
-        row.addView(labels, labelParams);
-
-        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2);
-        rowParams.setMargins(0, Ui.dp(this, 12), 0, 0);
-        row.setLayoutParams(rowParams);
-        return row;
-    }
-
-    private static String usageCreditBalance(UsageCredits credits) {
-        if (credits.unlimited) {
-            return "Unlimited";
-        }
-        if (credits.balance.isEmpty()) {
-            return credits.hasCredits ? "Credits available" : "No purchased credits";
-        }
-        try {
-            BigDecimal amount = new BigDecimal(credits.balance.replace(",", ""));
-            NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
-            format.setMaximumFractionDigits(2);
-            return format.format(amount) + " credits";
-        } catch (NumberFormatException ignored) {
-            return credits.balance;
-        }
-    }
-
-    private static String usageCreditsSummary(UsageCredits credits) {
-        if (credits.unlimited) {
-            return "Usage-credit balance is not capped";
-        }
-        if (credits.balance.isEmpty() && !credits.hasCredits) {
-            return "Manage usage credits in Claude";
-        }
-        return "Purchased Claude usage-credit balance";
-    }
-
-    private static String cadenceLabel(UsageWindow window) {
-        long seconds = window.windowSeconds;
-        if (seconds >= 432_000L && seconds <= 777_600L) {
-            return "Weekly";
-        }
-        if (seconds >= 10_800L && seconds <= 28_800L) {
-            long hours = Math.max(1L, Math.round(seconds / 3600.0d));
-            return hours + "-hour";
-        }
-        if (seconds % 86_400L == 0L) {
-            long days = seconds / 86_400L;
-            return days + "-day";
-        }
-        if (seconds % 3_600L == 0L) {
-            long hours = seconds / 3_600L;
-            return hours + "-hour";
-        }
-        return "Usage";
-    }
-
-    private static String limitTitle(UsageLimit limit) {
-        if (limit.limitReached) {
-            return limit.displayName() + " (limit reached)";
-        }
-        if (!limit.allowed) {
-            return limit.displayName() + " (unavailable)";
-        }
-        return limit.displayName();
-    }
-
-    private LinearLayout buildUsageCard() {
-        LinearLayout linearLayoutCard = Ui.card(this, this.dark);
-        linearLayoutCard.setPadding(Ui.dp(this, 20.0f), Ui.dp(this, 20.0f), Ui.dp(this, 20.0f), Ui.dp(this, 10.0f));
-        AuthTokens tokens = SecureTokenStore.load(this);
-        UsageSnapshot snapshot = AppPreferences.loadSnapshot(this);
-        boolean signedIn = tokens != null;
-
-        LinearLayout account = Ui.horizontal(this, Gravity.CENTER_VERTICAL);
-        ImageView avatar = new ImageView(this);
-        avatar.setImageResource(R.drawable.claude_profile_avatar);
-        Ui.makeAvatar(avatar);
-        account.addView(avatar, new LinearLayout.LayoutParams(Ui.dp(this, 44.0f), Ui.dp(this, 44.0f)));
-        LinearLayout identity = new LinearLayout(this);
-        identity.setOrientation(LinearLayout.VERTICAL);
-        String titleText = signedIn ? "Claude account" : "Not connected";
-        TextView title = Ui.text(this, titleText, 18.0f, Ui.mainText(this.dark));
-        title.setSingleLine(true);
-        identity.addView(title);
-        TextView subtitle = Ui.text(this, signedIn && !tokens.email.isEmpty() ? tokens.email : (signedIn ? "Connected" : "Sign in to view your usage"), 14.0f, Ui.secondaryText(this.dark));
-        subtitle.setSingleLine(true);
-        subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        identity.addView(subtitle);
-        LinearLayout.LayoutParams identityParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
-        identityParams.setMargins(Ui.dp(this, 20.0f), 0, Ui.dp(this, 10.0f), 0);
-        account.addView(identity, identityParams);
-        if (signedIn && snapshot != null) {
-            String plan = UsageFormat.planLabel(snapshot.planType);
-            TextView badge = Ui.text(this, plan.isEmpty() ? "Claude" : plan, 14.0f, Ui.mainText(this.dark));
-            badge.setTypeface(Ui.mediumTypeface(this));
-            badge.setGravity(Gravity.CENTER);
-            badge.setPadding(Ui.dp(this, 13.0f), Ui.dp(this, 6.0f), Ui.dp(this, 13.0f), Ui.dp(this, 6.0f));
-            badge.setBackground(Ui.pillBackground(this, this.dark));
-            account.addView(badge);
-        }
-        linearLayoutCard.addView(account, new LinearLayout.LayoutParams(-1, Ui.dp(this, 55.0f)));
-
-        View divider = new View(this);
-        divider.setBackgroundColor(Ui.divider(this.dark));
-        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 1.0f));
-        dividerParams.setMargins(0, Ui.dp(this, 10.0f), 0, Ui.dp(this, 10.0f));
-        linearLayoutCard.addView(divider, dividerParams);
-
-        LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
-        if (!signedIn) {
-            Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude", true, this.dark);
-            button.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.3
-                @Override // android.view.View.OnClickListener
-                public void onClick(View view) {
-                    MainActivity.this.startOrContinueSignIn();
-                }
-            });
-            linearLayoutHorizontal.addView(button, new LinearLayout.LayoutParams(0, Ui.dp(this, 50.0f), 1.0f));
-        } else {
-            final Button button2 = Ui.button(this, "Refresh", true, this.dark);
-            button2.setCompoundDrawables(null, null, null, null);
-            button2.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.4
-                @Override // android.view.View.OnClickListener
-                public void onClick(View view) {
-                    MainActivity.this.refreshNow(button2);
-                }
-            });
-            linearLayoutHorizontal.addView(button2, new LinearLayout.LayoutParams(0, Ui.dp(this, 60.0f), 1.0f));
-            Button button3 = Ui.button(this, "Sign out", false, this.dark);
-            button3.setCompoundDrawables(null, null, null, null);
-            LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(0, Ui.dp(this, 60.0f), 1.0f);
-            layoutParams4.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
-            linearLayoutHorizontal.addView(button3, layoutParams4);
-            button3.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.5
-                @Override // android.view.View.OnClickListener
-                public void onClick(View view) {
-                    MainActivity.this.confirmSignOut();
-                }
-            });
-        }
-        linearLayoutCard.addView(linearLayoutHorizontal, new LinearLayout.LayoutParams(-1, Ui.dp(this, 74.0f)));
-        return linearLayoutCard;
-    }
-
-    private void addUsageRow(LinearLayout linearLayout, String str, UsageWindow usageWindow) {
-        LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 80);
-        linearLayoutHorizontal.addView(Ui.text(this, str, 13.0f, Ui.secondaryText(this.dark)), new LinearLayout.LayoutParams(0, -2, 1.0f));
-        TextView textViewText = Ui.text(this, usageWindow == null ? "Unavailable" : usageWindow.remainingPercent() + "% left", 20.0f, Ui.mainText(this.dark));
-        textViewText.setTypeface(Ui.mediumTypeface(this));
-        linearLayoutHorizontal.addView(textViewText);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
-        layoutParams.setMargins(0, Ui.dp(this, 4.0f), 0, Ui.dp(this, 6.0f));
-        linearLayout.addView(linearLayoutHorizontal, layoutParams);
-        ProgressBar progressBarProgress = Ui.progress(this, this.dark);
-        progressBarProgress.setProgress(usageWindow == null ? 0 : usageWindow.remainingPercent());
-        linearLayout.addView(progressBarProgress);
-        View viewText = Ui.text(this, usageWindow == null ? "Reset time unavailable" : UsageFormat.reset(this, usageWindow, "both", System.currentTimeMillis()), 11.0f, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(-1, -2);
-        layoutParams2.setMargins(0, Ui.dp(this, 5.0f), 0, Ui.dp(this, 13.0f));
-        linearLayout.addView(viewText, layoutParams2);
-    }
-
-    private LinearLayout buildResetCreditsCard() {
-        boolean signedIn = SecureTokenStore.isSignedIn(this);
-        ResetCreditsSnapshot credits = AppPreferences.loadResetCredits(this);
-        int available = credits == null ? 0 : credits.availableCount;
-        long now = System.currentTimeMillis();
-        long nextExpiry = credits == null ? 0L : credits.nextExpiryMillis(now);
-
-        LinearLayout card = Ui.card(this, this.dark);
-        TextView title = Ui.text(this, "Reset credits", 18, Ui.mainText(this.dark));
-        title.setTypeface(Ui.mediumTypeface(this));
-        card.addView(title);
-        card.addView(buildIconDetailRow(R.drawable.ic_oui_battery,
-                resetCreditsTitle(signedIn, available),
-                resetCreditsSummary(signedIn, available, nextExpiry, now)));
-
-        if (signedIn) {
-            card.setOnClickListener(view -> openResetCredits());
-            Button button = Ui.nativePrimaryButton(this,
-                    available > 0 ? "Use 1 reset" : "No resets available");
-            button.setEnabled(available > 0);
-            button.setOnClickListener(view -> openResetCredits());
-            LinearLayout.LayoutParams buttonParams =
-                    new LinearLayout.LayoutParams(-1, Ui.dp(this, 60.0f));
-            buttonParams.setMargins(0, Ui.dp(this, 16.0f), 0, 0);
-            card.addView(button, buttonParams);
-        }
-        return card;
-    }
-
-    private static String resetCreditsTitle(boolean signedIn, int available) {
-        if (!signedIn) {
-            return "Reset credits";
-        }
-        if (available <= 0) {
-            return "No resets available";
-        }
-        if (available == 1) {
-            return "1 reset available";
-        }
-        return available + " resets available";
-    }
-
-    private String resetCreditsSummary(boolean signedIn, int available, long nextExpiry,
-            long now) {
-        if (!signedIn) {
-            return "Sign in to view reset credits";
-        }
-        if (nextExpiry > 0L) {
-            return "Next expires " + UsageFormat.absolute(this, nextExpiry, now)
-                    + " · " + UsageFormat.relative(nextExpiry, now);
-        }
-        if (available > 0) {
-            return "Expiration details unavailable";
-        }
-        return "Earn credits from Claude Claude";
-    }
-
-    private void openResetCredits() {
-        Ui.startSecondaryActivity(this, ResetCreditActivity.class);
-    }
-
-    /**
-     * Prefer the detailed reset-credits cache; fall back to the usage-endpoint summary count.
-     * Unknown inventory never surfaces an empty card.
-     */
-    private boolean shouldShowResetCreditsCard(UsageSnapshot snapshot) {
-        ResetCreditsSnapshot credits = AppPreferences.loadResetCredits(this);
-        if (credits != null) {
-            return credits.shouldDisplay();
-        }
-        return snapshot != null
-                && ResetCreditsSnapshot.shouldDisplayCount(snapshot.resetCreditsAvailable);
-    }
-
-    private LinearLayout buildWidgetCard() {
-        String str;
-        LinearLayout linearLayoutCard = Ui.card(this, this.dark);
-        int length = AppWidgetManager.getInstance(this).getAppWidgetIds(new ComponentName(this, (Class<?>) ClaudeUsageWidget.class)).length + SamsungLockWidgetSupport.countAll(this);
-        if (length == 0) {
-            str = "Add Claude Meter widgets";
-        } else {
-            str = length + " widget" + (length == 1 ? "" : "s") + " active";
-        }
-        TextView textViewText = Ui.text(this, str, 16.0f, Ui.mainText(this.dark));
-        textViewText.setTypeface(Ui.mediumTypeface(this));
-        linearLayoutCard.addView(textViewText);
-        View viewText = Ui.text(this, "Home and Galaxy lock-screen widgets use two battery-style dials for 5-hour and weekly usage remaining, with One UI Home handling the native frame and blur.", 13.0f, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
-        layoutParams.setMargins(0, Ui.dp(this, 7.0f), 0, Ui.dp(this, 15.0f));
-        linearLayoutCard.addView(viewText, layoutParams);
-        LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
-        Button button = Ui.button(this, "Add widget", true, this.dark);
-        button.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.7
-            @Override // android.view.View.OnClickListener
-            public void onClick(View view) {
-                MainActivity.this.requestPinWidget();
+                refresh(action);
             }
         });
-        linearLayoutHorizontal.addView(button, new LinearLayout.LayoutParams(0, Ui.dp(this, 50.0f), 1.0f));
-        Button button2 = Ui.button(this, "Customize", false, this.dark);
-        LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(0, Ui.dp(this, 50.0f), 1.0f);
-        layoutParams2.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
-        linearLayoutHorizontal.addView(button2, layoutParams2);
-        button2.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.8
-            @Override // android.view.View.OnClickListener
-            public void onClick(View view) {
-                Ui.startSecondaryActivity(MainActivity.this, SettingsActivity.class);
-            }
-        });
-        linearLayoutCard.addView(linearLayoutHorizontal);
-        return linearLayoutCard;
-    }
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 60));
+        actionParams.setMargins(0, Ui.dp(this, 16), 0, 0);
+        card.addView(action, actionParams);
 
-    private LinearLayout buildOperationCard() {
-        LinearLayout linearLayoutCard = Ui.card(this, this.dark);
-        TextView textViewText = Ui.text(this, "Automatic refresh every " + AppPreferences.getRefreshMinutes(this) + " minutes", 15.0f, Ui.mainText(this.dark));
-        textViewText.setTypeface(Ui.mediumTypeface(this));
-        linearLayoutCard.addView(textViewText);
-        TextView textViewText2 = Ui.text(this, "Manual refreshes run immediately. Scheduled work follows Android battery and network policy, and another update is requested after the next known reset. Cached values remain visible offline.", 13.0f, Ui.secondaryText(this.dark));
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
-        layoutParams.setMargins(0, Ui.dp(this, 7.0f), 0, 0);
-        linearLayoutCard.addView(textViewText2, layoutParams);
-        String schedulerError = AppPreferences.getSchedulerError(this);
-        if (!schedulerError.isEmpty()) {
-            TextView textViewText3 = Ui.text(this, schedulerError, 12.0f, Ui.danger(this.dark));
-            LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(-1, -2);
-            layoutParams2.setMargins(0, Ui.dp(this, 10.0f), 0, 0);
-            linearLayoutCard.addView(textViewText3, layoutParams2);
+        if (credential != null) {
+            Button change = Ui.button(this, "Change credential", false, dark);
+            change.setOnClickListener(view -> openCredentialSettings());
+            LinearLayout.LayoutParams changeParams = new LinearLayout.LayoutParams(-1, Ui.dp(this, 52));
+            changeParams.setMargins(0, Ui.dp(this, 8), 0, 0);
+            card.addView(change, changeParams);
         }
-        return linearLayoutCard;
+
+        content.addView(card);
     }
 
-    public void startOrContinueSignIn() {
-        String str;
-        DiagnosticLog.info(this, "user", "sign_in_requested",
-                "already_signed_in", SecureTokenStore.isSignedIn(this));
-        if (SecureTokenStore.isSignedIn(this)) {
-            AppPreferences.setOAuthPending(this, false, "");
-            rebuild();
+    private void buildNoCredentialState() {
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "What Claude Meter can read", 18, Ui.mainText(dark));
+        title.setTypeface(Ui.mediumTypeface(this));
+        card.addView(title);
+        addBody(card,
+                "A Claude API key can verify access and list the models available to that key. "
+                        + "An organization Admin/Analytics credential can additionally read the "
+                        + "documented Usage and Cost Analytics API.");
+        addBody(card,
+                "Credentials are encrypted with Android Keystore and sent only to Anthropic.");
+        content.addView(card);
+    }
+
+    private void buildDataCards(AnthropicSnapshot snapshot) {
+        if (snapshot == null) {
+            LinearLayout empty = Ui.card(this, dark);
+            TextView title = Ui.text(this, "No Anthropic data cached", 18, Ui.mainText(dark));
+            title.setTypeface(Ui.mediumTypeface(this));
+            empty.addView(title);
+            addBody(empty, "Tap Refresh to verify the credential and load documented Anthropic data.");
+            content.addView(empty);
             return;
         }
-        try {
-            startForegroundService(new Intent(this, (Class<?>) OAuthService.class).setAction(OAuthService.ACTION_START));
-            if (AppPreferences.isOAuthPending(this)) {
-                str = "Resuming secure Anthropic sign-in…";
-            } else {
-                str = "Opening secure Anthropic sign-in…";
-            }
-            Toast.makeText(this, str, 0).show();
-        } catch (RuntimeException e) {
-            DiagnosticLog.error(this, "auth", "sign_in_service_start_failed", e);
-            AppPreferences.setOAuthPending(this, false, "");
-            Toast.makeText(this, "Could not start sign-in: " + safeMessage(e), 1).show();
-        }
+
+        buildModelsCard(snapshot);
+        Ui.addSpacer(content, 16);
+        buildAnalyticsCard(snapshot);
     }
 
-    public void openAuthUrl(String str) {
-        if (!str.equals(this.lastLaunchedAuthUrl) || hasWindowFocus()) {
-            this.lastLaunchedAuthUrl = str;
-            try {
-                startActivity(new Intent("android.intent.action.VIEW", Uri.parse(str)));
-            } catch (RuntimeException e) {
-                Toast.makeText(this, "No browser is available to complete sign-in.", 1).show();
+    private void buildModelsCard(AnthropicSnapshot snapshot) {
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "Available Claude API models", 18, Ui.mainText(dark));
+        title.setTypeface(Ui.mediumTypeface(this));
+        card.addView(title);
+
+        if (snapshot.models.isEmpty()) {
+            addBody(card,
+                    "No model list is available for this credential type. "
+                            + "Organization-only credentials may not have inference access.");
+        } else {
+            addBody(card, snapshot.models.size() + " model"
+                    + (snapshot.models.size() == 1 ? "" : "s") + " reported by /v1/models.");
+            int shown = Math.min(6, snapshot.models.size());
+            for (int i = 0; i < shown; i++) {
+                AnthropicModel model = snapshot.models.get(i);
+                TextView row = Ui.text(this,
+                        "• " + model.label()
+                                + (model.lifecycle.isEmpty() ? "" : " · " + model.lifecycle),
+                        14, Ui.mainText(dark));
+                LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2);
+                rowParams.setMargins(0, Ui.dp(this, 7), 0, 0);
+                card.addView(row, rowParams);
+            }
+            if (snapshot.models.size() > shown) {
+                addBody(card, "+" + (snapshot.models.size() - shown) + " more.");
             }
         }
+        content.addView(card);
     }
 
-    public void refreshNow(Button button) {
-        DiagnosticLog.info(this, "user", "manual_refresh_requested", "source", "button");
+    private void buildAnalyticsCard(AnthropicSnapshot snapshot) {
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "Organization usage · last 30 days", 18,
+                Ui.mainText(dark));
+        title.setTypeface(Ui.mediumTypeface(this));
+        card.addView(title);
+
+        if (!snapshot.analyticsAvailable) {
+            addBody(card, snapshot.analyticsMessage.isEmpty()
+                    ? "Organization analytics are not available for this credential."
+                    : snapshot.analyticsMessage);
+            addBody(card,
+                    "Claude Meter does not interpret a normal API key as a subscription-usage credential.");
+            content.addView(card);
+            return;
+        }
+
+        NumberFormat number = NumberFormat.getIntegerInstance(Locale.getDefault());
+        addMetric(card, "Total tokens", number.format(snapshot.totalTokens));
+        addMetric(card, "Input tokens", number.format(snapshot.inputTokens));
+        addMetric(card, "Output tokens", number.format(snapshot.outputTokens));
+        addMetric(card, "Requests", number.format(snapshot.requests));
+        addMetric(card, "Cost", "$" + (snapshot.costUsd.isEmpty() ? "0.00" : snapshot.costUsd) + " USD");
+        addBody(card, "Source: Anthropic Usage and Cost Analytics API.");
+        content.addView(card);
+    }
+
+    private void buildSubscriptionLimitsNotice() {
+        LinearLayout card = Ui.card(this, dark);
+        TextView title = Ui.text(this, "Claude subscription limits", 18, Ui.mainText(dark));
+        title.setTypeface(Ui.mediumTypeface(this));
+        card.addView(title);
+        addBody(card,
+                "Claude Pro, Max and Ultra session/weekly limits are not exposed to independent "
+                        + "third-party Android apps through a documented public usage API. "
+                        + "Claude Meter therefore does not fabricate or scrape those values.");
+        Button docs = Ui.button(this, "Read Anthropic documentation", false, dark);
+        docs.setOnClickListener(view -> openUrl(
+                "https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-max-or-ultra-plan"));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, Ui.dp(this, 52));
+        params.setMargins(0, Ui.dp(this, 12), 0, 0);
+        card.addView(docs, params);
+        content.addView(card);
+    }
+
+    private void buildNavigation() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        Button settings = Ui.button(this, "Settings", false, dark);
+        settings.setOnClickListener(view -> Ui.startSecondaryActivity(this, SettingsActivity.class));
+        row.addView(settings, new LinearLayout.LayoutParams(0, Ui.dp(this, 54), 1f));
+
+        Button about = Ui.button(this, "About", false, dark);
+        about.setOnClickListener(view -> Ui.startSecondaryActivity(this, AboutActivity.class));
+        LinearLayout.LayoutParams aboutParams = new LinearLayout.LayoutParams(0, Ui.dp(this, 54), 1f);
+        aboutParams.setMargins(Ui.dp(this, 8), 0, 0, 0);
+        row.addView(about, aboutParams);
+        content.addView(row);
+    }
+
+    private void refresh(Button button) {
+        if (refreshing) return;
+        refreshing = true;
         button.setEnabled(false);
-        button.setText(R.string.refreshing);
-        final Context applicationContext = getApplicationContext();
-        this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9
-            @Override // java.lang.Runnable
-            public void run() {
-                try {
-                    RefreshScheduler.scheduleAtNextReset(applicationContext, UsageApi.refreshAndCache(applicationContext));
-                    WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9.1
-                        @Override // java.lang.Runnable
-                        public void run() {
-                            DiagnosticLog.info(applicationContext, "user",
-                                    "manual_refresh_finished", "source", "button");
-                            Toast.makeText(MainActivity.this, "Usage updated.", 0).show();
-                            MainActivity.this.rebuild();
-                        }
-                    });
-                } catch (Exception e) {
-                    DiagnosticLog.error(applicationContext, "user", "manual_refresh_failed", e,
-                            "source", "button");
-                    AppPreferences.setLastError(applicationContext, MainActivity.safeMessage(e));
-                    WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9.2
-                        @Override // java.lang.Runnable
-                        public void run() {
-                            Toast.makeText(MainActivity.this, MainActivity.safeMessage(e), 1).show();
-                            MainActivity.this.rebuild();
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    private void refreshFromPull() {
-        DiagnosticLog.info(this, "user", "manual_refresh_requested", "source", "pull");
-        if (!SecureTokenStore.isSignedIn(this)) {
-            DiagnosticLog.warn(this, "user", "manual_refresh_rejected",
-                    "source", "pull", "reason", "signed_out");
-            this.swipeRefresh.setRefreshing(false);
-            Toast.makeText(this, "Sign in from Settings to refresh usage.", Toast.LENGTH_SHORT).show();
-            Ui.startSecondaryActivity(this, SettingsActivity.class);
-            return;
-        }
-        final Context applicationContext = getApplicationContext();
-        this.executor.execute(() -> {
+        button.setText("Refreshing…");
+        new Thread(() -> {
             try {
-                RefreshScheduler.scheduleAtNextReset(applicationContext, UsageApi.refreshAndCache(applicationContext));
-                WidgetRenderer.updateAll(applicationContext);
+                AnthropicApi.refreshAndCache(getApplicationContext());
                 runOnUiThread(() -> {
-                    DiagnosticLog.info(applicationContext, "user",
-                            "manual_refresh_finished", "source", "pull");
-                    this.swipeRefresh.setRefreshing(false);
-                    rebuild();
+                    refreshing = false;
+                    Toast.makeText(this, "Anthropic data refreshed.", Toast.LENGTH_SHORT).show();
+                    render();
                 });
-            } catch (Exception e) {
-                DiagnosticLog.error(applicationContext, "user", "manual_refresh_failed", e,
-                        "source", "pull");
-                AppPreferences.setLastError(applicationContext, safeMessage(e));
-                WidgetRenderer.updateAll(applicationContext);
+            } catch (Exception exception) {
+                String message = exception.getMessage();
+                if (message == null || message.trim().isEmpty()) {
+                    message = "Anthropic refresh failed.";
+                }
+                String finalMessage = message;
                 runOnUiThread(() -> {
-                    this.swipeRefresh.setRefreshing(false);
-                    Toast.makeText(this, safeMessage(e), Toast.LENGTH_LONG).show();
-                    rebuild();
+                    refreshing = false;
+                    Toast.makeText(this, finalMessage, Toast.LENGTH_LONG).show();
+                    render();
                 });
             }
-        });
+        }, "anthropic-refresh").start();
     }
 
-    public void confirmSignOut() {
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted Claude tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.10
-            @Override // android.content.DialogInterface.OnClickListener
-            public void onClick(DialogInterface dialogInterface, int i) {
-                MainActivity.this.signOut();
-            }
-        }).create();
-        dialog.show();
+    private void openCredentialSettings() {
+        startActivity(new Intent(this, CredentialActivity.class));
     }
 
-    public void signOut() {
-        DiagnosticLog.info(this, "user", "sign_out_confirmed");
-        final AuthTokens authTokensLoad = SecureTokenStore.load(this);
-        SecureTokenStore.clear(this);
-        AppPreferences.clearSnapshot(this);
-        AppPreferences.setOAuthPending(this, false, "");
-        RefreshScheduler.cancelAll(this);
-        ResetAlertScheduler.cancelAll(this);
-        WidgetRenderer.updateAll(this);
-        rebuild();
-        this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.11
-            @Override // java.lang.Runnable
-            public void run() {
-                OAuthClient.revokeBestEffort(MainActivity.this.getApplicationContext(),
-                        authTokensLoad);
-            }
-        });
+    private void openUrl(String url) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
     }
 
-    public void requestPinWidget() {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-        ComponentName componentName = new ComponentName(this, (Class<?>) ClaudeUsageWidget.class);
-        if (appWidgetManager.isRequestPinAppWidgetSupported()) {
-            appWidgetManager.requestPinAppWidget(componentName, null, null);
-            Toast.makeText(this, "Choose a size and place the widget on your home screen.", 1).show();
-        } else {
-            AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Add from your launcher").setMessage("Long-press an empty area of the home screen, open Widgets, then choose Claude Meter.").setPositiveButton("OK", (DialogInterface.OnClickListener) null).create();
-            dialog.show();
-        }
+    private void addMetric(LinearLayout card, String label, String value) {
+        TextView row = Ui.text(this, label + "\n" + value, 15, Ui.mainText(dark));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, Ui.dp(this, 10), 0, 0);
+        card.addView(row, params);
     }
 
-    public static String safeMessage(Exception exc) {
-        String message = exc.getMessage();
-        if (message == null || message.trim().isEmpty()) {
-            return "The operation failed.";
-        }
-        return message.length() > 240 ? message.substring(0, 240) : message;
-    }
-
-    private static String safeMessage(RuntimeException runtimeException) {
-        String message = runtimeException.getMessage();
-        if (message == null || message.trim().isEmpty()) {
-            return runtimeException.getClass().getSimpleName();
-        }
-        return message.length() > 200 ? message.substring(0, 200) : message;
+    private void addBody(LinearLayout card, String text) {
+        TextView body = Ui.text(this, text, 14, Ui.secondaryText(dark));
+        body.setLineSpacing(0, 1.14f);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, Ui.dp(this, 9), 0, 0);
+        card.addView(body, params);
     }
 }
