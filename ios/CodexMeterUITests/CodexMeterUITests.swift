@@ -12,7 +12,7 @@ final class CodexMeterUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Codex Meter"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["5-hour"].exists)
         XCTAssertTrue(app.staticTexts["Weekly"].exists)
-        XCTAssertTrue(app.staticTexts["Demo data — no OpenAI requests"].exists)
+        XCTAssertTrue(app.staticTexts["Demo data — no Anthropic requests"].exists)
 
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 3))
@@ -56,9 +56,9 @@ final class CodexMeterUITests: XCTestCase {
         app.launchArguments = ["-ui-testing-signed-out", "-ui-testing-reset-settings"]
         app.launch()
 
-        XCTAssertTrue(app.buttons["Sign in with ChatGPT"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Sign in with Claude"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Explore demo"].exists)
-        app.buttons["Sign in with ChatGPT"].tap()
+        app.buttons["Sign in with Claude"].tap()
         XCTAssertTrue(app.navigationBars["Connect account"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["Get one-time code"].exists)
         XCTAssertTrue(
@@ -106,7 +106,7 @@ final class CodexMeterUITests: XCTestCase {
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.buttons["Leave Demo"].waitForExistence(timeout: 3))
         app.buttons["Leave Demo"].tap()
-        XCTAssertTrue(app.buttons["Sign in with ChatGPT"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Sign in with Claude"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["Explore demo"].exists)
     }
 

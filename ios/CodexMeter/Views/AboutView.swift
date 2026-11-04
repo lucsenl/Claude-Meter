@@ -51,11 +51,11 @@ struct AboutView: View {
                 NavigationLink("Open-source notices") {
                     OpenSourceNoticesView()
                 }
-                Link("OpenAI", destination: URL(string: "https://openai.com")!)
+                Link("Anthropic", destination: URL(string: "https://www.anthropic.com")!)
             }
 
             Section("Important") {
-                Text("Codex Meter is not affiliated with or endorsed by OpenAI. ChatGPT and Codex are trademarks of their respective owner. Account routes used by this app may change without notice.")
+                Text("Codex Meter is not affiliated with or endorsed by Anthropic. ChatGPT and Codex are trademarks of their respective owner. Account routes used by this app may change without notice.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -114,7 +114,7 @@ struct PrivacyPolicyView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Privacy policy")
                     .font(.largeTitle.bold())
-                Text("Codex Meter has no analytics, advertising, account system, or relay server. Authentication and Codex account requests go directly to OpenAI only when needed for the feature you selected.")
+                Text("Codex Meter has no analytics, advertising, account system, or relay server. Authentication and Codex account requests go directly to Anthropic only when needed for the feature you selected.")
                 Text("Credentials")
                     .font(.title3.bold())
                 Text("OAuth tokens are stored in Apple Keychain on this device. Widgets never receive tokens or account identifiers.")
@@ -124,7 +124,7 @@ struct PrivacyPolicyView: View {
                 Text("Settings exports contain preferences and dashboard choices, never credentials or usage samples.")
                 Text("Demo mode")
                     .font(.title3.bold())
-                Text("Demo mode is entirely local and does not contact OpenAI.")
+                Text("Demo mode is entirely local and does not contact Anthropic.")
                 Text("Last updated August 14, 2026")
                     .font(.footnote)
                     .foregroundStyle(.secondary)

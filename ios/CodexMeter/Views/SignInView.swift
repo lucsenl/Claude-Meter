@@ -65,9 +65,9 @@ struct SignInView: View {
                 .accessibilityHidden(true)
 
             VStack(spacing: 8) {
-                Text("Sign in with ChatGPT")
+                Text("Sign in with Claude")
                     .font(.title2.bold())
-                Text("Codex Meter uses OpenAI's device-code flow. Your password is entered only on the OpenAI-controlled page and is never visible to this app.")
+                Text("Claude Meter uses Claude account authorization. Your credentials are entered only on the Claude authorization page and are never visible to this app.")
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -143,7 +143,7 @@ struct SignInView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             } else {
-                Text("After signing in on the OpenAI page, return here. This screen updates automatically.")
+                Text("After signing in on the Anthropic page, return here. This screen updates automatically.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

@@ -52,7 +52,7 @@ struct UsageHistoryDashboardCard: View {
 
             if !hasCharts {
                 Label(
-                    "Charts appear once OpenAI reports your 5-hour, weekly, or monthly usage windows.",
+                    "Charts appear once Claude reports your 5-hour, weekly, or monthly usage windows.",
                     systemImage: "chart.xyaxis.line"
                 )
                 .font(.subheadline)
@@ -144,7 +144,7 @@ struct UsageHistoryView: View {
 
                 if !hasCharts {
                     Label(
-                        "Charts appear once OpenAI reports your 5-hour, weekly, or monthly usage windows. Refresh usage from the dashboard to check again.",
+                        "Charts appear once Claude reports your 5-hour, weekly, or monthly usage windows. Refresh usage from the dashboard to check again.",
                         systemImage: "clock.badge.questionmark"
                     )
                     .font(.subheadline)
