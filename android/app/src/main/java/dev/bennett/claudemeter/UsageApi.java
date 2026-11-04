@@ -164,6 +164,18 @@ public final class UsageApi {
         connection.setRequestProperty("User-Agent", AppConstants.userAgent());
     }
 
+    // Compatibility hooks for code that still shares the old refresh lock.
+    static void installCookieManager() {
+        // Claude OAuth API calls use bearer authorization and do not require a cookie jar.
+    }
+
+    static String safeMessage(Exception exception) {
+        String message = exception == null ? "" : exception.getMessage();
+        if (message == null || message.trim().isEmpty()) return "Claude usage refresh failed.";
+        String clean = message.trim();
+        return clean.length() > 240 ? clean.substring(0, 240) : clean;
+    }
+
     private static String firstNonEmpty(String... values) {
         for (String value : values) {
             if (value != null && !value.trim().isEmpty()) return value.trim();

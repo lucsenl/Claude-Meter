@@ -390,10 +390,6 @@ public final class MainActivity extends AppCompatActivity {
                 available.add(DashboardSections.USAGE_HISTORY);
             }
         }
-        // Zero available resets always hide the card, even when the Edit dashboard switch is on.
-        if (AppPreferences.showDashboardResetCredits(this) && shouldShowResetCreditsCard(snapshot)) {
-            available.add(DashboardSections.RESET_CREDITS);
-        }
         boolean inverted = false;
         for (String key : DashboardSections.resolveOrder(
                 AppPreferences.getDashboardOrder(this), available)) {
@@ -413,8 +409,6 @@ public final class MainActivity extends AppCompatActivity {
                 addDashboardCard(column, buildUsageCreditsCard(snapshot.usageCredits));
             } else if (DashboardSections.USAGE_HISTORY.equals(key)) {
                 addDashboardCard(column, buildUsageHistoryCard());
-            } else if (DashboardSections.RESET_CREDITS.equals(key)) {
-                addDashboardCard(column, buildResetCreditsCard());
             } else {
                 List<UsageLimit> group = limitsByKey.get(key);
                 if (group == null) {

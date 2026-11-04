@@ -10,6 +10,12 @@ public final class AppConstants {
     public static final String ACTION_REFRESH_WIDGET = "dev.bennett.claudemeter.action.REFRESH_WIDGET";
     public static final String ACTION_RESET_ALERT = "dev.bennett.claudemeter.action.RESET_ALERT";
     public static final String ACTION_USAGE_UPDATED = "dev.bennett.claudemeter.action.USAGE_UPDATED";
+    // Local compatibility actions while legacy UI code is being removed.
+    public static final String ACTION_RESET_CREDITS_UPDATED =
+            "dev.bennett.claudemeter.action.RESET_CREDITS_UPDATED";
+    public static final String APP_LINK = "claudemeter://auth/complete";
+    public static final String EXTRA_CREDIT_ID = "credit_id";
+    public static final String EXTRA_PROMPT_USE_RESET = "prompt_use_reset";
 
     public static final String AUTHORIZE_URL = "https://claude.ai/oauth/authorize";
     public static final String TOKEN_URL = "https://platform.claude.com/v1/oauth/token";

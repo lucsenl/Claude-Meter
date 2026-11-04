@@ -100,7 +100,7 @@ public final class OAuthService extends Service {
         try {
             Pkce pkce = Pkce.generate();
             int port = bindServer();
-            String redirectUri = "http://localhost:" + port + "/auth/callback";
+            String redirectUri = "http://localhost:" + port + "/callback";
             String authUrl = buildAuthorizeUrl(redirectUri, pkce);
             AppPreferences.setOAuthPending(this, true, authUrl);
             updateNotification("Complete sign-in in your browser", authUrl);
@@ -114,7 +114,7 @@ public final class OAuthService extends Service {
                 }
                 browser.setSoTimeout(30000);
                 Callback callback = readCallback(browser);
-                if (!"/auth/callback".equals(callback.path)) {
+                if (!"/callback".equals(callback.path)) {
                     writeBrowser(browser, 404, "Not found", false);
                     closeQuietly(browser);
                     browser = null;
