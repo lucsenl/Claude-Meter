@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
+import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class MainActivity extends AppCompatActivity {
@@ -50,7 +50,7 @@ public final class MainActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private String lastLaunchedAuthUrl = "";
     private boolean launchSignInRequested;
-    private final BroadcastReceiver authReceiver = new BroadcastReceiver() { // from class: dev.bennett.claudemeter.MainActivity.1
+    private final BroadcastReceiver authReceiver = new BroadcastReceiver() { // from class: dev.lucsenl.claudemeter.MainActivity.1
         @Override // android.content.BroadcastReceiver
         public void onReceive(Context context, Intent intent) {
             String action = intent == null ? null : intent.getAction();
@@ -175,9 +175,9 @@ public final class MainActivity extends AppCompatActivity {
         intentFilter.addAction(AppConstants.ACTION_RELEASES_UPDATED);
         try {
             if (Build.VERSION.SDK_INT >= 33) {
-                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.claudemeter.permission.INTERNAL", null, 4);
+                registerReceiver(this.authReceiver, intentFilter, "dev.lucsenl.claudemeter.permission.INTERNAL", null, 4);
             } else {
-                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.claudemeter.permission.INTERNAL", null);
+                registerReceiver(this.authReceiver, intentFilter, "dev.lucsenl.claudemeter.permission.INTERNAL", null);
             }
             this.receiverRegistered = true;
         } catch (RuntimeException e) {
@@ -675,7 +675,7 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         if (!signedIn) {
             Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude", true, this.dark);
-            button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.3
+            button.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.3
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.startOrContinueSignIn();
@@ -685,7 +685,7 @@ public final class MainActivity extends AppCompatActivity {
         } else {
             final Button button2 = Ui.button(this, "Refresh", true, this.dark);
             button2.setCompoundDrawables(null, null, null, null);
-            button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.4
+            button2.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.4
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.refreshNow(button2);
@@ -697,7 +697,7 @@ public final class MainActivity extends AppCompatActivity {
             LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(0, Ui.dp(this, 60.0f), 1.0f);
             layoutParams4.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
             linearLayoutHorizontal.addView(button3, layoutParams4);
-            button3.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.5
+            button3.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.5
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.confirmSignOut();
@@ -818,7 +818,7 @@ public final class MainActivity extends AppCompatActivity {
         linearLayoutCard.addView(viewText, layoutParams);
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         Button button = Ui.button(this, "Add widget", true, this.dark);
-        button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.7
+        button.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.7
             @Override // android.view.View.OnClickListener
             public void onClick(View view) {
                 MainActivity.this.requestPinWidget();
@@ -829,7 +829,7 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(0, Ui.dp(this, 50.0f), 1.0f);
         layoutParams2.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
         linearLayoutHorizontal.addView(button2, layoutParams2);
-        button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.8
+        button2.setOnClickListener(new View.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.8
             @Override // android.view.View.OnClickListener
             public void onClick(View view) {
                 Ui.startSecondaryActivity(MainActivity.this, SettingsActivity.class);
@@ -898,13 +898,13 @@ public final class MainActivity extends AppCompatActivity {
         button.setEnabled(false);
         button.setText(R.string.refreshing);
         final Context applicationContext = getApplicationContext();
-        this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9
+        this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9
             @Override // java.lang.Runnable
             public void run() {
                 try {
                     RefreshScheduler.scheduleAtNextReset(applicationContext, UsageApi.refreshAndCache(applicationContext));
                     WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9.1
+                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9.1
                         @Override // java.lang.Runnable
                         public void run() {
                             DiagnosticLog.info(applicationContext, "user",
@@ -918,7 +918,7 @@ public final class MainActivity extends AppCompatActivity {
                             "source", "button");
                     AppPreferences.setLastError(applicationContext, MainActivity.safeMessage(e));
                     WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9.2
+                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.9.2
                         @Override // java.lang.Runnable
                         public void run() {
                             Toast.makeText(MainActivity.this, MainActivity.safeMessage(e), 1).show();
@@ -966,7 +966,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void confirmSignOut() {
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted Claude tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.10
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted Claude tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.lucsenl.claudemeter.MainActivity.10
             @Override // android.content.DialogInterface.OnClickListener
             public void onClick(DialogInterface dialogInterface, int i) {
                 MainActivity.this.signOut();
@@ -985,7 +985,7 @@ public final class MainActivity extends AppCompatActivity {
         ResetAlertScheduler.cancelAll(this);
         WidgetRenderer.updateAll(this);
         rebuild();
-        this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.11
+        this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.MainActivity.11
             @Override // java.lang.Runnable
             public void run() {
                 OAuthClient.revokeBestEffort(MainActivity.this.getApplicationContext(),
