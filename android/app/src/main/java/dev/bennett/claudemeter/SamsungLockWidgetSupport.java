@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -124,7 +124,7 @@ final class SamsungLockWidgetSupport {
                         PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                         PackageManager.DONT_KILL_APP);
             } catch (RuntimeException exception) {
-                Log.w("CodexMeterLock", "Unable to re-enable a lock widget provider", exception);
+                Log.w("ClaudeMeterLock", "Unable to re-enable a lock widget provider", exception);
             }
         }
     }
@@ -140,7 +140,7 @@ final class SamsungLockWidgetSupport {
                         arrayList.add(new LockInstance(i, providerSpec.shape, providerSpec.style, providerSpec.metric));
                     }
                 } catch (RuntimeException e) {
-                    Log.w("CodexMeterLock", "Unable to enumerate lock widgets", e);
+                    Log.w("ClaudeMeterLock", "Unable to enumerate lock widgets", e);
                 }
             }
         }
@@ -168,7 +168,7 @@ final class SamsungLockWidgetSupport {
             try {
                 appWidgetManager.updateAppWidget(i, buildViews(context, appWidgetManager, i, shape, style, metric));
             } catch (RuntimeException e) {
-                Log.w("CodexMeterLock", "Samsung lock widget update failed", e);
+                Log.w("ClaudeMeterLock", "Samsung lock widget update failed", e);
             }
         }
     }
@@ -207,8 +207,8 @@ final class SamsungLockWidgetSupport {
             String metricName = metric == Metric.FIVE_HOUR ? "five hour"
                     : monthlyFallback ? "monthly" : "weekly";
             single.setContentDescription(R.id.lock_graphic_root, zIsSignedIn
-                    ? "Codex " + metricName + " " + value(value) + " remaining"
-                    : "Codex Meter, sign in required");
+                    ? "Claude " + metricName + " " + value(value) + " remaining"
+                    : "Claude Meter, sign in required");
             applyOpenIntent(context, single, R.id.lock_graphic_root, i, shape, style,
                     lockWidgetOptionsLoadLockWidgetOptions, zIsSignedIn, i3);
             return single;
@@ -539,7 +539,7 @@ final class SamsungLockWidgetSupport {
         try {
             updateIds(context, appWidgetManager, appWidgetManager.getAppWidgetIds(new ComponentName(context, cls)), shape, style, metric);
         } catch (RuntimeException e) {
-            Log.w("CodexMeterLock", "Unable to enumerate lock widgets", e);
+            Log.w("ClaudeMeterLock", "Unable to enumerate lock widgets", e);
         }
     }
 
@@ -548,9 +548,9 @@ final class SamsungLockWidgetSupport {
         String target = z2 ? "reset" : "open";
         Intent intentAddFlags = new Intent(context,
                 (Class<?>) (z2 ? ResetCreditActivity.class : MainActivity.class))
-                .setAction("dev.bennett.codexmeter.action.LOCK_WIDGET_"
+                .setAction("dev.bennett.claudemeter.action.LOCK_WIDGET_"
                         + target.toUpperCase(Locale.US))
-                .setData(Uri.parse("codexmeter://widget/lock/v" + AppConstants.VERSION_CODE + "/"
+                .setData(Uri.parse("claudemeter://widget/lock/v" + AppConstants.VERSION_CODE + "/"
                         + i2 + "/"
                         + shape.name().toLowerCase(Locale.US) + "/"
                         + style.name().toLowerCase(Locale.US)
@@ -599,9 +599,9 @@ final class SamsungLockWidgetSupport {
     private static String contentDescription(boolean z, LockMeterBinding binding, Style style,
             LockWidgetOptions lockWidgetOptions, int i3) {
         if (!z) {
-            return "Codex Meter, sign in required";
+            return "Claude Meter, sign in required";
         }
-        StringBuilder sbAppend = new StringBuilder("Codex ").append(styleLabel(style).toLowerCase()).append(", ");
+        StringBuilder sbAppend = new StringBuilder("Claude ").append(styleLabel(style).toLowerCase()).append(", ");
         if (binding.showPrimary) {
             String label = binding.primary == null ? "primary" : binding.primary.label;
             sbAppend.append(label).append(' ').append(value(binding.primaryRemaining))
@@ -700,7 +700,7 @@ final class SamsungLockWidgetSupport {
             }
             return iArr;
         } catch (RuntimeException e) {
-            Log.w("CodexMeterLock", "Unable to read lock widget size", e);
+            Log.w("ClaudeMeterLock", "Unable to read lock widget size", e);
             return new int[]{i2, 56};
         }
     }

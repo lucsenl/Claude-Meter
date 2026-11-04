@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -27,7 +27,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 import dev.oneuiproject.oneui.layout.ToolbarLayout;
 import dev.oneuiproject.oneui.preference.HorizontalRadioPreference;
 import dev.oneuiproject.oneui.preference.LayoutPreference;
@@ -160,7 +160,7 @@ public final class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onCreatePreferences(Bundle bundle, String rootKey) {
-            getPreferenceManager().setSharedPreferencesName("codex_meter_settings_v1");
+            getPreferenceManager().setSharedPreferencesName("claude_meter_settings_v1");
             page = normalizePage(getArguments() == null
                     ? null : getArguments().getString(ARG_PAGE));
             switch (page) {
@@ -256,7 +256,7 @@ public final class SettingsActivity extends AppCompatActivity {
             bindPageLink("settings_updates", PAGE_UPDATES);
             bindPageLink("settings_transfer", PAGE_TRANSFER);
             bindPageLink("settings_privacy", PAGE_PRIVACY);
-            findPreference("about_codex_meter").setOnPreferenceClickListener(preference -> {
+            findPreference("about_claude_meter").setOnPreferenceClickListener(preference -> {
                 Ui.startSecondaryActivity(requireActivity(), AboutActivity.class);
                 return true;
             });
@@ -338,7 +338,7 @@ public final class SettingsActivity extends AppCompatActivity {
             Intent create = new Intent(Intent.ACTION_CREATE_DOCUMENT)
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType("application/x-ndjson")
-                    .putExtra(Intent.EXTRA_TITLE, "codex-meter-diagnostics-" + stamp + ".jsonl");
+                    .putExtra(Intent.EXTRA_TITLE, "claude-meter-diagnostics-" + stamp + ".jsonl");
             try {
                 startActivityForResult(create, REQUEST_EXPORT_DIAGNOSTICS);
             } catch (RuntimeException exception) {
@@ -459,7 +459,7 @@ public final class SettingsActivity extends AppCompatActivity {
                     : (tokens.email.isEmpty() ? "Connected" : tokens.email));
             if (tokens != null && snapshot != null) {
                 String label = UsageFormat.planLabel(snapshot.planType);
-                plan.setText(label.isEmpty() ? "Codex" : label);
+                plan.setText(label.isEmpty() ? "Claude" : label);
                 plan.setVisibility(View.VISIBLE);
             } else {
                 plan.setVisibility(View.GONE);
@@ -482,7 +482,7 @@ public final class SettingsActivity extends AppCompatActivity {
         private void confirmSignOut() {
             androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                     .setTitle("Sign out?")
-                    .setMessage("This removes encrypted ChatGPT tokens and cached usage from this device.")
+                    .setMessage("This removes encrypted Claude tokens and cached usage from this device.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Sign out", (dialogInterface, which) -> {
                         AuthTokens tokens = SecureTokenStore.load(requireContext());
@@ -497,7 +497,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         if (tokens != null) {
                             Context app = requireContext().getApplicationContext();
                             new Thread(() -> OAuthClient.revokeBestEffort(app, tokens),
-                                    "codex-sign-out").start();
+                                    "claude-sign-out").start();
                         }
                     })
                     .create();
@@ -905,7 +905,7 @@ public final class SettingsActivity extends AppCompatActivity {
                     .setNegativeButton("Done", null);
             if (leadTimes.isEmpty()) {
                 builder.setMessage("No reminder times are configured. Add one to choose how "
-                        + "long before expiry Codex Meter should notify you.");
+                        + "long before expiry Claude Meter should notify you.");
             } else {
                 String[] labels = new String[leadTimes.size()];
                 for (int i = 0; i < leadTimes.size(); i++) {
@@ -1225,7 +1225,7 @@ public final class SettingsActivity extends AppCompatActivity {
                             + "region, and firmware build even when Android and One UI versions "
                             + "match.\n\n"
                             + "If both modes remain ordinary notifications, that firmware or "
-                            + "device does not expose a third-party Now Bar surface. Codex Meter "
+                            + "device does not expose a third-party Now Bar surface. Claude Meter "
                             + "cannot override Samsung’s system allowlist.")
                     .setNeutralButton("Developer options", (dialog, which) -> {
                         try {
@@ -1311,7 +1311,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         "Waiting for a low allowance or accelerated usage trigger");
             } else {
                 nowBarMonitorPreference.setSummary(
-                        "Show remaining Codex allowance until the next available usage reset");
+                        "Show remaining Claude allowance until the next available usage reset");
             }
             if (nowBarAutoStartPreference != null) {
                 nowBarAutoStartPreference.setChecked(
@@ -1441,7 +1441,7 @@ public final class SettingsActivity extends AppCompatActivity {
                             + "\n" + (signedIn
                             ? SettingsTransfer.sectionSummary(
                             SettingsTransfer.SECTION_AUTHENTICATION)
-                            : "Sign in first to export ChatGPT authentication")
+                            : "Sign in first to export Claude authentication")
             };
             boolean[] checked = {true, true, true, false};
             new AlertDialog.Builder(requireContext())
@@ -1480,7 +1480,7 @@ public final class SettingsActivity extends AppCompatActivity {
             new AlertDialog.Builder(requireContext())
                     .setTitle("Authentication will be included")
                     .setMessage(SettingsTransfer.SECURITY_WARNING
-                            + "\n\nOnly continue if you are moving Codex Meter to another device "
+                            + "\n\nOnly continue if you are moving Claude Meter to another device "
                             + "you control.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Export anyway", (dialog, which) ->
@@ -1496,8 +1496,8 @@ public final class SettingsActivity extends AppCompatActivity {
             pendingExportAuthentication = authentication;
             String stamp = new SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(new Date());
             String name = pendingExportAuthentication
-                    ? "codex-meter-transfer-AUTH-" + stamp + ".json"
-                    : "codex-meter-transfer-" + stamp + ".json";
+                    ? "claude-meter-transfer-AUTH-" + stamp + ".json"
+                    : "claude-meter-transfer-" + stamp + ".json";
             Intent create = new Intent(Intent.ACTION_CREATE_DOCUMENT)
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType("application/json")
@@ -1518,7 +1518,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         pendingExportNowBar, pendingExportAuthentication);
                 SettingsTransferStore.write(requireContext(), uri, document);
                 String message = document.hasAuthentication()
-                        ? "Exported. Keep this file private — it includes ChatGPT authentication."
+                        ? "Exported. Keep this file private — it includes Claude authentication."
                         : "Settings exported.";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
             } catch (Exception exception) {

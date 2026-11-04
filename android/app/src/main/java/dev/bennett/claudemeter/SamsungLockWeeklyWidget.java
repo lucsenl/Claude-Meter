@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /** One-cell Samsung lock/AOD widget for the weekly allowance. */
 public final class SamsungLockWeeklyWidget extends SamsungLockWidgetProvider {

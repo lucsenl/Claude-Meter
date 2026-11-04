@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,7 +17,7 @@ import org.json.JSONObject;
 /* JADX INFO: loaded from: classes.dex */
 @SuppressLint({"ApplySharedPref"})
 public final class SecureTokenStore {
-    private static final String KEY_ALIAS = "codex_meter_auth_key_v1";
+    private static final String KEY_ALIAS = "claude_meter_auth_key_v1";
     private static final String KEY_BLOB = "blob";
     private static final Object LOCK = new Object();
     private static final String PREFS = "secure_auth_v1";

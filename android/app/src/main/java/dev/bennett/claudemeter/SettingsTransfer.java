@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,15 +8,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Portable Codex Meter transfer document. Pure JSON — no Android APIs — so the
+ * Portable Claude Meter transfer document. Pure JSON — no Android APIs — so the
  * format can be round-tripped in {@link ParserSelfTest}.
  *
- * <p>Authentication sections contain usable ChatGPT OAuth tokens and must never
+ * <p>Authentication sections contain usable Claude OAuth tokens and must never
  * be shared. The document always embeds {@link #SECURITY_WARNING} when auth is
  * present so a casual file open still surfaces the risk.
  */
 public final class SettingsTransfer {
-    public static final String FORMAT = "codex_meter_transfer";
+    public static final String FORMAT = "claude_meter_transfer";
     public static final int VERSION = 1;
 
     public static final String SECTION_APP_SETTINGS = "app_settings";
@@ -87,7 +87,7 @@ public final class SettingsTransfer {
         }
         String format = json.optString("format", "");
         if (!FORMAT.equals(format)) {
-            throw new IllegalArgumentException("Not a Codex Meter transfer file.");
+            throw new IllegalArgumentException("Not a Claude Meter transfer file.");
         }
         int version = json.optInt("version", 0);
         if (version < 1 || version > VERSION) {
@@ -289,7 +289,7 @@ public final class SettingsTransfer {
             return "Display mode, percentage mode, and auto-start";
         }
         if (SECTION_AUTHENTICATION.equals(section)) {
-            return "ChatGPT sign-in tokens (sensitive)";
+            return "Claude sign-in tokens (sensitive)";
         }
         return "";
     }
