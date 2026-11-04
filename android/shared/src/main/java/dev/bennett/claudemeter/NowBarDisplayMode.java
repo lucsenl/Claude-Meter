@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /** Selects one mutually exclusive notification contract for the live usage monitor. */
 public final class NowBarDisplayMode {

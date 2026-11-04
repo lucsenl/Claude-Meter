@@ -1,10 +1,10 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.math.BigDecimal;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** Purchased usage-credit state returned by the main Codex usage endpoint. */
+/** Purchased usage-credit state returned by the main Claude usage endpoint. */
 public final class UsageCredits {
     /**
      * Balances below this render as "0" with the two fraction digits used across the app,

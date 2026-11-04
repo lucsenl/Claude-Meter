@@ -1,13 +1,13 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.Locale;
 
 /**
- * Rough, community-researched value estimates for Codex subscription allowances.
+ * Rough, community-researched value estimates for Claude subscription allowances.
  *
  * <p>Anchors: Pro 20x ($200/month) is commonly measured at roughly $14,000 of
  * equivalent API usage per month and Pro 5x ($100/month) at roughly $3,500.
- * Because OpenAI documents Pro 5x as 5x Plus usage and Pro 20x as 20x Plus,
+ * Because Anthropic documents Pro 5x as 5x Plus usage and Pro 20x as 20x Plus,
  * Plus ($20/month) back-solves to roughly $700 of monthly usage value. Weekly
  * figures divide the month into four allowance windows, and the 5-hour figure
  * uses a rough one-sixth-of-weekly burst heuristic. Every number here is an
