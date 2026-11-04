@@ -1,3 +1,5 @@
+> Scope: this fork is Android-only. iOS/SwiftUI/WidgetKit code has been removed and is not part of the migration.
+
 # Claude upstream mapping
 
 This document defines how every Codex Meter product surface maps to Claude/Claude Code.
@@ -97,14 +99,14 @@ The old core model is shaped around:
 - `usageCredits`
 - `resetCreditsAvailable`
 
-The Claude model must instead be shaped around provider buckets:
+This Android-only fork must instead model Claude around provider buckets:
 - canonical primary buckets: session and weekly-all-model
 - named scoped buckets: Fable/Opus/Sonnet/etc.
 - unknown future buckets retained dynamically
 - optional `extraUsage`
 - profile stored separately from usage
 
-Compatibility fields may remain temporarily while Android and iOS surfaces migrate, but the
+Compatibility fields may remain temporarily while Android surfaces migrate, but the
 provider response must be parsed once into a Claude-native snapshot. No UI should parse raw
 Anthropic JSON independently.
 
@@ -123,18 +125,6 @@ Anthropic JSON independently.
 10. Keep package/application ids stable during the functional port unless a separate package
     migration is explicitly chosen; renaming ids is a release/install decision, not a provider
     migration requirement.
-
-## iOS migration
-
-1. Remove the OpenAI device-code client from the live sign-in path.
-2. Implement the same Claude browser OAuth + PKCE contract as Android.
-3. Replace `LiveCodexService` backend routes with Claude profile/usage requests.
-4. Replace reset-credit service methods and UI with Claude `extra_usage`.
-5. Migrate `CodexMeterCore` models/parsers to the same Claude-native semantics used on Android.
-6. Migrate widget snapshot schema to dynamic Claude buckets.
-7. Preserve WidgetKit, background refresh, history, diagnostics and notifications where their
-   inputs remain real Claude data.
-8. Rename product/UI strings only after the functional contract is correct.
 
 ## Widgets, Wear and notifications
 
@@ -184,7 +174,7 @@ Anthropic JSON independently.
 ## Acceptance criteria
 
 The port is complete only when:
-1. A fresh install can authenticate directly with Claude on Android and iOS.
+1. A fresh Android install can authenticate directly with Claude.
 2. Profile identity/plan comes from Claude.
 3. Usage values match Claude Settings > Usage for the same account within refresh timing.
 4. Session, weekly, scoped model limits and Extra Usage render correctly when present.

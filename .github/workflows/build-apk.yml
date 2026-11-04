@@ -1,13 +1,11 @@
-name: Build Codex Meter APK
+name: Build Android APKs
 
 on:
   pull_request:
     branches: [main, alpha]
-    paths-ignore: ['ios/**']
   push:
     branches: [main, alpha]
     tags: ['v*']
-    paths-ignore: ['ios/**']
   workflow_dispatch:
 
 permissions:
@@ -58,10 +56,7 @@ jobs:
             SDKMANAGER="$(command -v sdkmanager)"
           fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" \
-            "platforms;android-36" \
-            "platforms;android-37.0" \
-            "build-tools;36.0.0"
+          "$SDKMANAGER"             "platforms;android-36"             "platforms;android-37.0"             "build-tools;36.0.0"
 
       - name: Validate version
         id: version
@@ -81,23 +76,18 @@ jobs:
           if [[ "$VERSION_NAME" == *-* ]]; then
             PRERELEASE=true
           fi
-          # Channel invariant: alpha builds must reuse the newest stable versionCode so the
-          # in-app "return to stable" install is never an Android downgrade, and stable
-          # releases must strictly increase it.
           VERSION_CODE="$(awk '/versionCode = / { print $3; exit }' app/build.gradle.kts)"
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            LATEST_STABLE_TAG="$(git tag -l 'v*' | grep -v -- - \
-              | grep -vx "$GITHUB_REF_NAME" | sort -V | tail -n 1 || true)"
+            LATEST_STABLE_TAG="$(git tag -l 'v*' | grep -v -- -               | grep -vx "$GITHUB_REF_NAME" | sort -V | tail -n 1 || true)"
             if [[ -n "$LATEST_STABLE_TAG" ]]; then
-              STABLE_CODE="$(git show "$LATEST_STABLE_TAG:android/app/build.gradle.kts" \
-                2>/dev/null | awk '/versionCode = / { print $3; exit }' || true)"
+              STABLE_CODE="$(git show "$LATEST_STABLE_TAG:android/app/build.gradle.kts"                 2>/dev/null | awk '/versionCode = / { print $3; exit }' || true)"
               if [[ -z "$STABLE_CODE" ]]; then
-                echo "::warning::Could not read versionCode from $LATEST_STABLE_TAG; skipping channel invariant check"
+                echo "::warning::Could not read versionCode from $LATEST_STABLE_TAG"
               elif [[ "$PRERELEASE" == "true" && "$VERSION_CODE" -ne "$STABLE_CODE" ]]; then
-                echo "::error::Alpha tag $GITHUB_REF_NAME must keep versionCode $STABLE_CODE from $LATEST_STABLE_TAG (found $VERSION_CODE) so returning to stable stays an in-place install"
+                echo "::error::Prerelease must keep versionCode $STABLE_CODE (found $VERSION_CODE)"
                 exit 1
               elif [[ "$PRERELEASE" == "false" && "$VERSION_CODE" -le "$STABLE_CODE" ]]; then
-                echo "::error::Stable tag $GITHUB_REF_NAME must raise versionCode above $STABLE_CODE from $LATEST_STABLE_TAG (found $VERSION_CODE)"
+                echo "::error::Stable release must raise versionCode above $STABLE_CODE"
                 exit 1
               fi
             fi
@@ -106,16 +96,10 @@ jobs:
           echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
 
       - name: Run regression tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          ./run-tests.sh
+        run: ./run-tests.sh
 
       - name: Run Android lint
-        shell: bash
-        run: |
-          set -euo pipefail
-          ./lint.sh
+        run: ./lint.sh
 
       - name: Configure release signing
         if: github.ref_type == 'tag'
@@ -135,24 +119,16 @@ jobs:
           )"
           EXPECTED_HMAC="$(tr -d '\n' < ci/release-keystore.p12.enc.hmac)"
           ACTUAL_HMAC="$(
-            openssl dgst -sha256 -mac HMAC -macopt "hexkey:$INTEGRITY_KEY" \
-              ci/release-keystore.p12.enc | awk '{print $NF}'
+            openssl dgst -sha256 -mac HMAC -macopt "hexkey:$INTEGRITY_KEY"               ci/release-keystore.p12.enc | awk '{print $NF}'
           )"
           if [[ "$ACTUAL_HMAC" != "$EXPECTED_HMAC" ]]; then
             echo "::error::Release keystore authentication failed"
             exit 1
           fi
-          openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 \
-            -in ci/release-keystore.p12.enc \
-            -out .local-signing/codex-meter-local.p12 \
-            -pass env:ANDROID_SIGNING_PASSWORD
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000             -in ci/release-keystore.p12.enc             -out .local-signing/codex-meter-local.p12             -pass env:ANDROID_SIGNING_PASSWORD
           printf '%s' "$ANDROID_SIGNING_PASSWORD" > .local-signing/password
           chmod 600 .local-signing/codex-meter-local.p12 .local-signing/password
-          "$JAVA_HOME/bin/keytool" -list \
-            -keystore .local-signing/codex-meter-local.p12 \
-            -storetype PKCS12 \
-            -storepass:env ANDROID_SIGNING_PASSWORD \
-            -alias codexmeter >/dev/null
+          "$JAVA_HOME/bin/keytool" -list             -keystore .local-signing/codex-meter-local.p12             -storetype PKCS12             -storepass:env ANDROID_SIGNING_PASSWORD             -alias codexmeter >/dev/null
 
       - name: Build and verify APK
         shell: bash
@@ -164,7 +140,7 @@ jobs:
       - name: Upload APKs
         uses: actions/upload-artifact@v7
         with:
-          name: codex-meter-${{ steps.version.outputs.name }}-ci
+          name: android-${{ steps.version.outputs.name }}-ci
           path: android/dist/
           if-no-files-found: error
           retention-days: 3
@@ -183,7 +159,7 @@ jobs:
       - name: Download verified APKs
         uses: actions/download-artifact@v8
         with:
-          name: codex-meter-${{ needs.build.outputs.version }}-ci
+          name: android-${{ needs.build.outputs.version }}-ci
           path: release-dist
 
       - name: Verify release checksum
@@ -223,23 +199,11 @@ jobs:
         run: |
           set -euo pipefail
           if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" \
-              --draft \
-              --verify-tag \
-              --prerelease="$PRERELEASE" \
-              --notes-file release-notes.md \
-              --title "Codex Meter $VERSION_NAME"
+            gh release create "$GITHUB_REF_NAME"               --draft               --verify-tag               --prerelease="$PRERELEASE"               --notes-file release-notes.md               --title "Claude Meter $VERSION_NAME"
           else
-            gh release edit "$GITHUB_REF_NAME" \
-              --prerelease="$PRERELEASE" \
-              --notes-file release-notes.md \
-              --title "Codex Meter $VERSION_NAME"
+            gh release edit "$GITHUB_REF_NAME"               --prerelease="$PRERELEASE"               --notes-file release-notes.md               --title "Claude Meter $VERSION_NAME"
           fi
-          gh release upload "$GITHUB_REF_NAME" \
-            "release-dist/CodexMeter-$VERSION_NAME.apk#Codex Meter $VERSION_NAME APK" \
-            "release-dist/CodexMeter-Wear-$VERSION_NAME.apk#Codex Meter Wear OS $VERSION_NAME APK" \
-            "release-dist/SHA256SUMS.txt#SHA-256 checksums" \
-            --clobber
+          gh release upload "$GITHUB_REF_NAME"             "release-dist/CodexMeter-$VERSION_NAME.apk#Claude Meter $VERSION_NAME APK"             "release-dist/CodexMeter-Wear-$VERSION_NAME.apk#Claude Meter Wear OS $VERSION_NAME APK"             "release-dist/SHA256SUMS.txt#SHA-256 checksums"             --clobber
           if [[ "$PRERELEASE" == "true" ]]; then
             gh release edit "$GITHUB_REF_NAME" --draft=false
           else
