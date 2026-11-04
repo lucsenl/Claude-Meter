@@ -139,7 +139,7 @@ public final class UsageApi {
                 connection.setRequestProperty("anthropic-beta", AppConstants.ANALYTICS_BETA);
             }
             int status = connection.getResponseCode();
-            String body = OAuthClient.readBody(connection, status);
+            String body = readBody(connection, status);
             DiagnosticLog.info(context, "network", "request_finished",
                     "host", "api.anthropic.com",
                     "status", status,
@@ -147,6 +147,24 @@ public final class UsageApi {
             return new Response(status, body);
         } finally {
             connection.disconnect();
+        }
+    }
+
+    private static String readBody(HttpURLConnection connection, int status) throws Exception {
+        java.io.InputStream stream = status >= 200 && status < 400
+                ? connection.getInputStream() : connection.getErrorStream();
+        if (stream == null) return "";
+        try (java.io.InputStream input = stream;
+             java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                output.write(buffer, 0, read);
+                if (output.size() > 2 * 1024 * 1024) {
+                    throw new Exception("Anthropic response was unexpectedly large.");
+                }
+            }
+            return output.toString(StandardCharsets.UTF_8.name());
         }
     }
 
