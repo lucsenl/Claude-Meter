@@ -17,6 +17,10 @@ public final class UsageCredits {
     public final boolean unlimited;
     public final String balance;
 
+    public UsageCredits(boolean hasCredits, boolean unlimited, String balance) {
+        this(hasCredits, "", balance, 0, "");
+    }
+
     public UsageCredits(boolean isEnabled, String monthlyLimit, String usedCredits,
             int utilization, String currency) {
         this.isEnabled = isEnabled;

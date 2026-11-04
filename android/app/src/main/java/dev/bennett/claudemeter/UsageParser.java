@@ -147,7 +147,11 @@ public final class UsageParser {
     }
 
     private static String normalizeFlatId(String key) {
-        if ("iguana_necktie".equalsIgnoreCase(key)) return "weekly_fable";
+        String normalized = key.toLowerCase(Locale.ROOT);
+        if ("iguana_necktie".equals(normalized)) return "weekly_fable";
+        if (normalized.startsWith("seven_day_")) {
+            return "weekly_" + slug(normalized.substring("seven_day_".length()));
+        }
         return slug(key);
     }
 
