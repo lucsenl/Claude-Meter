@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="fill"
-    android:src="@drawable/codex_meter_icon_fg" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FAF9F5"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M54,27 C68.9,27 81,39.1 81,54 C81,68.9 68.9,81 54,81 C44.4,81 36,76 31.2,68.5"/>
+    <path
+        android:fillColor="#FAF9F5"
+        android:pathData="M31.2,64.5 A4,4 0 1,0 31.2,72.5 A4,4 0 1,0 31.2,64.5"/>
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FAF9F5"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M42,54 L52,64 L68,45"/>
+</vector>
