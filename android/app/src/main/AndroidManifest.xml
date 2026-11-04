@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <permission
-        android:name="dev.bennett.claudemeter.permission.INTERNAL"
+        android:name="dev.lucsenl.claudemeter.permission.INTERNAL"
         android:protectionLevel="signature"/>
-    <uses-permission android:name="dev.bennett.claudemeter.permission.INTERNAL"/>
+    <uses-permission android:name="dev.lucsenl.claudemeter.permission.INTERNAL"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
-        android:name="dev.bennett.claudemeter.ClaudeMeterApplication"
+        android:name="dev.lucsenl.claudemeter.ClaudeMeterApplication"
         android:theme="@style/AppTheme"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
@@ -26,7 +26,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:dataExtractionRules="@xml/data_extraction_rules">
         <activity
-            android:name="dev.bennett.claudemeter.MainActivity"
+            android:name="dev.lucsenl.claudemeter.MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -44,36 +44,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="dev.bennett.claudemeter.OnboardingActivity"
+            android:name="dev.lucsenl.claudemeter.OnboardingActivity"
             android:exported="false"
             android:launchMode="singleTop"/>
         <activity
-            android:name="dev.bennett.claudemeter.SettingsActivity"
+            android:name="dev.lucsenl.claudemeter.SettingsActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.UpdateActivity"
+            android:name="dev.lucsenl.claudemeter.UpdateActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.ReleaseHistoryActivity"
+            android:name="dev.lucsenl.claudemeter.ReleaseHistoryActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.UsageHistoryActivity"
+            android:name="dev.lucsenl.claudemeter.UsageHistoryActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.DashboardReorderActivity"
+            android:name="dev.lucsenl.claudemeter.DashboardReorderActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.AboutActivity"
+            android:name="dev.lucsenl.claudemeter.AboutActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.bennett.claudemeter.ResetCreditActivity"
+            android:name="dev.lucsenl.claudemeter.ResetCreditActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:excludeFromRecents="true"/>
         <activity
             android:theme="@style/AppTheme"
-            android:name="dev.bennett.claudemeter.WidgetConfigActivity"
+            android:name="dev.lucsenl.claudemeter.WidgetConfigActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
@@ -81,7 +81,7 @@
         </activity>
         <activity
             android:theme="@style/AppTheme"
-            android:name="dev.bennett.claudemeter.LockWidgetConfigActivity"
+            android:name="dev.lucsenl.claudemeter.LockWidgetConfigActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
@@ -89,7 +89,7 @@
         </activity>
         <receiver
             android:label="@string/widget_name"
-            android:name="dev.bennett.claudemeter.ClaudeUsageWidget"
+            android:name="dev.lucsenl.claudemeter.ClaudeUsageWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -103,7 +103,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_square_name"
-            android:name="dev.bennett.claudemeter.SamsungLockSquareWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockSquareWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -117,7 +117,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_wide_name"
-            android:name="dev.bennett.claudemeter.SamsungLockWideWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockWideWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -131,7 +131,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_rings_square_name"
-            android:name="dev.bennett.claudemeter.SamsungLockRingsSquareWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockRingsSquareWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -145,7 +145,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_rings_wide_name"
-            android:name="dev.bennett.claudemeter.SamsungLockRingsWideWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockRingsWideWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -159,7 +159,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_dials_square_name"
-            android:name="dev.bennett.claudemeter.SamsungLockDialsSquareWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockDialsSquareWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -173,7 +173,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_dials_wide_name"
-            android:name="dev.bennett.claudemeter.SamsungLockDialsWideWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockDialsWideWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -187,7 +187,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_bars_square_name"
-            android:name="dev.bennett.claudemeter.SamsungLockBarsSquareWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockBarsSquareWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -201,7 +201,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_bars_wide_name"
-            android:name="dev.bennett.claudemeter.SamsungLockBarsWideWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockBarsWideWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -215,7 +215,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_five_hour_name"
-            android:name="dev.bennett.claudemeter.SamsungLockFiveHourWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockFiveHourWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -229,7 +229,7 @@
         </receiver>
         <receiver
             android:label="@string/lock_widget_weekly_name"
-            android:name="dev.bennett.claudemeter.SamsungLockWeeklyWidget"
+            android:name="dev.lucsenl.claudemeter.SamsungLockWeeklyWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -242,29 +242,29 @@
                 android:resource="@xml/samsung_lock_weekly_oneui_info"/>
         </receiver>
         <receiver
-            android:name="dev.bennett.claudemeter.SamsungLockServiceBoxReceiver"
+            android:name="dev.lucsenl.claudemeter.SamsungLockServiceBoxReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.samsung.android.intent.action.REQUEST_SERVICEBOX_REMOTEVIEWS"/>
             </intent-filter>
         </receiver>
         <receiver
-            android:name="dev.bennett.claudemeter.WidgetRefreshReceiver"
+            android:name="dev.lucsenl.claudemeter.WidgetRefreshReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.bennett.claudemeter.ResetAlertReceiver"
+            android:name="dev.lucsenl.claudemeter.ResetAlertReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.bennett.claudemeter.UpdateInstallReceiver"
+            android:name="dev.lucsenl.claudemeter.UpdateInstallReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.bennett.claudemeter.ResetCreditExpiryReceiver"
+            android:name="dev.lucsenl.claudemeter.ResetCreditExpiryReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.bennett.claudemeter.NowBarActionReceiver"
+            android:name="dev.lucsenl.claudemeter.NowBarActionReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.bennett.claudemeter.BootReceiver"
+            android:name="dev.lucsenl.claudemeter.BootReceiver"
             android:exported="false"
             android:directBootAware="false">
             <intent-filter>
@@ -279,24 +279,24 @@
             android:name="com.samsung.android.support.ongoing_activity"
             android:value="true"/>
         <service
-            android:name="dev.bennett.claudemeter.UsageRefreshJobService"
+            android:name="dev.lucsenl.claudemeter.UsageRefreshJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
         <service
-            android:name="dev.bennett.claudemeter.ReleaseUpdateJobService"
+            android:name="dev.lucsenl.claudemeter.ReleaseUpdateJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
         <service
-            android:name="dev.bennett.claudemeter.WidgetRepairJobService"
+            android:name="dev.lucsenl.claudemeter.WidgetRepairJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
         <service
-            android:name="dev.bennett.claudemeter.OAuthService"
+            android:name="dev.lucsenl.claudemeter.OAuthService"
             android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="dataSync"/>
         <service
-            android:name="dev.bennett.claudemeter.wear.PhoneWearListenerService"
+            android:name="dev.lucsenl.claudemeter.wear.PhoneWearListenerService"
             android:exported="true">
             <intent-filter>
                 <action

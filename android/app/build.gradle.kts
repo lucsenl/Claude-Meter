@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.bennett.claudemeter"
+    namespace = "dev.lucsenl.claudemeter"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "dev.bennett.claudemeter"
+        applicationId = "dev.lucsenl.claudemeter"
         minSdk = 26
         targetSdk = 36
         versionCode = 30

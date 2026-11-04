@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.bennett.claudemeter"
+    namespace = "dev.lucsenl.claudemeter"
     compileSdk {
         version = release(37) {
             minorApiLevel = 0
@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.bennett.claudemeter"
+        applicationId = "dev.lucsenl.claudemeter"
         minSdk = 30
         targetSdk = 36
         versionCode = 30

@@ -5,7 +5,7 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:usesCleartextTraffic">
         <activity
-            android:name="dev.bennett.claudemeter.UsagePaceDemoActivity"
+            android:name="dev.lucsenl.claudemeter.UsagePaceDemoActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
     </application>

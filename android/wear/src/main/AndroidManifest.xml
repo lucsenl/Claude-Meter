@@ -30,12 +30,12 @@
             android:required="false" />
 
         <activity
-            android:name="dev.bennett.claudemeter.WearSettingsActivity"
+            android:name="dev.lucsenl.claudemeter.WearSettingsActivity"
             android:exported="false"
             android:taskAffinity="" />
 
         <activity
-            android:name="dev.bennett.claudemeter.WearMainActivity"
+            android:name="dev.lucsenl.claudemeter.WearMainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity="">
@@ -46,7 +46,7 @@
         </activity>
 
         <service
-            android:name="dev.bennett.claudemeter.WearDataLayerService"
+            android:name="dev.lucsenl.claudemeter.WearDataLayerService"
             android:exported="true">
             <intent-filter>
                 <action
@@ -70,7 +70,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.UsageOverviewTileService"
+            android:name="dev.lucsenl.claudemeter.UsageOverviewTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/tile_usage_overview"
@@ -103,7 +103,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.FiveHourTileService"
+            android:name="dev.lucsenl.claudemeter.FiveHourTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/tile_five_hour"
@@ -135,7 +135,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.WeeklyTileService"
+            android:name="dev.lucsenl.claudemeter.WeeklyTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/tile_weekly"
@@ -167,7 +167,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.ResetCountdownTileService"
+            android:name="dev.lucsenl.claudemeter.ResetCountdownTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/tile_reset"
@@ -199,7 +199,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.MonitorStatusTileService"
+            android:name="dev.lucsenl.claudemeter.MonitorStatusTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/tile_monitor"
@@ -231,7 +231,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.FiveHourComplicationService"
+            android:name="dev.lucsenl.claudemeter.FiveHourComplicationService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/complication_five_hour"
@@ -248,7 +248,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.WeeklyComplicationService"
+            android:name="dev.lucsenl.claudemeter.WeeklyComplicationService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/complication_weekly"
@@ -265,7 +265,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.DualUsageComplicationService"
+            android:name="dev.lucsenl.claudemeter.DualUsageComplicationService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/complication_dual_usage"
@@ -282,7 +282,7 @@
         </service>
 
         <service
-            android:name="dev.bennett.claudemeter.NextResetComplicationService"
+            android:name="dev.lucsenl.claudemeter.NextResetComplicationService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/complication_next_reset"
@@ -299,11 +299,11 @@
         </service>
 
         <receiver
-            android:name="dev.bennett.claudemeter.WearMonitorActionReceiver"
+            android:name="dev.lucsenl.claudemeter.WearMonitorActionReceiver"
             android:exported="false" />
 
         <receiver
-            android:name="dev.bennett.claudemeter.WearBootReceiver"
+            android:name="dev.lucsenl.claudemeter.WearBootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
