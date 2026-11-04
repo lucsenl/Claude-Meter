@@ -62,10 +62,9 @@ public final class AboutActivity extends AppCompatActivity {
         at.setTypeface(Ui.mediumTypeface(this));
         attribution.addView(at);
         TextView detail = Ui.text(this,
-                "This fork is based on the MIT-licensed Codex Meter project. Historical "
-                        + "attribution and license notices remain in the repository. Product "
-                        + "behavior, package identity and provider integration have been rebuilt "
-                        + "for Anthropic.",
+                "This project preserves the upstream MIT license and attribution. "
+                        + "Product behavior, package identity and provider integration are "
+                        + "implemented for Anthropic.",
                 14, Ui.secondaryText(dark));
         LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(-1, -2);
         ap.setMargins(0, Ui.dp(this, 8), 0, 0);
