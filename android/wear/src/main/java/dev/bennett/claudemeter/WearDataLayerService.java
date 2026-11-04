@@ -1,10 +1,10 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
-import dev.bennett.codexmeter.wear.WearSyncPaths;
+import dev.bennett.claudemeter.wear.WearSyncPaths;
 
 public final class WearDataLayerService extends WearableListenerService {
     private static final String EMPTY = "";
