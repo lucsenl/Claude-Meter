@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
@@ -238,7 +238,7 @@ public final class WidgetConfigActivity extends AppCompatActivity {
         RoundedLinearLayout card = Ui.seslRowCard(this, this.dark);
         RadioItemViewGroup group = new RadioItemViewGroup(this);
         group.setOrientation(LinearLayout.VERTICAL);
-        group.addView(radioRow(this.tapOpenId, "Open Codex Meter", false));
+        group.addView(radioRow(this.tapOpenId, "Open Claude Meter", false));
         group.addView(radioRow(this.tapRefreshId, "Refresh usage", true));
         group.addView(radioRow(this.tapResetId, "Use reset if available", true));
         card.addView(group);
@@ -649,13 +649,13 @@ public final class WidgetConfigActivity extends AppCompatActivity {
                         Gravity.CENTER);
                 this.previewContainer.removeAllViews();
                 ImageView backdrop = new ImageView(this);
-                backdrop.setImageResource(R.drawable.codex_meter_icon_bg);
+                backdrop.setImageResource(R.drawable.claude_meter_icon_bg);
                 backdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 backdrop.setContentDescription(null);
                 this.previewContainer.addView(backdrop, new FrameLayout.LayoutParams(-1, -1));
                 this.previewContainer.addView(surface, params);
             } catch (RuntimeException exception) {
-                Log.w("CodexMeterPreview", "Unable to render widget preview", exception);
+                Log.w("ClaudeMeterPreview", "Unable to render widget preview", exception);
             }
         });
     }

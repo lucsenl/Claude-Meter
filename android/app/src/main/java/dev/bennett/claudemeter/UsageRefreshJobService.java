@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -22,7 +22,7 @@ public final class UsageRefreshJobService extends JobService {
             return false;
         }
         final JobRun jobRun = new JobRun(jobParameters);
-        FutureTask<Void> futureTask = new FutureTask<Void>(jobRun, null) { // from class: dev.bennett.codexmeter.UsageRefreshJobService.1
+        FutureTask<Void> futureTask = new FutureTask<Void>(jobRun, null) { // from class: dev.bennett.claudemeter.UsageRefreshJobService.1
             @Override // java.util.concurrent.FutureTask
             protected void done() {
                 if (isCancelled()) {

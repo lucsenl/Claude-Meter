@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public final class UsageParser {
     private static final long FIVE_HOURS = 18000;
     private static final long WEEK = 604800;
     private static final long MONTH = 2592000;
-    // Free-tier accounts report a single ~30-day Codex window; accept 10-45 days so calendar
+    // Free-tier accounts report a single ~30-day Claude window; accept 10-45 days so calendar
     // months and drifting billing periods still classify while staying clear of the weekly
     // window's 9-day ceiling.
     private static final long MONTH_MIN = 864000;

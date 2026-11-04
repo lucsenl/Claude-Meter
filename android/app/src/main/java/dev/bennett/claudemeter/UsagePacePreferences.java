@@ -1,14 +1,14 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 
 /** User controls for usage-life estimates and accelerated-consumption warnings. */
 public final class UsagePacePreferences {
     private static final String KEY_ENABLED = "usage_pace_enabled";
     private static final String KEY_SENSITIVITY = "usage_pace_sensitivity";
-    private static final String PREFS = "codex_meter_settings_v1";
+    private static final String PREFS = "claude_meter_settings_v1";
 
     private UsagePacePreferences() {
     }
