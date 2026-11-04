@@ -2,7 +2,6 @@ package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.os.SystemClock;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
@@ -62,7 +61,6 @@ public final class UsageApi {
                             "Claude usage was received, but it could not be saved on this device.");
                 }
                 UsageHistoryRecorder.record(context, snapshot);
-                PhoneWearSync.pushUsage(context, snapshot);
                 NowBarManager.onUsageUpdated(context, snapshot);
                 ResetNotificationManager.onUsageUpdated(context, previous, snapshot);
                 try {

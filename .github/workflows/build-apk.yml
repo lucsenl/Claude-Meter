@@ -1,10 +1,10 @@
-name: Build Android APKs
+name: Build Claude Meter Android APK
 
 on:
   pull_request:
     branches: [main, alpha]
   push:
-    branches: [main, alpha]
+    branches: [main, alpha, fix/restore-original-android-ui]
     tags: ['v*']
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
             android/**/*.gradle*
             android/**/gradle-wrapper.properties
 
-      - name: Install Android phone and Wear toolchains
+      - name: Install Android phone toolchains
         shell: bash
         working-directory: ${{ github.workspace }}
         run: |
@@ -56,7 +56,7 @@ jobs:
             SDKMANAGER="$(command -v sdkmanager)"
           fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER"             "platforms;android-36"             "platforms;android-37.0"             "build-tools;36.0.0"
+          "$SDKMANAGER"             "platforms;android-36" "build-tools;36.0.0"
 
       - name: Validate version
         id: version
@@ -130,7 +130,7 @@ jobs:
           mkdir -p dist
           ./build.sh 2>&1 | tee dist/build.log
 
-      - name: Upload APKs
+      - name: Upload Android APK
         uses: actions/upload-artifact@v7
         with:
           name: android-${{ steps.version.outputs.name }}-ci
@@ -196,7 +196,7 @@ jobs:
           else
             gh release edit "$GITHUB_REF_NAME"               --prerelease="$PRERELEASE"               --notes-file release-notes.md               --title "Claude Meter $VERSION_NAME"
           fi
-          gh release upload "$GITHUB_REF_NAME"             "release-dist/ClaudeMeter-$VERSION_NAME.apk#Claude Meter $VERSION_NAME APK"             "release-dist/ClaudeMeter-Wear-$VERSION_NAME.apk#Claude Meter Wear OS $VERSION_NAME APK"             "release-dist/SHA256SUMS.txt#SHA-256 checksums"             --clobber
+          gh release upload "$GITHUB_REF_NAME"             "release-dist/ClaudeMeter-$VERSION_NAME.apk#Claude Meter $VERSION_NAME APK"             "release-dist/SHA256SUMS.txt#SHA-256 checksums"             --clobber
           if [[ "$PRERELEASE" == "true" ]]; then
             gh release edit "$GITHUB_REF_NAME" --draft=false
           else

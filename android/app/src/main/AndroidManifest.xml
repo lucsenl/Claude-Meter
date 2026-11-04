@@ -295,28 +295,6 @@
             android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="dataSync"/>
-        <service
-            android:name="dev.bennett.claudemeter.wear.PhoneWearListenerService"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="com.google.android.gms.wearable.BIND_LISTENER"
-                    tools:ignore="WearableBindListener"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
-                <data
-                    android:scheme="wear"
-                    android:host="*"
-                    android:pathPrefix="/claude"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
-                <data
-                    android:scheme="wear"
-                    android:host="*"
-                    android:pathPrefix="/claude/msg"/>
-            </intent-filter>
-        </service>
+        
     </application>
 </manifest>

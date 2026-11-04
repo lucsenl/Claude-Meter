@@ -27,7 +27,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
 import dev.oneuiproject.oneui.layout.ToolbarLayout;
 import dev.oneuiproject.oneui.preference.HorizontalRadioPreference;
 import dev.oneuiproject.oneui.preference.LayoutPreference;
@@ -565,7 +564,6 @@ public final class SettingsActivity extends AppCompatActivity {
             interval.setOnPreferenceChangeListener((preference, value) -> {
                 AppPreferences.setRefreshMinutes(requireContext(), Integer.parseInt(String.valueOf(value)));
                 RefreshScheduler.schedulePeriodic(requireContext());
-                PhoneWearSync.pushSettings(requireContext());
                 return true;
             });
 
@@ -578,7 +576,6 @@ public final class SettingsActivity extends AppCompatActivity {
                 AppPreferences.setAutomaticRefresh(requireContext(), automatic);
                 interval.setEnabled(!automatic);
                 RefreshScheduler.schedulePeriodic(requireContext());
-                PhoneWearSync.pushSettings(requireContext());
                 return true;
             });
         }
@@ -1066,7 +1063,6 @@ public final class SettingsActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
                 updateNowBarSummary();
-                PhoneWearSync.pushSettings(requireContext());
                 return true;
             });
 
@@ -1085,7 +1081,6 @@ public final class SettingsActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
                 updateNowBarSummary();
-                PhoneWearSync.pushSettings(requireContext());
                 return true;
             });
 
@@ -1096,7 +1091,6 @@ public final class SettingsActivity extends AppCompatActivity {
                 if (!enabled) {
                     NowBarManager.stop(requireContext(), true);
                     updateNowBarSummary();
-                    PhoneWearSync.pushSettings(requireContext());
                     return true;
                 }
                 if (!ensureNotificationPermission()) return false;
@@ -1111,7 +1105,6 @@ public final class SettingsActivity extends AppCompatActivity {
                 if (started && settingsView != null) {
                     settingsView.postDelayed(this::updateNowBarSummary, 1500L);
                 }
-                PhoneWearSync.pushSettings(requireContext());
                 return started;
             });
 
@@ -1255,7 +1248,6 @@ public final class SettingsActivity extends AppCompatActivity {
                 }
             }
             updateNowBarSummary();
-            PhoneWearSync.pushSettings(requireContext());
         }
 
         private void updateNowBarAutoStartEnabledState() {
