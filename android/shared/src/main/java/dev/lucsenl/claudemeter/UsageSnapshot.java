@@ -7,12 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Claude Meter snapshot backed by Anthropic's public organization analytics and models APIs.
- *
- * Legacy quota fields remain as null/default compatibility slots while inherited renderers are
- * retired. Active UI must use the analytics fields below.
- */
+/** Immutable snapshot of documented Anthropic API analytics. */
 public final class UsageSnapshot {
     public final boolean analyticsAvailable;
     public final String analyticsMessage;
@@ -25,17 +20,6 @@ public final class UsageSnapshot {
     public final String monthCostUsd;
     public final List<String> activeModels;
     public final long fetchedAtMillis;
-
-    // Compatibility fields for inherited, inactive code.
-    public final boolean allowed = true;
-    public final boolean limitReached = false;
-    public final String planType = "";
-    public final UsageWindow fiveHour = null;
-    public final UsageWindow weekly = null;
-    public final UsageWindow monthly = null;
-    public final List<UsageLimit> additionalLimits = Collections.emptyList();
-    public final UsageCredits usageCredits = null;
-    public final int resetCreditsAvailable = -1;
 
     public UsageSnapshot(boolean analyticsAvailable, String analyticsMessage,
             String organizationId, String organizationName,
@@ -56,27 +40,8 @@ public final class UsageSnapshot {
         this.fetchedAtMillis = Math.max(0L, fetchedAtMillis);
     }
 
-    // Legacy constructors retained only so inherited classes compile while being removed.
-    public UsageSnapshot(String ignoredPlan, boolean ignoredAllowed, boolean ignoredReached,
-            UsageWindow ignoredFive, UsageWindow ignoredWeek, long fetchedAt) {
-        this(false, "", "", "", 0, 0, 0, 0, "", Collections.emptyList(), fetchedAt);
-    }
-    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
-            int f, long g) { this(a,b,c,d,e,g); }
-    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
-            List<UsageLimit> f, UsageCredits g, int h, long i) { this(a,b,c,d,e,i); }
-    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
-            UsageWindow f, List<UsageLimit> g, UsageCredits h, int i, long j) {
-        this(a,b,c,d,e,j);
-    }
-
-    public long longWindowTokens() { return weekTokens; }
-    public UsageWindow longWindow() { return null; }
-    public boolean longWindowIsMonthly() { return false; }
-    public long nextResetMillis(long now) { return 0L; }
-
     public boolean hasDisplayableData() {
-        return analyticsAvailable || todayTokens > 0 || weekTokens > 0
+        return analyticsAvailable || todayTokens > 0L || weekTokens > 0L
                 || !monthCostUsd.isEmpty() || !activeModels.isEmpty()
                 || !analyticsMessage.isEmpty();
     }
@@ -102,10 +67,10 @@ public final class UsageSnapshot {
     public static UsageSnapshot fromJson(JSONObject json) {
         if (json == null || !json.has("analytics_available")) return null;
         ArrayList<String> models = new ArrayList<>();
-        JSONArray array = json.optJSONArray("active_models");
-        if (array != null) {
-            for (int i = 0; i < array.length(); i++) {
-                String value = array.optString(i, "").trim();
+        JSONArray values = json.optJSONArray("active_models");
+        if (values != null) {
+            for (int i = 0; i < values.length(); i++) {
+                String value = values.optString(i, "").trim();
                 if (!value.isEmpty()) models.add(value);
             }
         }
@@ -121,11 +86,6 @@ public final class UsageSnapshot {
                 json.optString("month_cost_usd", ""),
                 models,
                 json.optLong("fetched_at", 0L));
-    }
-
-    public static UsageWindow currentWindow(UsageWindow window, long now) { return null; }
-    public static UsageWindow currentWindow(UsageWindow window, long observed, long now) {
-        return null;
     }
 
     private static String safe(String value) {
