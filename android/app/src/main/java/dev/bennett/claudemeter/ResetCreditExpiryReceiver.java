@@ -8,26 +8,8 @@ import android.content.Intent;
 public final class ResetCreditExpiryReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (context == null || intent == null
-                || !AppConstants.ACTION_RESET_CREDIT_EXPIRY_ALERT.equals(intent.getAction())
-                || !SecureTokenStore.isSignedIn(context)
-                || !ResetAlertPreferences.enabled(context)
-                || !ResetAlertPreferences.resetCreditExpiryEnabled(context)) {
-            return;
-        }
-        String creditId = intent.getStringExtra(ResetCreditExpiryScheduler.EXTRA_CREDIT_ID);
-        long expiresAt = intent.getLongExtra(
-                ResetCreditExpiryScheduler.EXTRA_EXPIRES_AT, 0L);
-        long leadTime = intent.getLongExtra(
-                ResetCreditExpiryScheduler.EXTRA_LEAD_TIME, 0L);
-        if (!ResetAlertPreferences.getResetCreditExpiryLeadTimes(context).contains(leadTime)
-                || !isStillAvailable(context, creditId, expiresAt)) {
-            return;
-        }
-        ResetNotificationManager.showResetCreditExpiryNotification(context,
-                creditId, expiresAt, leadTime);
-        RefreshScheduler.scheduleImmediate(context);
-        WidgetRenderer.updateAll(context);
+        // No Claude reset-credit events exist. Never show a legacy reminder.
+        if (context != null) ResetCreditExpiryScheduler.cancelAll(context);
     }
 
     static boolean isStillAvailable(Context context, String creditId, long expiresAt) {

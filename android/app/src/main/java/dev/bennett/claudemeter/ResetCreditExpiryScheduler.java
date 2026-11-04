@@ -24,47 +24,9 @@ public final class ResetCreditExpiryScheduler {
     private ResetCreditExpiryScheduler() {
     }
 
+    /** Retained for preference compatibility; only clears obsolete pending alarms. */
     public static void scheduleFromSnapshot(Context context, ResetCreditsSnapshot snapshot) {
-        Context app = appContext(context);
-        if (app == null) return;
-        cancelAll(app);
-        if (snapshot == null || !SecureTokenStore.isSignedIn(app)
-                || !ResetAlertPreferences.enabled(app)
-                || !ResetAlertPreferences.resetCreditExpiryEnabled(app)) {
-            return;
-        }
-        List<ResetCreditExpiryReminder> reminders = ResetCreditExpiryReminder.plan(
-                snapshot.credits, ResetAlertPreferences.getResetCreditExpiryLeadTimes(app),
-                System.currentTimeMillis());
-        AlarmManager manager = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
-        if (manager == null) return;
-        long now = System.currentTimeMillis();
-        Set<String> scheduledUris = new HashSet<>();
-        for (ResetCreditExpiryReminder reminder : reminders) {
-            if (ResetNotificationManager.isResetCreditExpiryReminderAnnounced(
-                    app, reminder.token())) {
-                continue;
-            }
-            Uri data = data(reminder.creditId, reminder.expiresAtMillis,
-                    reminder.leadTimeMillis);
-            PendingIntent pendingIntent = pending(app, data, reminder);
-            long triggerAt = Math.max(now + DELIVERY_GRACE_MS, reminder.triggerAtMillis);
-            try {
-                if (Build.VERSION.SDK_INT < 31 || manager.canScheduleExactAlarms()) {
-                    manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                            triggerAt, pendingIntent);
-                } else {
-                    manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                            triggerAt, pendingIntent);
-                }
-                scheduledUris.add(data.toString());
-            } catch (SecurityException exception) {
-                manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                        triggerAt, pendingIntent);
-                scheduledUris.add(data.toString());
-            }
-        }
-        prefs(app).edit().putStringSet(KEY_ALARM_URIS, scheduledUris).apply();
+        cancelAll(context);
     }
 
     public static void cancelAll(Context context) {

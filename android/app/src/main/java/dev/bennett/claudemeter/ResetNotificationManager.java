@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-/** Posts and deduplicates Claude usage, reset-time, and reset-credit notifications. */
+/** Posts and deduplicates Claude quota and reset-time notifications. */
 public final class ResetNotificationManager {
     private static final String CHANNEL_ALARM = "claude_reset_alarm";
     private static final String CHANNEL_NOTIFY = "claude_reset_notify";
@@ -77,43 +77,13 @@ public final class ResetNotificationManager {
         }
     }
 
+    /** Claude does not expose redeemable reset credits. Never fabricate alerts. */
     public static void onResetCreditsUpdated(Context context, ResetCreditsSnapshot snapshot) {
-        if (context == null || snapshot == null) return;
-        onResetCreditCountUpdated(context, snapshot.availableCount);
-        pruneResetCreditExpiryHistory(context, snapshot);
-        try {
-            ResetCreditExpiryScheduler.scheduleFromSnapshot(context, snapshot);
-        } catch (RuntimeException ignored) {
-        }
+        if (context != null) ResetCreditExpiryScheduler.cancelAll(context);
     }
 
     static void onResetCreditSummaryUpdated(Context context, int availableCount) {
-        if (context == null || availableCount < 0) return;
-        onResetCreditCountUpdated(context, availableCount);
-    }
-
-    private static void onResetCreditCountUpdated(Context context, int current) {
-        SharedPreferences state = state(context);
-        if (!state.contains(KEY_CREDIT_COUNT)) {
-            state.edit().putInt(KEY_CREDIT_COUNT, current).apply();
-            return;
-        }
-        int previous = state.getInt(KEY_CREDIT_COUNT, current);
-        int added = CelebrationDetector.resetCreditsAdded(previous, current);
-        if (!ResetAlertPreferences.enabled(context)
-                || !ResetAlertPreferences.resetCreditIncreasesEnabled(context)
-                || added <= 0) {
-            state.edit().putInt(KEY_CREDIT_COUNT, current).apply();
-            return;
-        }
-        String text = added == 1
-                ? "One Claude reset credit was added. You now have " + current + "."
-                : added + " Claude reset credits were added. You now have " + current + ".";
-        if (post(context, NOTIFICATION_NEW_CREDIT,
-                added == 1 ? "Claude reset credit added" : "Claude reset credits added", text,
-                NOTIFICATION_NEW_CREDIT)) {
-            state.edit().putInt(KEY_CREDIT_COUNT, current).apply();
-        }
+        // Compatibility entry point only; count is not a Claude feature.
     }
 
     /**
@@ -153,32 +123,8 @@ public final class ResetNotificationManager {
 
     public static boolean showResetCreditExpiryNotification(Context context, String creditId,
             long expiresAtMillis, long leadTimeMillis) {
-        if (context == null || expiresAtMillis <= System.currentTimeMillis()
-                || !ResetAlertPreferences.enabled(context)
-                || !ResetAlertPreferences.resetCreditExpiryEnabled(context)) {
-            return false;
-        }
-        String token = ResetCreditExpiryReminder.token(creditId, expiresAtMillis,
-                leadTimeMillis);
-        synchronized (EXPIRY_STATE_LOCK) {
-            if (isResetCreditExpiryReminderAnnouncedLocked(context, token)) return false;
-            int notificationId = notificationIdForCredit(creditId, token);
-            long now = System.currentTimeMillis();
-            String text = "One reset credit expires "
-                    + UsageFormat.absolute(context, expiresAtMillis, now) + " ("
-                    + UsageFormat.relative(expiresAtMillis, now)
-                    + "). Use it before it expires.";
-            if (!postResetCreditExpiry(context, notificationId,
-                    "Claude reset credit expires soon", text)) {
-                return false;
-            }
-            Set<String> announced = new HashSet<>(state(context).getStringSet(
-                    KEY_CREDIT_EXPIRY_ANNOUNCED, new HashSet<>()));
-            announced.add(token);
-            state(context).edit().putStringSet(
-                    KEY_CREDIT_EXPIRY_ANNOUNCED, announced).apply();
-            return true;
-        }
+        // No Claude account OAuth contract exists for expiry of redeemable reset credits.
+        return false;
     }
 
     static boolean isResetCreditExpiryReminderAnnounced(Context context, String token) {
@@ -190,13 +136,10 @@ public final class ResetNotificationManager {
 
     public static void onResetCreditExpirySettingsChanged(Context context,
             ResetCreditsSnapshot snapshot) {
-        if (context == null) return;
-        if (!ResetAlertPreferences.resetCreditExpiryEnabled(context)) {
+        if (context != null) {
+            ResetCreditExpiryScheduler.cancelAll(context);
             clearResetCreditExpiryReminderHistory(context);
-        } else if (snapshot != null) {
-            pruneResetCreditExpiryHistory(context, snapshot);
         }
-        ResetCreditExpiryScheduler.scheduleFromSnapshot(context, snapshot);
     }
 
     public static void dismissResetCreditExpiryNotification(Context context,
@@ -212,7 +155,7 @@ public final class ResetNotificationManager {
             return false;
         }
         return post(context, NOTIFICATION_TEST, "Claude Meter notifications are working",
-                "Low usage, scheduled resets, surprise refills, and reset-credit alerts are ready.",
+                "Low usage, scheduled resets, and quota-refill alerts are available.",
                 NOTIFICATION_TEST);
     }
 
@@ -454,7 +397,7 @@ public final class ResetNotificationManager {
         if (ResetAlertPreferences.STYLE_SILENT.equals(style)) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_SILENT,
                     "Claude usage alerts", NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
+            channel.setDescription("Low usage, scheduled resets, and quota-refill alerts");
             channel.setSound(null, null);
             channel.enableVibration(false);
             manager.createNotificationChannel(channel);
@@ -463,7 +406,7 @@ public final class ResetNotificationManager {
         if (ResetAlertPreferences.STYLE_ALARM.equals(style)) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ALARM,
                     "Claude usage alarms", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
+            channel.setDescription("Low usage, scheduled resets, and quota-refill alerts");
             channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
                     new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
                             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
@@ -473,7 +416,7 @@ public final class ResetNotificationManager {
         }
         NotificationChannel channel = new NotificationChannel(CHANNEL_NOTIFY,
                 "Claude usage alerts", NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
+        channel.setDescription("Low usage, scheduled resets, and quota-refill alerts");
         channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                 new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
