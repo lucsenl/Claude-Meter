@@ -1,9 +1,9 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSurfaceMode;
-import dev.bennett.codexmeter.wear.WearSyncStatus;
-import dev.bennett.codexmeter.wear.WearUsageState;
+import dev.bennett.claudemeter.wear.WearSettingsState;
+import dev.bennett.claudemeter.wear.WearSurfaceMode;
+import dev.bennett.claudemeter.wear.WearSyncStatus;
+import dev.bennett.claudemeter.wear.WearUsageState;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -453,7 +453,7 @@ public final class ParserSelfTest {
         WearSettingsState pace = new WearSettingsState(
                 NowBarDisplayMode.AUTO, NowBarPercentMode.AUTO, true,
                 NowBarAutoStart.METRIC_BOTH, 25, false, 30, 3000L,
-                WearSettingsState.SOURCE_PHONE, "dev.bennett.codexmeter",
+                WearSettingsState.SOURCE_PHONE, "dev.bennett.claudemeter",
                 true, UsagePace.SENSITIVE, true);
         WearSettingsState paceRoundTrip = WearSettingsState.fromJson(pace.toJson());
         check(pace.equals(paceRoundTrip), "Wear settings preserve pace and accelerated start");
@@ -643,13 +643,13 @@ public final class ParserSelfTest {
         check("0%".equals(NowBarCopy.focusCriticalText("", exhaustedNoReset, observed, now)),
                 "exhausted window without reset time falls back to 0%");
 
-        check("Codex · 5-hour 60%".equals(
+        check("Claude · 5-hour 60%".equals(
                         NowBarCopy.chipExpandedText("5-hour", remaining, observed, now)),
                 "chip keeps percentage while allowance remains");
-        check("Codex · Weekly 2d 4h".equals(
+        check("Claude · Weekly 2d 4h".equals(
                         NowBarCopy.chipExpandedText("Weekly", exhaustedDays, observed, now)),
                 "exhausted chip shows that window's reset duration");
-        check("Codex · Monthly 60%".equals(
+        check("Claude · Monthly 60%".equals(
                         NowBarCopy.chipExpandedText("Monthly", remaining, observed, now)),
                 "monthly chip names the free-tier window");
 
@@ -702,7 +702,7 @@ public final class ParserSelfTest {
     }
 
     /**
-     * Free-tier accounts report a single ~30-day Codex window. It must parse into the monthly
+     * Free-tier accounts report a single ~30-day Claude window. It must parse into the monthly
      * slot, stay displayable, and adapt every long-window surface (widgets, Wear, Now Bar).
      */
     private static void testMonthlyWindow() throws Exception {
@@ -756,7 +756,7 @@ public final class ParserSelfTest {
                 "weekly widget meter falls back to the monthly window");
         check("Mo".equals(WidgetMeters.shortLabel(WidgetMeters.WEEKLY, snapshot)),
                 "weekly widget meter relabels to Mo on the free tier");
-        check("Codex · Monthly".equals(
+        check("Claude · Monthly".equals(
                         WidgetMeters.configLabel(WidgetMeters.WEEKLY, snapshot)),
                 "widget config row names the monthly window");
         check("Wk".equals(WidgetMeters.shortLabel(WidgetMeters.WEEKLY, pro)),
@@ -823,7 +823,7 @@ public final class ParserSelfTest {
                 "\"primary_window\":{\"used_percent\":90,\"limit_window_seconds\":18000,\"reset_after_seconds\":1,\"reset_at\":4}}}]}";
         UsageSnapshot snapshot = UsageParser.parse(json, 1L);
         check(snapshot.fiveHour != null && snapshot.fiveHour.usedPercent == 10,
-                "main Codex limit takes precedence over additional feature limits");
+                "main Claude limit takes precedence over additional feature limits");
         check(snapshot.weekly != null && snapshot.weekly.usedPercent == 20,
                 "main weekly limit takes precedence");
         check(snapshot.additionalLimits.size() == 1
@@ -841,13 +841,13 @@ public final class ParserSelfTest {
                 "weekly limit remains available without five-hour data");
 
         String namedAdditional = "{\"additional_rate_limits\":[{"
-                + "\"limit_name\":\"GPT-5.3-Codex-Spark\","
-                + "\"metered_feature\":\"codex_bengalfox\","
+                + "\"limit_name\":\"GPT-5.3-Claude-Spark\","
+                + "\"metered_feature\":\"claude_bengalfox\","
                 + "\"rate_limit\":{\"allowed\":false,\"limit_reached\":true,"
                 + "\"primary_window\":{\"used_percent\":40,\"limit_window_seconds\":18000}}}]}";
         UsageSnapshot additional = UsageParser.parse(namedAdditional, 2L);
         UsageLimit limit = additional.additionalLimits.get(0);
-        check("GPT-5.3-Codex-Spark".equals(limit.displayName()),
+        check("GPT-5.3-Claude-Spark".equals(limit.displayName()),
                 "API-provided additional limit label preserved");
         check(!limit.allowed && limit.limitReached, "additional limit status preserved");
         check(additional.hasDisplayableData(), "additional-only response is displayable");
@@ -930,13 +930,13 @@ public final class ParserSelfTest {
     }
 
     private static void testDashboardSectionOrder() {
-        UsageLimit spark = new UsageLimit("codex-spark", "GPT-5.3-Codex-Spark",
-                "codex_bengalfox", true, false,
+        UsageLimit spark = new UsageLimit("claude-spark", "GPT-5.3-Claude-Spark",
+                "claude_bengalfox", true, false,
                 new UsageWindow(24, 18000L, 0L, 2_000_000_000L), null);
         String sparkKey = DashboardSections.limitKey(spark);
-        check("limit:codex-spark".equals(sparkKey), "limit key prefers the API id");
-        check("limit:gpt-5.3-codex-spark".equals(DashboardSections.limitKey(new UsageLimit(
-                        "", "GPT-5.3-Codex-Spark", "", true, false,
+        check("limit:claude-spark".equals(sparkKey), "limit key prefers the API id");
+        check("limit:gpt-5.3-claude-spark".equals(DashboardSections.limitKey(new UsageLimit(
+                        "", "GPT-5.3-Claude-Spark", "", true, false,
                         new UsageWindow(1, 18000L, 0L, 2_000_000_000L), null))),
                 "limit key falls back to the display name");
         List<String> defaults = DashboardSections.defaultOrder(Arrays.asList(spark));
@@ -951,7 +951,7 @@ public final class ParserSelfTest {
         check(DashboardSections.resolveOrder("", defaults).equals(defaults),
                 "no saved order keeps the defaults");
         List<String> saved = DashboardSections.resolveOrder(
-                "usage_credits, limit:codex-spark ,five_hour,weekly", defaults);
+                "usage_credits, limit:claude-spark ,five_hour,weekly", defaults);
         check(saved.equals(Arrays.asList(DashboardSections.USAGE_CREDITS, sparkKey,
                         DashboardSections.FIVE_HOUR, DashboardSections.WEEKLY,
                         DashboardSections.MONTHLY,
@@ -973,7 +973,7 @@ public final class ParserSelfTest {
                         DashboardSections.FIVE_HOUR)),
                 "keys for limits no longer reported are dropped");
         check(DashboardSections.serialize(saved)
-                        .equals("usage_credits,limit:codex-spark,five_hour,weekly,monthly,"
+                        .equals("usage_credits,limit:claude-spark,five_hour,weekly,monthly,"
                                 + "usage_history,reset_credits"),
                 "order round-trips through the stored CSV form");
         check(DashboardSections.resolveOrder(null,
@@ -1194,7 +1194,7 @@ public final class ParserSelfTest {
 
     private static void testJwtMerge() {
         String id = jwt("{\"email\":\"person@example.com\"}");
-        String access = jwt("{\"https://api.openai.com/auth\":{\"chatgpt_account_id\":\"acct_123\"}}");
+        String access = jwt("{\"https://api.anthropic.com/auth\":{\"claude_account_id\":\"acct_123\"}}");
         JwtClaims claims = JwtClaims.fromTokens(id, access);
         check("person@example.com".equals(claims.email), "JWT email");
         check("acct_123".equals(claims.accountId), "JWT account merge");
@@ -1217,7 +1217,7 @@ public final class ParserSelfTest {
                 94, WidgetOptions.RESET_HIDDEN, WidgetOptions.DISPLAY_REMAINING,
                 WidgetOptions.METRIC_BOTH, false, true, false, true, true, false)
                 .withPercentSymbol(false)
-                .withVisibleMeters("five_hour,limit:codex-spark:primary,weekly");
+                .withVisibleMeters("five_hour,limit:claude-spark:primary,weekly");
         org.json.JSONObject appSettings = new org.json.JSONObject()
                 .put("app_theme", WidgetOptions.THEME_DARK)
                 .put("material_you", true)
@@ -1270,7 +1270,7 @@ public final class ParserSelfTest {
         check(WidgetOptions.THEME_DARK.equals(restored.theme), "widget theme restored");
         check(WidgetOptions.ACCENT_BLUE.equals(restored.accent), "widget accent restored");
         check(WidgetOptions.STYLE_DIALS.equals(restored.layout), "widget layout preference restored");
-        check("five_hour,limit:codex-spark:primary,weekly".equals(restored.visibleMeters),
+        check("five_hour,limit:claude-spark:primary,weekly".equals(restored.visibleMeters),
                 "widget visible meters restored");
         check(parsed.appSettings.getBoolean("material_you"), "material you preference restored");
         check(UsagePace.RELAXED.equals(
@@ -1350,7 +1350,7 @@ public final class ParserSelfTest {
         boolean rejected = false;
         try {
             SettingsTransfer.parse(new org.json.JSONObject()
-                    .put("format", "not_codex")
+                    .put("format", "not_claude")
                     .put("version", 1)
                     .put("sections", new org.json.JSONObject().put("app_settings", appSettings)));
         } catch (IllegalArgumentException expected) {
@@ -1487,8 +1487,8 @@ public final class ParserSelfTest {
                         .equals("weekly,five_hour"),
                 "saved visible meters keep order");
 
-        UsageLimit spark = new UsageLimit("codex-spark", "GPT-5.3-Codex-Spark",
-                "codex_bengalfox", true, false,
+        UsageLimit spark = new UsageLimit("claude-spark", "GPT-5.3-Claude-Spark",
+                "claude_bengalfox", true, false,
                 new UsageWindow(40, 18000L, 600L, 0L),
                 new UsageWindow(70, 604800L, 600L, 0L));
         UsageSnapshot snapshot = new UsageSnapshot("plus", true, false,
@@ -1506,7 +1506,7 @@ public final class ParserSelfTest {
                         && !available.contains(WidgetMeters.limitSecondaryKey(spark)),
                 "Spark limit keys are not offered for widgets");
         List<String> resolved = WidgetMeters.resolveVisible(
-                "five_hour,limit:codex-spark:primary,limit:missing:primary,weekly",
+                "five_hour,limit:claude-spark:primary,limit:missing:primary,weekly",
                 available);
         check(resolved.equals(java.util.Arrays.asList(
                         WidgetMeters.FIVE_HOUR,
@@ -1529,17 +1529,17 @@ public final class ParserSelfTest {
                                 WidgetMeters.FIVE_HOUR)),
                 "valid selection is not replaced by fallback");
         check(WidgetMeters.resolveVisibleForWidget(
-                        "five_hour,limit:codex-spark:primary", available, "both")
+                        "five_hour,limit:claude-spark:primary", available, "both")
                         .equals(java.util.Arrays.asList(
                                 WidgetMeters.FIVE_HOUR, WidgetMeters.WEEKLY)),
                 "dropping Spark restores weekly so adaptive stays multi-meter");
         check(!WidgetMeters.resolvedSingleUsageMetric(
-                        "five_hour,limit:codex-spark:primary", available, "both"),
+                        "five_hour,limit:claude-spark:primary", available, "both"),
                 "Spark-stripped multi selection is not single-metric");
         check(WidgetMeters.VISUAL_BATTERY_LIST.equals(WidgetMeters.resolveHomeVisualStyle(
                         WidgetMeters.PREF_AUTO,
                         WidgetMeters.resolvedSingleUsageMetric(
-                                "five_hour,limit:codex-spark:primary", available, "both"),
+                                "five_hour,limit:claude-spark:primary", available, "both"),
                         2, 2, 156, 110)),
                 "adaptive tall stays bars after Spark keys are stripped");
         check(WidgetMeters.resolvedSingleUsageMetric("five_hour", available, "five_hour"),
@@ -1619,9 +1619,9 @@ public final class ParserSelfTest {
 
     private static void testOAuthBrowserPage() {
         String success = OAuthBrowserPage.render(
-                "Connected <securely> & ready.", true, "codexmeter://auth/complete");
+                "Connected <securely> & ready.", true, "claudemeter://auth/complete");
         check(success.contains("You’re connected"), "browser success title");
-        check(success.contains("Codex Meter</a>"), "browser app return action");
+        check(success.contains("Claude Meter</a>"), "browser app return action");
         check(success.contains("prefers-color-scheme:dark"), "browser One UI light and dark themes");
         check(success.contains("border-radius:28px"), "browser One UI rounded card");
         check(success.contains("Connected &lt;securely&gt; &amp; ready."),
@@ -1629,9 +1629,9 @@ public final class ParserSelfTest {
         check(success.contains("setTimeout"), "successful browser page automatically returns");
 
         String failure = OAuthBrowserPage.render(
-                "Denied", false, "codexmeter://auth/complete");
+                "Denied", false, "claudemeter://auth/complete");
         check(failure.contains("Let’s try that again"), "browser failure title");
-        check(failure.contains("Back to Codex Meter"), "browser failure return action");
+        check(failure.contains("Back to Claude Meter"), "browser failure return action");
         check(!failure.contains("setTimeout"), "failure page waits for user");
 
         String escapedScript = OAuthBrowserPage.javascriptString("x'\\\n\u2028");
@@ -1652,10 +1652,10 @@ public final class ParserSelfTest {
     }
 
     private static void testGitHubReleases() throws Exception {
-        check("https://github.com/BenItBuhner/Codex-Meter".equals( // pragma: allowlist secret
+        check("https://github.com/BenItBuhner/Claude-Meter".equals( // pragma: allowlist secret
                         GitHubReleaseSource.REPOSITORY_URL),
                 "canonical release repository");
-        check("https://api.github.com/repos/BenItBuhner/Codex-Meter/releases?per_page=30" // pragma: allowlist secret
+        check("https://api.github.com/repos/BenItBuhner/Claude-Meter/releases?per_page=30" // pragma: allowlist secret
                         .equals(GitHubReleaseSource.RELEASES_API_URL),
                 "canonical release API endpoint");
         String json = "["
@@ -1752,11 +1752,11 @@ public final class ParserSelfTest {
         String normalized = tag.startsWith("v") ? tag.substring(1) : tag;
         StringBuilder assets = new StringBuilder();
         if (apk) {
-            assets.append("{\"name\":\"CodexMeter-").append(normalized)
+            assets.append("{\"name\":\"ClaudeMeter-").append(normalized)
                     .append(".apk\",\"size\":123,\"browser_download_url\":")
                     .append("\"").append(GitHubReleaseSource.REPOSITORY_URL)
                     .append("/releases/download/")
-                    .append(tag).append("/CodexMeter-").append(normalized).append(".apk\"}");
+                    .append(tag).append("/ClaudeMeter-").append(normalized).append(".apk\"}");
         }
         if (checksum) {
             if (assets.length() > 0) assets.append(',');
@@ -1766,7 +1766,7 @@ public final class ParserSelfTest {
                     .append("/releases/download/")
                     .append(tag).append("/SHA256SUMS.txt\"}");
         }
-        return "{\"tag_name\":\"" + tag + "\",\"name\":\"Codex Meter " + normalized
+        return "{\"tag_name\":\"" + tag + "\",\"name\":\"Claude Meter " + normalized
                 + "\",\"body\":\"Changes\",\"published_at\":\"2026-07-13T00:00:00Z\","
                 + "\"html_url\":\"" + GitHubReleaseSource.REPOSITORY_URL + "/releases/tag/"
                 + tag + "\",\"draft\":" + draft + ",\"prerelease\":" + prerelease
@@ -1775,18 +1775,18 @@ public final class ParserSelfTest {
 
     private static void testReleaseChecksums() {
         String digest = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-        String checksums = digest + "  CodexMeter-2.2.0.apk\n"
+        String checksums = digest + "  ClaudeMeter-2.2.0.apk\n"
                 + "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
                 + "  other.apk\n";
         check(digest.equals(ReleaseIntegrity.expectedSha256(
-                        checksums, "CodexMeter-2.2.0.apk")),
+                        checksums, "ClaudeMeter-2.2.0.apk")),
                 "matching APK checksum selected");
         check(ReleaseIntegrity.expectedSha256(checksums, "../other.apk").isEmpty(),
                 "unsafe checksum filename rejected");
         check(ReleaseIntegrity.expectedSha256("not-a-checksum", "app.apk").isEmpty(),
                 "malformed checksum rejected");
         check(ReleaseIntegrity.expectedSha256(checksums + digest
-                        + "  CodexMeter-2.2.0.apk\n", "CodexMeter-2.2.0.apk").isEmpty(),
+                        + "  ClaudeMeter-2.2.0.apk\n", "ClaudeMeter-2.2.0.apk").isEmpty(),
                 "duplicate APK checksum rejected");
     }
 
@@ -1796,7 +1796,7 @@ public final class ParserSelfTest {
                 + "- Restored in-app update discovery (#24).\n\n"
                 + "### Development\n\n"
                 + "- Centralized production GitHub release URLs (#24).\n\n"
-                + "**Full Changelog**: https://github.com/example/Codex-Meter/compare/v2.2.0...v2.3.0 "
+                + "**Full Changelog**: https://github.com/example/Claude-Meter/compare/v2.2.0...v2.3.0 "
                 + "<!-- pragma: allowlist secret -->");
         check(html.contains("<p><b>Fixed</b></p>"), "markdown heading rendered");
         check(html.contains("<ul>"), "markdown list opened");
@@ -1806,7 +1806,7 @@ public final class ParserSelfTest {
                 "second markdown bullet rendered");
         check(html.contains("<p><b>Development</b></p>"), "second markdown heading rendered");
         check(html.contains("<b>Full Changelog</b>"), "markdown bold rendered");
-        check(html.contains("<a href=\"https://github.com/example/Codex-Meter/compare/v2.2.0...v2.3.0\">"),
+        check(html.contains("<a href=\"https://github.com/example/Claude-Meter/compare/v2.2.0...v2.3.0\">"),
                 "markdown autolink rendered");
         check(!html.contains("pragma"), "html comments stripped from release notes");
         check(!html.contains("###"), "raw heading markers removed");
@@ -1822,7 +1822,7 @@ public final class ParserSelfTest {
         check(!ReleaseNotesMarkdown.toHtml("[bad](javascript:alert(1))").contains("<a "),
                 "unsafe markdown links are not anchored");
 
-        String redactedNotes = "**Full Changelog**: https://github.com/[REDACTED]/Codex-Meter"
+        String redactedNotes = "**Full Changelog**: https://github.com/[REDACTED]/Claude-Meter"
                 + "/compare/v2.6.9...v2.6.10";
         String repaired = ReleaseNotesMarkdown.toHtml(redactedNotes);
         String expectedHref = GitHubReleaseSource.REPOSITORY_URL

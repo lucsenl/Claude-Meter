@@ -19,14 +19,14 @@ storage.
 
 ## Claude migration rule
 
-This fork is being migrated from Codex Meter to Claude. Never perform blind product/provider
+This fork is being migrated from Claude Meter to Claude. Never perform blind product/provider
 renaming in protocol code.
 
 - User/product terminology should follow verified Claude terminology.
 - Provider/company terminology should use Anthropic where appropriate.
 - Network endpoints, OAuth client IDs, headers, persisted keys and protocol claims are contracts,
   not branding strings. Change them only together with a verified Claude implementation.
-- Do not emulate Codex-only reset-credit behavior as Claude usage credits.
+- Do not emulate Claude-only reset-credit behavior as Claude usage credits.
 - Keep historical changelog facts intact.
 
 See `docs/CLAUDE_UPSTREAM_MAPPING.md` and `docs/CLAUDE_TERMINOLOGY_EVIDENCE.md`.

@@ -1,14 +1,14 @@
-# Codex Meter for Android
+# Claude Meter for Android
 
-Native Android + Wear OS client for viewing the Codex allowance attached to a
-signed-in ChatGPT account. This directory is the **Android** Gradle project of
-the Codex Meter monorepo. The iOS client lives under [`../ios/`](../ios/).
+Native Android + Wear OS client for viewing the Claude allowance attached to a
+signed-in Claude account. This directory is the **Android** Gradle project of
+the Claude Meter monorepo. The iOS client lives under [`../ios/`](../ios/).
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `app/` | Phone app (`dev.bennett.codexmeter`) |
+| `app/` | Phone app (`dev.bennett.claudemeter`) |
 | `wear/` | Wear OS companion |
 | `shared/` | Shared phone↔watch contracts |
 | `tests/` | Pure-Java self-tests used by `./run-tests.sh` |

@@ -3,7 +3,7 @@
 Claude Meter is an Android-only fork focused on showing Claude usage information on phones,
 Samsung One UI surfaces, and Wear OS.
 
-The project is being migrated from the original Codex Meter implementation to Claude/Anthropic.
+The project is being migrated from the original Claude Meter implementation to Claude/Anthropic.
 Provider-specific behavior is changed only when the Claude equivalent is supported by evidence;
 legacy network contracts are removed as their real replacements are implemented.
 

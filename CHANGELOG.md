@@ -4,7 +4,7 @@
 
 ### Added
 
-- Free-tier monthly Codex window support: when a paid plan expires to Free, OpenAI's ~30-day monthly limit is parsed and shown across the dashboard, usage history, widgets, Wear, Now Bar, alerts, and adaptive refresh instead of failing with "no recognizable Codex usage data" and leaving a stale Pro badge (#92).
+- Free-tier monthly Claude window support: when a paid plan expires to Free, Anthropic's ~30-day monthly limit is parsed and shown across the dashboard, usage history, widgets, Wear, Now Bar, alerts, and adaptive refresh instead of failing with "no recognizable Claude usage data" and leaving a stale Pro badge (#92).
 - Opt-in diagnostic log tracing and export (unlock via About header taps) with sanitized JSONL logs for process lifecycle, refresh, OAuth, updates, widgets, Now Bar, and Wear sync (#91).
 - Usage-history Customize checklist so chart guide, previous-window list, insight rows, and value estimates can be shown or hidden individually; defaults are decluttered (#89).
 
@@ -14,7 +14,7 @@
 - Removed the one-time alpha bootstrap workflow now that the `alpha` branch exists, and documented release-channel etiquette for agents (#90).
 - Previously shipped to the alpha channel as 2.8.0-alpha.1.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.7.0...v2.8.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.7.0...v2.8.0 <!-- pragma: allowlist secret -->
 
 ## 2.7.0 — 2026-08-01
 
@@ -28,28 +28,28 @@
 - New `alpha` branch (auto-created by CI after merge) feeds `v*-alpha.N` tags; release CI publishes them as GitHub prereleases, never marks them latest, and enforces the shared-versionCode invariant that keeps channel switching downgrade-free (#88).
 - Channel-selection self-tests and source guards cover stable/alpha update picks, alpha-to-alpha upgrades, stable promotions, and the return-to-stable flow (#88).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.10...v2.7.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.10...v2.7.0 <!-- pragma: allowlist secret -->
 
 ## 2.6.10 — 2026-07-31
 
 ### Fixed
 
 - Restored dashboard auto-hide for empty usage-credit, reset-credit, and missing-window cards. The 2.6.9 blank-placeholder behavior was intended for widgets only, not the home-screen dashboard (#85).
-- Adaptive widget layouts no longer flip to two oversized dials after Spark/additional-limit meters are stripped from saved configs; multi-usage selections migrate to Codex 5-hour + weekly so tall Adaptive sizing keeps progress bars (#85).
+- Adaptive widget layouts no longer flip to two oversized dials after Spark/additional-limit meters are stripped from saved configs; multi-usage selections migrate to Claude 5-hour + weekly so tall Adaptive sizing keeps progress bars (#85).
 
 ### Development
 
 - Shared `resolveVisibleForWidget` / `resolvedSingleUsageMetric` migration helpers cover layout, slot selection, config load, and lock widgets (#85).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.9...v2.6.10 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.9...v2.6.10 <!-- pragma: allowlist secret -->
 
 ## 2.6.9 — 2026-07-31
 
 ### Changed
 
-- Home and lock widgets no longer offer GPT-5.3-Codex-Spark or other model-specific additional limits; those stay on the in-app dashboard while widgets stick to Codex 5-hour/weekly, next-reset, and reset-credit meters (#84).
+- Home and lock widgets no longer offer GPT-5.3-Claude-Spark or other model-specific additional limits; those stay on the in-app dashboard while widgets stick to Claude 5-hour/weekly, next-reset, and reset-credit meters (#84).
 - Customize widget meters can be drag-reordered (handle or long-press) so slot priority matches the user’s order, matching Edit dashboard (#84).
-- Edit dashboard / Settings visibility switches keep toggled-on sections on screen with a blank dash placeholder when OpenAI has not reported data yet, instead of auto-hiding empty cards inconsistently (#84).
+- Edit dashboard / Settings visibility switches keep toggled-on sections on screen with a blank dash placeholder when Anthropic has not reported data yet, instead of auto-hiding empty cards inconsistently (#84).
 
 ### Fixed
 
@@ -59,29 +59,29 @@
 
 - Regression coverage and static checks updated for the Spark-free widget catalog, dashboard placeholder visibility, and widget meter drag reorder (#84).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.8...v2.6.9 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.8...v2.6.9 <!-- pragma: allowlist secret -->
 
 ## 2.6.8 — 2026-07-30
 
 ### Added
 
-- Home and Samsung lock widget layout and meter customization: choose Adaptive by size, Dials, or Progress bars, and pick which Codex 5-hour/weekly, Spark (and other additional limits), next-reset, and reset-credits meters fill the available slots (#81).
+- Home and Samsung lock widget layout and meter customization: choose Adaptive by size, Dials, or Progress bars, and pick which Claude 5-hour/weekly, Spark (and other additional limits), next-reset, and reset-credits meters fill the available slots (#81).
 
 ### Changed
 
 - Reset-credit cards auto-hide when no resets are available (or inventory is unknown), even if the Edit dashboard / Settings toggle is on (#80).
-- Usage history stays off the Android dashboard until OpenAI reports a 5-hour or weekly window that can feed a burn chart (#80).
+- Usage history stays off the Android dashboard until Anthropic reports a 5-hour or weekly window that can feed a burn chart (#80).
 - Usage-credit balances on iOS now hide when zero, near-zero, or negative, matching Android (#80).
 
 ### Fixed
 
-- Low-usage alerts no longer re-fire every adaptive refresh when OpenAI's reset timestamp drifts slightly within the same usage window; dedupe uses the same reset-time tolerance as local usage history (#82).
+- Low-usage alerts no longer re-fire every adaptive refresh when Anthropic's reset timestamp drifts slightly within the same usage window; dedupe uses the same reset-time tolerance as local usage history (#82).
 
 ### Development
 
 - Expanded regression coverage for widget meter catalogs, capacity/layout preferences, stale meter fallbacks, reset-credit auto-hide, and low-usage alert dedupe (#80, #81, #82).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.7...v2.6.8 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.7...v2.6.8 <!-- pragma: allowlist secret -->
 
 ## 2.6.7 — 2026-07-26
 
@@ -90,7 +90,7 @@
 - Reset credits is now a real dashboard section that reorders and hides with the rest of the cards, so the usage-history chart (or any other card) can be placed below it instead of the reset-credit card being pinned to the bottom of the page.
 - Reset-credit and usage-credit cards use bold in-card titles with left-aligned icon rows, matching the 5-hour, weekly, and usage-history cards, instead of external One UI section separators that looked inconsistent.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.6...v2.6.7 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.6...v2.6.7 <!-- pragma: allowlist secret -->
 
 ## 2.6.6 — 2026-07-26
 
@@ -101,7 +101,7 @@
 
 ### Changed
 
-- 5-hour and weekly burn charts hide from the usage-history card and the full history screen while OpenAI has not yet reported those windows, replacing blank "Waiting for usage data" graphs with a short hint.
+- 5-hour and weekly burn charts hide from the usage-history card and the full history screen while Anthropic has not yet reported those windows, replacing blank "Waiting for usage data" graphs with a short hint.
 - Dashboard visibility and hidden-section choices are included in settings transfer exports.
 
 ### Fixed
@@ -112,7 +112,7 @@
 
 - Expanded dashboard-section regression coverage for the usage-history key and hidden-section CSV round-trips.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.5...v2.6.6 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.5...v2.6.6 <!-- pragma: allowlist secret -->
 
 ## 2.6.5 — 2026-07-26
 
@@ -132,14 +132,14 @@
 
 - Expanded regression coverage for usage-credit auto-hide, dashboard section order merging, Wear modular tile metadata, and widget configuration wiring (#67, #68, #75).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.6.0...v2.6.5 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.6.0...v2.6.5 <!-- pragma: allowlist secret -->
 
 ## 2.6.0 — 2026-07-26
 
 ### Added
 
 - Adaptive Automatic refresh mode (now the default) on Android and iOS that adjusts cadence from remaining quota, reset proximity, recent engagement, quiet hours, accelerated usage, and failure backoff (#71).
-- Adaptive usage dashboard sections that preserve and render named additional rate limits such as GPT-5.3-Codex-Spark, hide missing standard windows instead of empty cards, and show purchased usage-credit balances separately from reset credits (#70).
+- Adaptive usage dashboard sections that preserve and render named additional rate limits such as GPT-5.3-Claude-Spark, hide missing standard windows instead of empty cards, and show purchased usage-credit balances separately from reset credits (#70).
 - Dashboard visibility controls on Android and iOS so users choose which usage sections appear, with safe migration defaults (#70).
 
 ### Changed
@@ -155,20 +155,20 @@
 
 - Expanded regression coverage for adaptive refresh policy and settings migration, plus adaptive usage parsing for partial, additional-only, and credit-only responses (#70, #71).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.5.0...v2.6.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.5.0...v2.6.0 <!-- pragma: allowlist secret -->
 
 ## 2.5.0 — 2026-07-20
 
 ### Added
 
-- Fully supported Wear OS companion distribution with a signed `CodexMeter-Wear-2.5.0.apk` attached directly to tagged GitHub Releases alongside the phone APK and shared SHA-256 checksums.
+- Fully supported Wear OS companion distribution with a signed `ClaudeMeter-Wear-2.5.0.apk` attached directly to tagged GitHub Releases alongside the phone APK and shared SHA-256 checksums.
 - Phone-owned Wear sync status for sign-in, refresh progress and errors, initial state hydration, plan and limit state, reset credits, stale data, and accelerated-usage settings.
 - Wear-native overview, five-hour, weekly, reset, and monitor Tiles; five-hour, weekly, dual-usage, and next-reset Complications; and promoted Ongoing Activity / Live Update monitoring.
 
 ### Changed
 
 - Rebuilt the Wear application and settings around the Android app's One UI dark design system, including matching typography and colors, 28dp cards, true pill controls, stateful touch feedback, One UI settings rows, rounded popup surfaces, and explicitly styled switches.
-- Replaced the generated Wear launcher artwork with the canonical Android adaptive icon layers and official Codex notification mark.
+- Replaced the generated Wear launcher artwork with the canonical Android adaptive icon layers and official Claude notification mark.
 - Updated the Wear dependency stack and compile platform for current Wear OS releases while retaining the Android 16 target behavior.
 - Exhausted Now Bar and Wear monitor windows show their reset countdown instead of an unhelpful `0%`.
 
@@ -184,7 +184,7 @@
 - Added regression coverage for Wear sync clear/status payloads, pace settings, stale/account formatting, canonical icon parity, and public Wear release-asset publication.
 - Validated the signed app, all five Tiles, all four Complications, One UI controls, and promoted ongoing notification on a Wear OS 6.1 large-round emulator.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.4.3...v2.5.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.4.3...v2.5.0 <!-- pragma: allowlist secret -->
 
 ## 2.4.3 — 2026-07-19
 
@@ -192,7 +192,7 @@
 
 - Android Appearance settings once again show the illustrated Light and Dark theme options side by side, while preserving System default behavior in the redesigned settings navigation.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.4.2...v2.4.3 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.4.2...v2.4.3 <!-- pragma: allowlist secret -->
 
 ## 2.4.2 — 2026-07-19
 
@@ -209,16 +209,16 @@
 
 - Onboarding card spacing and Settings bottom padding no longer collapse against adjacent cards or the screen edge (#52).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.4.1...v2.4.2 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.4.1...v2.4.2 <!-- pragma: allowlist secret -->
 
 ## 2.4.1 — 2026-07-18
 
 ### Fixed
 
 - Active Android Live Updates now rebuild immediately after promoted-notification access changes, allowing automatic Samsung fallback and explicit Android modes to adopt the newly available notification contract without waiting for another usage refresh.
-- Live Update construction now adapts to both early Android 16's required colorization and newer uncolorized promotion rules, while notification and Now Bar Codex icons use SystemUI-compatible vector syntax.
+- Live Update construction now adapts to both early Android 16's required colorization and newer uncolorized promotion rules, while notification and Now Bar Claude icons use SystemUI-compatible vector syntax.
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.4.0...v2.4.1 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.4.0...v2.4.1 <!-- pragma: allowlist secret -->
 
 ## 2.4.0 — 2026-07-18
 
@@ -226,7 +226,7 @@
 
 - Wear OS companion app with phone↔watch usage and settings sync, plus tiles, complications, and Ongoing Activity monitoring (#37).
 - Native iOS / iPadOS SwiftUI + WidgetKit client under `ios/`, with portable meters, reset credits, notifications, widgets, and Keychain-backed auth (#22).
-- Android settings transfer: export and import selected sections (app settings, notifications, Now Bar, and ChatGPT authentication) from Settings, with explicit warnings when authentication tokens are included (#42).
+- Android settings transfer: export and import selected sections (app settings, notifications, Now Bar, and Claude authentication) from Settings, with explicit warnings when authentication tokens are included (#42).
 - Configurable automatic update-check frequency (hourly through weekly) and optional notifications when a newer signed GitHub release is available (#38).
 - Estimated usage-pace projections on dashboard cards, with One UI functional-orange accelerated-usage warnings and matching Now Bar auto-start / regress triggers (#47).
 - Widget Background toggle in customize settings so the fill can be turned off entirely, matching official One UI widgets (#45).
@@ -241,7 +241,7 @@
 ### Fixed
 
 - App update and release-history loading now use a centered One UI spinner instead of clipped status text, and idle update cards no longer reserve empty status-line height (#35).
-- Live usage monitor progress uses a plain progress dot, and Now Bar / notification Codex logos adapt to light, dark, and accent surfaces without a baked white square (#36).
+- Live usage monitor progress uses a plain progress dot, and Now Bar / notification Claude logos adapt to light, dark, and accent surfaces without a baked white square (#36).
 
 ### Development
 
@@ -249,7 +249,7 @@
 - Fixed Cloud Agent setup to invoke `android/gradlew` after the monorepo move (#43).
 - Expanded regression coverage for settings transfer, update-check frequency, usage-pace estimates, widget fill controls, Material You preferences, and Wear sync contracts (#37, #38, #42, #44, #45, #47).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.3.3...v2.4.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.3.3...v2.4.0 <!-- pragma: allowlist secret -->
 
 ## 2.3.3 — 2026-07-17
 
@@ -267,7 +267,7 @@
 
 - Expanded regression coverage for Now Bar percent-mode selection, settings-change focus resolution, and failed applyPercentModeChange cleanup (#33).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.3.2...v2.3.3 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.3.2...v2.3.3 <!-- pragma: allowlist secret -->
 
 ## 2.3.2 — 2026-07-15
 
@@ -289,7 +289,7 @@
 
 - Added regression coverage for display-mode normalization and firmware-dependent mode resolution (#29).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.3.1...v2.3.2 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.3.1...v2.3.2 <!-- pragma: allowlist secret -->
 
 ## 2.3.1 — 2026-07-14
 
@@ -306,7 +306,7 @@
 
 - Expanded regression coverage for Now Bar auto-start thresholds and release-note Markdown / irreversible-update policy (#25, #26).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.3.0...v2.3.1 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.3.0...v2.3.1 <!-- pragma: allowlist secret -->
 
 ## 2.3.0 — 2026-07-14
 
@@ -320,7 +320,7 @@
 
 - Centralized production GitHub release URLs and added regression guards that prevent the stale update source from being reintroduced (#24).
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.2.0...v2.3.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.2.0...v2.3.0 <!-- pragma: allowlist secret -->
 
 ## 2.2.0 — 2026-07-14
 
@@ -351,9 +351,9 @@
 
 ### New Contributors
 
-- @Robertg761 made their first contribution in https://github.com/BenItBuhner/Codex-Meter/pull/18. <!-- pragma: allowlist secret -->
+- @Robertg761 made their first contribution in https://github.com/BenItBuhner/Claude-Meter/pull/18. <!-- pragma: allowlist secret -->
 
-**Full Changelog**: https://github.com/BenItBuhner/Codex-Meter/compare/v2.1.0...v2.2.0 <!-- pragma: allowlist secret -->
+**Full Changelog**: https://github.com/BenItBuhner/Claude-Meter/compare/v2.1.0...v2.2.0 <!-- pragma: allowlist secret -->
 
 ## 2.1.0 — 2026-07-13
 
@@ -428,7 +428,7 @@
 
 ### Added
 
-- Detailed Codex reset-credit inventory, expiration display, confirmation, and redemption.
+- Detailed Claude reset-credit inventory, expiration display, confirmation, and redemption.
 - Automatic usage and reset-credit refresh after a successful redemption.
 - Both-window, five-hour-only, and weekly-only widget configurations.
 - Optional reset-credit count, expiration, and reset action on widgets.
@@ -486,7 +486,7 @@
 
 ### Fixed
 
-- Removed the default `CODEX` text from picker previews and initial widget layouts.
+- Removed the default `CLAUDE` text from picker previews and initial widget layouts.
 - Made successful snapshot persistence and refresh-error clearing atomic.
 - Suppressed misleading red refresh warnings while a newly fetched snapshot is still current.
 - Removed clipped toolbar buttons and inconsistent control minimum heights.
@@ -539,4 +539,4 @@
 
 ## 1.0.0 — 2026-07-10
 
-- Initial native Android application, OAuth login, Codex usage retrieval, and home-screen widget release.
+- Initial native Android application, OAuth login, Claude usage retrieval, and home-screen widget release.
