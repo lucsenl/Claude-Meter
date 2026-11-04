@@ -64,7 +64,7 @@ public final class UsagePaceDemoActivity extends Activity {
                             weeklyReset / 1000L),
                     Arrays.asList(new UsageLimit(
                             "claude-spark",
-                            "GPT-5.3-Claude-Spark",
+                            "Claude Sonnet",
                             "claude_bengalfox",
                             true,
                             false,
@@ -76,21 +76,13 @@ public final class UsagePaceDemoActivity extends Activity {
                             ? new UsageCredits(false, false, "")
                             : new UsageCredits(true, false,
                                     creditsBalance == null ? "2500" : creditsBalance),
-                    3,
+                    0,
                     now);
             SecureTokenStore.save(this, new AuthTokens(
                     "debug-demo-access", "debug-demo-refresh", "", Long.MAX_VALUE,
                     "debug-demo-account", "demo@claudemeter.local"));
             AppPreferences.saveSnapshot(this, snapshot);
             seedHistory(now, fiveHourReset, weeklyReset);
-            AppPreferences.saveResetCredits(this, new ResetCreditsSnapshot(3, Arrays.asList(
-                    new RateLimitResetCredit("demo-soon", "both", "available", now,
-                            now + TimeUnit.DAYS.toMillis(1), "Reset credit 1", ""),
-                    new RateLimitResetCredit("demo-middle", "both", "available", now,
-                            now + TimeUnit.DAYS.toMillis(3), "Reset credit 2", ""),
-                    new RateLimitResetCredit("demo-later", "both", "available", now,
-                            now + TimeUnit.DAYS.toMillis(7), "Reset credit 3", "")),
-                    now));
             AppPreferences.setRefreshOnLaunch(this, false);
             AppPreferences.setDashboardVisibility(this, true, true, true, true, true, true);
             AppPreferences.completeOnboarding(this);

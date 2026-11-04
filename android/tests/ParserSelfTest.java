@@ -674,13 +674,13 @@ public final class ParserSelfTest {
                 "weekly limit remains available without five-hour data");
 
         String namedAdditional = "{\"additional_rate_limits\":[{"
-                + "\"limit_name\":\"GPT-5.3-Claude-Spark\","
+                + "\"limit_name\":\"Claude-Sonnet-5.5\","
                 + "\"metered_feature\":\"claude_bengalfox\","
                 + "\"rate_limit\":{\"allowed\":false,\"limit_reached\":true,"
                 + "\"primary_window\":{\"used_percent\":40,\"limit_window_seconds\":18000}}}]}";
         UsageSnapshot additional = UsageParser.parse(namedAdditional, 2L);
         UsageLimit limit = additional.additionalLimits.get(0);
-        check("GPT-5.3-Claude-Spark".equals(limit.displayName()),
+        check("Claude-Sonnet-5.5".equals(limit.displayName()),
                 "API-provided additional limit label preserved");
         check(!limit.allowed && limit.limitReached, "additional limit status preserved");
         check(additional.hasDisplayableData(), "additional-only response is displayable");
@@ -763,23 +763,22 @@ public final class ParserSelfTest {
     }
 
     private static void testDashboardSectionOrder() {
-        UsageLimit spark = new UsageLimit("claude-spark", "GPT-5.3-Claude-Spark",
+        UsageLimit spark = new UsageLimit("claude-spark", "Claude-Sonnet-5.5",
                 "claude_bengalfox", true, false,
                 new UsageWindow(24, 18000L, 0L, 2_000_000_000L), null);
         String sparkKey = DashboardSections.limitKey(spark);
         check("limit:claude-spark".equals(sparkKey), "limit key prefers the API id");
-        check("limit:gpt-5.3-claude-spark".equals(DashboardSections.limitKey(new UsageLimit(
-                        "", "GPT-5.3-Claude-Spark", "", true, false,
+        check("limit:claude-sonnet-5.5".equals(DashboardSections.limitKey(new UsageLimit(
+                        "", "Claude-Sonnet-5.5", "", true, false,
                         new UsageWindow(1, 18000L, 0L, 2_000_000_000L), null))),
                 "limit key falls back to the display name");
         List<String> defaults = DashboardSections.defaultOrder(Arrays.asList(spark));
         check(defaults.equals(Arrays.asList(
                         DashboardSections.FIVE_HOUR, DashboardSections.WEEKLY,
                         DashboardSections.MONTHLY, sparkKey,
-                        DashboardSections.USAGE_CREDITS, DashboardSections.USAGE_HISTORY,
-                        DashboardSections.RESET_CREDITS)),
+                        DashboardSections.USAGE_CREDITS, DashboardSections.USAGE_HISTORY)),
                 "default order is 5-hour, weekly, monthly, detected limits, credits, "
-                        + "history, resets");
+                        + "history");
 
         check(DashboardSections.resolveOrder("", defaults).equals(defaults),
                 "no saved order keeps the defaults");
@@ -788,16 +787,16 @@ public final class ParserSelfTest {
         check(saved.equals(Arrays.asList(DashboardSections.USAGE_CREDITS, sparkKey,
                         DashboardSections.FIVE_HOUR, DashboardSections.WEEKLY,
                         DashboardSections.MONTHLY,
-                        DashboardSections.USAGE_HISTORY, DashboardSections.RESET_CREDITS)),
+                        DashboardSections.USAGE_HISTORY)),
                 "saved order is applied with whitespace tolerated and the new monthly, history, "
-                        + "and reset-credit sections slot in at their default positions");
+                        + "sections slot in at their default positions");
         List<String> withoutSpark = DashboardSections.resolveOrder(
                 "weekly,five_hour,usage_credits",
                 DashboardSections.defaultOrder(Arrays.asList(spark)));
         check(withoutSpark.equals(Arrays.asList(DashboardSections.WEEKLY,
                         DashboardSections.FIVE_HOUR, DashboardSections.MONTHLY, sparkKey,
                         DashboardSections.USAGE_CREDITS,
-                        DashboardSections.USAGE_HISTORY, DashboardSections.RESET_CREDITS)),
+                        DashboardSections.USAGE_HISTORY)),
                 "newly detected Spark limit slots in before credits, not at the end");
         List<String> staleKeys = DashboardSections.resolveOrder(
                 "limit:old-model,weekly,five_hour",
@@ -807,7 +806,7 @@ public final class ParserSelfTest {
                 "keys for limits no longer reported are dropped");
         check(DashboardSections.serialize(saved)
                         .equals("usage_credits,limit:claude-spark,five_hour,weekly,monthly,"
-                                + "usage_history,reset_credits"),
+                                + "usage_history"),
                 "order round-trips through the stored CSV form");
         check(DashboardSections.resolveOrder(null,
                         Arrays.asList(DashboardSections.FIVE_HOUR))
@@ -1305,7 +1304,7 @@ public final class ParserSelfTest {
 
     private static void testWidgetMeters() {
         check(WidgetMeters.serialize(WidgetMeters.defaultVisible())
-                        .equals("five_hour,weekly,next_reset,reset_credits"),
+                        .equals("five_hour,weekly,next_reset"),
                 "default visible meters csv");
         check(WidgetMeters.serialize(WidgetMeters.fromMetricMode("five_hour"))
                         .equals("five_hour"),
@@ -1314,13 +1313,13 @@ public final class ParserSelfTest {
                         .equals("weekly"),
                 "metric mode weekly migrates");
         check(WidgetMeters.effectiveVisibleCsv("", "both")
-                        .equals("five_hour,weekly,next_reset,reset_credits"),
+                        .equals("five_hour,weekly,next_reset"),
                 "empty visible meters falls back to metric mode");
         check(WidgetMeters.effectiveVisibleCsv("weekly,five_hour", "both")
                         .equals("weekly,five_hour"),
                 "saved visible meters keep order");
 
-        UsageLimit spark = new UsageLimit("claude-spark", "GPT-5.3-Claude-Spark",
+        UsageLimit spark = new UsageLimit("claude-spark", "Claude-Sonnet-5.5",
                 "claude_bengalfox", true, false,
                 new UsageWindow(40, 18000L, 600L, 0L),
                 new UsageWindow(70, 604800L, 600L, 0L));
@@ -1332,8 +1331,7 @@ public final class ParserSelfTest {
         check(available.equals(java.util.Arrays.asList(
                         WidgetMeters.FIVE_HOUR,
                         WidgetMeters.WEEKLY,
-                        WidgetMeters.NEXT_RESET,
-                        WidgetMeters.RESET_CREDITS)),
+                        WidgetMeters.NEXT_RESET)),
                 "available meters exclude model-specific Spark limits");
         check(!available.contains(WidgetMeters.limitPrimaryKey(spark))
                         && !available.contains(WidgetMeters.limitSecondaryKey(spark)),
@@ -1379,10 +1377,10 @@ public final class ParserSelfTest {
                 "intentional five-hour-only selection stays single-metric");
         check(WidgetMeters.lockSlotCapacity() == 2, "lock widgets cap at two meters");
         check(WidgetMeters.shortLabel(WidgetMeters.limitPrimaryKey(spark), snapshot)
-                        .equals("Spark 5h"),
+                        .equals("5.5 5h"),
                 "limit primary short label still formats from display name");
         check(WidgetMeters.shortLabel(WidgetMeters.limitSecondaryKey(spark), snapshot)
-                        .equals("Spark W"),
+                        .equals("5.5 W"),
                 "limit secondary short label still formats from display name");
         check(WidgetMeters.shortLabel(WidgetMeters.FIVE_HOUR, snapshot).equals("5h"),
                 "five-hour short label");

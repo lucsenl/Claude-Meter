@@ -56,8 +56,8 @@ public final class DashboardReorderActivity extends AppCompatActivity {
 
         TextView hint = Ui.text(this,
                 "Drag the handles to arrange your usage cards and use the switches to hide the "
-                        + "ones you don't need. Model-specific limits such as GPT-5.3-Claude-Spark "
-                        + "appear here automatically once Claude reports them for your account.",
+                        + "ones you don't need. Model-specific limits appear automatically "
+                        + "when Claude reports them for your account.",
                 14.0f, Ui.secondaryText(dark));
         LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(-1, -2);
         hintParams.setMargins(Ui.dp(this, 6), Ui.dp(this, 2), Ui.dp(this, 6), Ui.dp(this, 16));
@@ -78,11 +78,10 @@ public final class DashboardReorderActivity extends AppCompatActivity {
         content.addView(listCard);
 
         TextView note = Ui.text(this,
-                "Changes are saved instantly. Usage-credit balance and reset credits stay hidden "
-                        + "when they have nothing to show (zero or below), and 5-hour, weekly, "
-                        + "monthly, and usage-history cards appear only while Claude reports data "
-                        + "for them — no matter where each card is placed or whether its switch "
-                        + "is on.",
+                "Changes are saved instantly. Extra Usage spending appears only when "
+                        + "reported by Claude, and 5-hour, weekly, monthly, and usage-history "
+                        + "cards appear only while Claude reports data for them — regardless "
+                        + "of where each card is placed or whether its switch is on.",
                 12.0f, Ui.secondaryText(dark));
         LinearLayout.LayoutParams noteParams = new LinearLayout.LayoutParams(-1, -2);
         noteParams.setMargins(Ui.dp(this, 6), Ui.dp(this, 14), Ui.dp(this, 6), 0);
@@ -115,9 +114,6 @@ public final class DashboardReorderActivity extends AppCompatActivity {
             } else if (DashboardSections.USAGE_HISTORY.equals(key)) {
                 items.add(new SectionItem(key, "Usage history",
                         "Shown only when a 5-hour or weekly window is available"));
-            } else if (DashboardSections.RESET_CREDITS.equals(key)) {
-                items.add(new SectionItem(key, "Reset credits",
-                        "Hidden automatically when no resets are available"));
             } else {
                 UsageLimit match = null;
                 for (UsageLimit limit : limits) {
@@ -167,9 +163,6 @@ public final class DashboardReorderActivity extends AppCompatActivity {
         if (DashboardSections.USAGE_HISTORY.equals(key)) {
             return AppPreferences.showDashboardUsageHistory(this);
         }
-        if (DashboardSections.RESET_CREDITS.equals(key)) {
-            return AppPreferences.showDashboardResetCredits(this);
-        }
         return !AppPreferences.isDashboardSectionHidden(this, key);
     }
 
@@ -184,8 +177,6 @@ public final class DashboardReorderActivity extends AppCompatActivity {
             AppPreferences.setShowDashboardUsageCredits(this, visible);
         } else if (DashboardSections.USAGE_HISTORY.equals(key)) {
             AppPreferences.setShowDashboardUsageHistory(this, visible);
-        } else if (DashboardSections.RESET_CREDITS.equals(key)) {
-            AppPreferences.setShowDashboardResetCredits(this, visible);
         } else {
             AppPreferences.setDashboardSectionHidden(this, key, !visible);
         }

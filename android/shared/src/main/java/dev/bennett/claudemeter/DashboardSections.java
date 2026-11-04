@@ -8,7 +8,7 @@ import java.util.Locale;
 /**
  * Stable keys and ordering rules for the movable dashboard sections: the built-in 5-hour and
  * weekly windows, every automatically detected additional limit (for example
- * GPT-5.3-Claude-Spark), the usage-credit balance, and the local usage-history charts. The saved
+ * a provider-reported model quota), the usage-credit balance, and the local usage-history charts. The saved
  * order is a comma-separated key list; unknown saved keys are dropped and newly detected
  * sections slot into their default position, so accounts gaining or losing model-specific
  * limits never lose their arrangement. A separate comma-separated hidden-key list tracks the
@@ -47,7 +47,7 @@ public final class DashboardSections {
 
     /**
      * Default order: 5-hour, weekly, monthly, detected additional limits, usage credits,
-     * history, reset credits.
+     * history. Reset-credit keys are retained only for migration.
      */
     public static List<String> defaultOrder(List<UsageLimit> additionalLimits) {
         List<String> order = new ArrayList<>();
@@ -63,7 +63,6 @@ public final class DashboardSections {
         }
         order.add(USAGE_CREDITS);
         order.add(USAGE_HISTORY);
-        order.add(RESET_CREDITS);
         return order;
     }
 
