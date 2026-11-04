@@ -10,14 +10,14 @@ Claude Meter uses documented Anthropic APIs only.
 
 ## Unsupported data
 
-Claude subscription session/weekly allowance percentages are not exposed through the supported
-third-party API surface. Claude Meter therefore does not display or estimate those values.
+Claude subscription allowance percentages are not exposed through the supported third-party API.
+Claude Meter therefore does not display or estimate those values.
 
 ## Authentication
 
-The user supplies an Anthropic API key. It is encrypted locally using Android Keystore and is never
-sent anywhere except Anthropic API endpoints.
+The user supplies an Anthropic API key and, when required, a workspace ID. The credential is
+encrypted locally using Android Keystore and is sent only to Anthropic API endpoints.
 
 ## Platform scope
 
-Android phone only. No Wear OS, iOS, backend service, browser OAuth, or private Claude.ai API.
+Phone-only Android application.
