@@ -17,6 +17,17 @@ public final class ClaudeOAuthProtocolTest {
                 ClaudeOAuthProtocol.parseAuthorizationResult("test-code#" + req.state);
         check("test-code".equals(result.code), "code parsed");
         check(req.state.equals(result.state), "state parsed");
+        ClaudeOAuthProtocol.AuthorizationResult callback =
+                ClaudeOAuthProtocol.parseAuthorizationResult(
+                        "https://platform.claude.com/oauth/code/callback"
+                        + "?code=encoded%2Bcode&state=" + req.state);
+        check("encoded+code".equals(callback.code), "URL callback code decoded");
+        check(ClaudeOAuthProtocol.stateMatches(callback.state, req.state),
+                "URL callback state verified");
+        check(!ClaudeOAuthProtocol.stateMatches(null, req.state),
+                "null authorization state rejected");
+        check(!ClaudeOAuthProtocol.stateMatches(req.state, ""),
+                "missing expected state rejected");
         System.out.println("Claude PKCE protocol: state and scope checks passed.");
     }
 

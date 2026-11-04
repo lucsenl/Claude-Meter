@@ -51,6 +51,7 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/Pkce.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/JwtClaims.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/WidgetOptions.java" \
+  "$ROOT/app/src/main/java/dev/bennett/claudemeter/LockWidgetOptions.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/OnboardingFlow.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/OAuthBrowserPage.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/ReleaseVersion.java" \
@@ -84,6 +85,10 @@ grep -q 'extra_usage' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsagePars
 grep -q 'seven_day' "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageParser.java"
 grep -q '#D97757' "$ROOT/app/src/main/res/values/colors.xml"
 grep -q '#141413' "$ROOT/app/src/main/res/values/colors.xml"
+grep -q '@color/claude_orange' "$ROOT/app/src/main/res/values-night/colors.xml"
+grep -q 'progress_claude' "$ROOT/app/src/main/java/dev/bennett/claudemeter/WidgetRenderer.java"
+grep -q 'workflow_dispatch:' "$ROOT/../.github/workflows/build-apk.yml"
+! grep -Eq '^[[:space:]]+(push|pull_request):' "$ROOT/../.github/workflows/build-apk.yml"
 grep -q 'claude_meter_adaptive_fg' "$ROOT/app/src/main/res/mipmap-anydpi/ic_launcher.xml"
 grep -q 'lucsenl/Claude-Meter/releases?per_page=30' "$ROOT/app/build.gradle.kts"
 grep -Fq 'ClaudeMeter-$VERSION_NAME.apk' "$ROOT/../.github/workflows/build-apk.yml"

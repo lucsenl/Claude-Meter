@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 public final class ParserSelfTest {
     public static void main(String[] args) throws Exception {
         testClaudeUsageContract();
+        testClaudeWidgetCompatibility();
         testResetCountdownFollowsApiTimeline();
         testLowUsageAlertDedup();
         testUsageHistory();
@@ -33,6 +34,35 @@ public final class ParserSelfTest {
         testDiagnosticSanitizer();
         testSettingsTransfer();
         System.out.println("Claude Meter core self-tests passed.");
+    }
+
+    private static void testClaudeWidgetCompatibility() {
+        List<String> catalog = WidgetMeters.availableKeys(null);
+        check(!catalog.contains(WidgetMeters.RESET_CREDITS),
+                "unsupported reset credits are not selectable");
+        check(!WidgetMeters.defaultVisible().contains(WidgetMeters.RESET_CREDITS),
+                "new widgets never display reset credits");
+        List<String> migrated = WidgetMeters.resolveVisibleForWidget(
+                WidgetMeters.RESET_CREDITS, catalog, WidgetOptions.METRIC_BOTH);
+        check(migrated.contains(WidgetMeters.FIVE_HOUR)
+                        && migrated.contains(WidgetMeters.WEEKLY),
+                "legacy reset-credit-only widgets recover actual Claude quota meters");
+        check(WidgetOptions.ACCENT_APP.equals(WidgetOptions.defaults().accent),
+                "new phone widgets use Claude brand accent");
+        check(WidgetOptions.TAP_OPEN_APP.equals(
+                        WidgetOptions.normalizeTapAction(WidgetOptions.TAP_USE_RESET)),
+                "old consume-reset action falls back safely to opening the app");
+        WidgetOptions legacyPhone = new WidgetOptions(
+                "auto", "auto", "one_ui", "auto", "system", "blue", 88,
+                "hidden", "remaining", "both", false, false, false,
+                false, true, true);
+        check(!legacyPhone.showResetCredits && !legacyPhone.showResetAction,
+                "legacy reset-credit widgets cannot re-enable unsupported actions");
+        LockWidgetOptions legacyLock = new LockWidgetOptions(
+                "both", true, true, true, "reset_credits");
+        check(!legacyLock.showResetCredits && !legacyLock.showResetAction,
+                "legacy Samsung lock widgets cannot re-enable reset redemption");
+        System.out.println("Claude widget compatibility: unsupported reset controls disabled.");
     }
 
     private static void testDiagnosticSanitizer() {
