@@ -14,84 +14,87 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import org.json.JSONObject;
 
-/* JADX INFO: loaded from: classes.dex */
-@SuppressLint({"ApplySharedPref"})
+/** AES-GCM storage for the Anthropic API key. */
+@SuppressLint("ApplySharedPref")
 public final class SecureTokenStore {
-    private static final String KEY_ALIAS = "claude_meter_auth_key_v1";
+    private static final String KEY_ALIAS = "claude_meter_api_key_v1";
     private static final String KEY_BLOB = "blob";
-    private static final Object LOCK = new Object();
-    private static final String PREFS = "secure_auth_v1";
+    private static final String PREFS = "secure_anthropic_api_key_v1";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
+    private static final Object LOCK = new Object();
 
-    private SecureTokenStore() {
-    }
+    private SecureTokenStore() {}
 
-    public static void save(Context context, AuthTokens authTokens) throws Exception {
+    public static void save(Context context, AuthTokens credential) throws Exception {
+        if (credential == null || !credential.isUsable()) {
+            throw new Exception("Enter a valid Anthropic API key.");
+        }
         synchronized (LOCK) {
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(1, getOrCreateKey());
-            byte[] bArrDoFinal = cipher.doFinal(authTokens.toJson().toString().getBytes(StandardCharsets.UTF_8));
-            JSONObject jSONObject = new JSONObject();
-            jSONObject.put("iv", Base64.getEncoder().encodeToString(cipher.getIV()));
-            jSONObject.put("ct", Base64.getEncoder().encodeToString(bArrDoFinal));
-            if (!context.getSharedPreferences(PREFS, 0).edit().putString(KEY_BLOB, jSONObject.toString()).commit()) {
-                throw new Exception("Could not persist encrypted credentials.");
+            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey());
+            byte[] ciphertext = cipher.doFinal(
+                    credential.toJson().toString().getBytes(StandardCharsets.UTF_8));
+            JSONObject envelope = new JSONObject();
+            envelope.put("iv", Base64.getEncoder().encodeToString(cipher.getIV()));
+            envelope.put("ct", Base64.getEncoder().encodeToString(ciphertext));
+            if (!context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .putString(KEY_BLOB, envelope.toString()).commit()) {
+                throw new Exception("Could not persist the encrypted API key.");
             }
         }
     }
 
     public static AuthTokens load(Context context) {
-        AuthTokens authTokens = null;
         synchronized (LOCK) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS, 0);
-            String string = sharedPreferences.getString(KEY_BLOB, null);
-            if (string != null && !string.isEmpty()) {
-                try {
-                    JSONObject jSONObject = new JSONObject(string);
-                    byte[] bArrDecode = Base64.getDecoder().decode(jSONObject.getString("iv"));
-                    byte[] bArrDecode2 = Base64.getDecoder().decode(jSONObject.getString("ct"));
-                    Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-                    cipher.init(2, getOrCreateKey(), new GCMParameterSpec(128, bArrDecode));
-                    AuthTokens authTokensFromJson = AuthTokens.fromJson(new JSONObject(new String(cipher.doFinal(bArrDecode2), StandardCharsets.UTF_8)));
-                    if (!authTokensFromJson.isUsable()) {
-                        authTokensFromJson = null;
-                    }
-                    authTokens = authTokensFromJson;
-                } catch (Exception e) {
-                    sharedPreferences.edit().remove(KEY_BLOB).commit();
-                }
+            SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            String value = prefs.getString(KEY_BLOB, null);
+            if (value == null || value.isEmpty()) return null;
+            try {
+                JSONObject envelope = new JSONObject(value);
+                byte[] iv = Base64.getDecoder().decode(envelope.getString("iv"));
+                byte[] ciphertext = Base64.getDecoder().decode(envelope.getString("ct"));
+                Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+                cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), new GCMParameterSpec(128, iv));
+                return AuthTokens.fromJson(new JSONObject(new String(
+                        cipher.doFinal(ciphertext), StandardCharsets.UTF_8)));
+            } catch (Exception exception) {
+                prefs.edit().remove(KEY_BLOB).commit();
+                return null;
             }
         }
-        return authTokens;
     }
 
     public static boolean isSignedIn(Context context) {
-        return load(context) != null;
+        AuthTokens value = load(context);
+        return value != null && value.isUsable();
     }
 
     public static void clear(Context context) {
         synchronized (LOCK) {
-            context.getSharedPreferences(PREFS, 0).edit().clear().commit();
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().commit();
             try {
                 KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
                 keyStore.load(null);
-                if (keyStore.containsAlias(KEY_ALIAS)) {
-                    keyStore.deleteEntry(KEY_ALIAS);
-                }
-            } catch (Exception e) {
-            }
+                if (keyStore.containsAlias(KEY_ALIAS)) keyStore.deleteEntry(KEY_ALIAS);
+            } catch (Exception ignored) {}
         }
     }
 
     private static SecretKey getOrCreateKey() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
-        Key key = keyStore.getKey(KEY_ALIAS, null);
-        if (key instanceof SecretKey) {
-            return (SecretKey) key;
-        }
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
-        keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_ALIAS, 3).setBlockModes("GCM").setEncryptionPaddings("NoPadding").setRandomizedEncryptionRequired(true).build());
-        return keyGenerator.generateKey();
+        Key existing = keyStore.getKey(KEY_ALIAS, null);
+        if (existing instanceof SecretKey) return (SecretKey) existing;
+        KeyGenerator generator = KeyGenerator.getInstance("AES", "AndroidKeyStore");
+        generator.init(new KeyGenParameterSpec.Builder(
+                KEY_ALIAS,
+                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
+                        | android.security.keystore.KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(
+                        android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true)
+                .build());
+        return generator.generateKey();
     }
 }
