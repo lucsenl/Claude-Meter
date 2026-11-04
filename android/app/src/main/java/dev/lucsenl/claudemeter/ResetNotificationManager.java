@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -407,7 +407,7 @@ public final class ResetNotificationManager {
         PendingIntent details = PendingIntent.getActivity(context, id, detailsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Intent useIntent = new Intent(context, ResetCreditActivity.class)
-                .setAction("dev.bennett.claudemeter.action.USE_RESET_FROM_NOTIFICATION")
+                .setAction("dev.lucsenl.claudemeter.action.USE_RESET_FROM_NOTIFICATION")
                 .putExtra(AppConstants.EXTRA_PROMPT_USE_RESET, true)
                 .putExtra(AppConstants.EXTRA_NOTIFICATION_ID, id)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
