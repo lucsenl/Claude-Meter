@@ -980,7 +980,7 @@ public final class WidgetRenderer {
             UsageSnapshot usageSnapshotLoadSnapshot = AppPreferences.loadSnapshot(context);
             long jCurrentTimeMillis = System.currentTimeMillis();
             if (!zIsSignedIn) {
-                return new WidgetState("", -1, -1, "Sign in", "—", "SIGN IN", "—", "Open the app to connect ChatGPT", "", "Tap to connect", "", "Open the app to connect ChatGPT", "Tap anywhere to sign in", "—", 0);
+                return new WidgetState("", -1, -1, "Sign in", "—", "SIGN IN", "—", "Open the app to connect Claude", "", "Tap to connect", "", "Open the app to connect Claude", "Tap anywhere to sign in", "—", 0);
             }
             if (usageSnapshotLoadSnapshot == null) {
                 String lastError = AppPreferences.getLastError(context);

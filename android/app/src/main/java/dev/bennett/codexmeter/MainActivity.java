@@ -288,7 +288,7 @@ public final class MainActivity extends AppCompatActivity {
             boolean signedIn = SecureTokenStore.isSignedIn(this);
             if (!signedIn) {
                 Button signIn = Ui.nativePrimaryButton(this,
-                        AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with ChatGPT");
+                        AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude");
                 signIn.setOnClickListener(view -> startOrContinueSignIn());
                 this.content.addView(signIn, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
                 Ui.addSpacer(this.content, 20);
@@ -483,7 +483,7 @@ public final class MainActivity extends AppCompatActivity {
         card.addView(detail, detailParams);
 
         // Windows still waiting for usage data would only render a blank "Waiting for usage
-        // data" chart, so they are dropped from the card until OpenAI reports them.
+        // data" chart, so they are dropped from the card until Claude reports them.
         boolean hasCharts = false;
         UsageWindow fiveWindow = snapshot == null ? null : snapshot.fiveHour;
         if (fiveWindow != null && snapshot.fetchedAtMillis > 0L) {
@@ -520,7 +520,7 @@ public final class MainActivity extends AppCompatActivity {
 
         if (!hasCharts) {
             TextView waiting = Ui.text(this,
-                    "Charts appear once OpenAI reports your 5-hour, weekly, or monthly usage windows.",
+                    "Charts appear once Claude reports your 5-hour, weekly, or monthly usage windows.",
                     12, Ui.secondaryText(this.dark));
             LinearLayout.LayoutParams waitingParams = new LinearLayout.LayoutParams(-1, -2);
             waitingParams.setMargins(Ui.dp(this, 10), Ui.dp(this, 8),
@@ -595,7 +595,7 @@ public final class MainActivity extends AppCompatActivity {
             return "Usage-credit balance is not capped";
         }
         if (credits.balance.isEmpty() && !credits.hasCredits) {
-            return "Purchase credits in ChatGPT Codex";
+            return "Manage usage credits in Claude";
         }
         return "Purchased Codex usage-credit balance";
     }
@@ -644,7 +644,7 @@ public final class MainActivity extends AppCompatActivity {
         account.addView(avatar, new LinearLayout.LayoutParams(Ui.dp(this, 44.0f), Ui.dp(this, 44.0f)));
         LinearLayout identity = new LinearLayout(this);
         identity.setOrientation(LinearLayout.VERTICAL);
-        String titleText = signedIn ? "ChatGPT account" : "Not connected";
+        String titleText = signedIn ? "Claude account" : "Not connected";
         TextView title = Ui.text(this, titleText, 18.0f, Ui.mainText(this.dark));
         title.setSingleLine(true);
         identity.addView(title);
@@ -674,7 +674,7 @@ public final class MainActivity extends AppCompatActivity {
 
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         if (!signedIn) {
-            Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with ChatGPT", true, this.dark);
+            Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude", true, this.dark);
             button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.3
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {

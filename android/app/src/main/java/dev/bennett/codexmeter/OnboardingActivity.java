@@ -43,7 +43,7 @@ public final class OnboardingActivity extends AppCompatActivity {
             if (AppConstants.ACTION_OAUTH_READY.equals(action)) {
                 String url = intent.getStringExtra(AppConstants.EXTRA_AUTH_URL);
                 if (url != null && !url.isEmpty()) {
-                    authMessage = "Your secure ChatGPT sign-in is open in the browser.";
+                    authMessage = "Your secure Claude sign-in is open in the browser.";
                     render();
                     openAuthUrl(url);
                 }
@@ -200,7 +200,7 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void buildWelcome() {
         addIntro("Meet Codex Meter",
-                "Your ChatGPT Codex allowance, reset timing, and available reset credits in one "
+                "Your Claude usage limits, reset timing, and available reset credits in one "
                         + "quick One UI view.",
                 R.drawable.ic_oui_battery);
 
@@ -247,7 +247,7 @@ public final class OnboardingActivity extends AppCompatActivity {
     }
 
     private void buildAccount() {
-        addIntro("Connect your ChatGPT account",
+        addIntro("Connect your Claude account",
                 "Use OpenAI’s secure browser flow to sign up or sign in. Codex Meter never sees "
                         + "your password.",
                 R.drawable.ic_oui_samsung_account);
@@ -288,7 +288,7 @@ public final class OnboardingActivity extends AppCompatActivity {
         boolean signedIn = SecureTokenStore.isSignedIn(this);
         addIntro(signedIn ? "You’re all set" : "Setup complete",
                 signedIn
-                        ? "Your ChatGPT account is connected. Codex Meter will load your latest "
+                        ? "Your Claude account is connected. Codex Meter will load your latest "
                             + "allowance as the app opens."
                         : "You can connect ChatGPT later from the Codex Meter dashboard.",
                 signedIn ? R.drawable.ic_oui_samsung_account : R.drawable.ic_oui_info_outline);
@@ -361,8 +361,8 @@ public final class OnboardingActivity extends AppCompatActivity {
         boolean resuming = AppPreferences.isOAuthPending(this);
         this.oauthRequested = true;
         this.authMessage = resuming
-                ? "Resuming secure ChatGPT sign-in…"
-                : "Preparing secure ChatGPT sign-in…";
+                ? "Resuming secure Claude sign-in…"
+                : "Preparing secure Claude sign-in…";
         render();
         try {
             startForegroundService(new Intent(this, OAuthService.class)

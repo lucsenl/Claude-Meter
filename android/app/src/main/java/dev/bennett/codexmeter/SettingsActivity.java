@@ -454,7 +454,7 @@ public final class SettingsActivity extends AppCompatActivity {
 
             AuthTokens tokens = SecureTokenStore.load(requireContext());
             UsageSnapshot snapshot = AppPreferences.loadSnapshot(requireContext());
-            title.setText(tokens == null ? "Not connected" : "ChatGPT account");
+            title.setText(tokens == null ? "Not connected" : "Claude account");
             summary.setText(tokens == null ? "Sign in from the dashboard"
                     : (tokens.email.isEmpty() ? "Connected" : tokens.email));
             if (tokens != null && snapshot != null) {
@@ -464,7 +464,7 @@ public final class SettingsActivity extends AppCompatActivity {
             } else {
                 plan.setVisibility(View.GONE);
             }
-            action.getTitleView().setText(tokens == null ? "Sign in with ChatGPT" : "Sign out");
+            action.getTitleView().setText(tokens == null ? "Sign in with Claude" : "Sign out");
             action.getTitleView().setTextColor(tokens == null
                     ? Ui.accent(requireContext(), dark)
                     : (dark ? 0xFFFF6B6B : 0xFFFF3B30));
@@ -1556,7 +1556,7 @@ public final class SettingsActivity extends AppCompatActivity {
             for (int i = 0; i < present.size(); i++) {
                 String section = present.get(i);
                 String warning = SettingsTransfer.isAuthenticationSection(section)
-                        ? "\nWarning: replaces ChatGPT sign-in on this device"
+                        ? "\nWarning: replaces Claude sign-in on this device"
                         : "";
                 labels[i] = SettingsTransfer.sectionTitle(section)
                         + "\n" + SettingsTransfer.sectionSummary(section) + warning;
@@ -1607,7 +1607,7 @@ public final class SettingsActivity extends AppCompatActivity {
             new AlertDialog.Builder(requireContext())
                     .setTitle("Import authentication?")
                     .setMessage(SettingsTransfer.SECURITY_WARNING
-                            + "\n\nThis replaces ChatGPT sign-in on this device with the tokens "
+                            + "\n\nThis replaces Claude sign-in on this device with the tokens "
                             + "from the file.")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Import anyway", (dialog, which) ->
