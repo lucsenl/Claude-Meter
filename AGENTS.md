@@ -2,7 +2,7 @@
 
 ## Repository layout
 
-Codex Meter is a **monorepo** with native clients and no backend:
+Claude Meter is a **monorepo** derived from Codex Meter, with native clients and no backend:
 
 | Path | Stack | Package / product |
 |------|--------|-------------------|
@@ -10,7 +10,7 @@ Codex Meter is a **monorepo** with native clients and no backend:
 | `android/` | Android (Gradle `:app`, `:shared`, `:wear`) | `dev.bennett.codexmeter` (+ Wear companion) |
 | `ios/` | SwiftUI / WidgetKit (Xcode) | `CodexMeter` app + widgets + `CodexMeterCore` package |
 
-Clients talk directly to OpenAI/ChatGPT remote endpoints. Tokens stay on-device (Android Keystore / iOS Keychain).
+The Android client talks directly to Anthropic for Claude OAuth usage and keeps tokens on-device in Android Keystore. The iOS tree is still the inherited Codex/OpenAI implementation and remains a separate migration target; do not describe it as Claude-compatible until that port is completed.
 
 ## Release channels & etiquette (Android)
 
@@ -21,7 +21,7 @@ Two long-lived branches feed the app's two update channels (Settings → Updates
 
 Rules for agents:
 
-- Target **`alpha`** with feature and experimental PRs unless the user explicitly says the work is for `main`. Docs, CI, and user-requested hotfixes to the shipped stable go to `main`.
+- Target **`alpha`** with feature and experimental PRs when that branch exists. If the repository currently has no `alpha` branch, branch from `main` and open a PR back to `main` rather than inventing a long-lived release branch. Docs, CI, and user-requested hotfixes to the shipped stable go to `main`.
 - **Never push `v*` tags or create/edit GitHub releases unless the user explicitly asks.** Tags trigger signed public releases that ship to real users on both channels.
 - **Never bump `versionCode`/`versionName` on your own.** Version bumps are release preparation and happen only when the user asks to cut a release.
 - Preparing an **alpha release** (`X.Y.Z-alpha.N`): bump `versionName` only; `versionCode` must stay **equal to** the newest stable release's versionCode. CI rejects the tag otherwise — this invariant is what keeps in-app channel switching (including "Return to stable") an in-place install with no uninstall. `X.Y.Z` must be the **next** stable version, not the shipped one (after stable `2.7.0`, cut `2.8.0-alpha.1` — never `2.7.0-alpha.1`, which SemVer orders below `2.7.0` so the in-app updater would never offer it).

@@ -1,4 +1,4 @@
-name: Build Codex Meter APK
+name: Build Claude Meter APK
 
 on:
   pull_request:
