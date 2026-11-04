@@ -15,9 +15,6 @@ import java.util.concurrent.Executors;
 
 /** Browser-based Claude subscription sign-in using OAuth PKCE. */
 public final class OnboardingActivity extends AppCompatActivity {
-    private static final String STATE_VERIFIER = "oauth_verifier";
-    private static final String STATE_EXPECTED = "oauth_state";
-
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private LinearLayout content;
     private boolean dark;
@@ -30,18 +27,8 @@ public final class OnboardingActivity extends AppCompatActivity {
         Ui.applySelectedTheme(this);
         super.onCreate(state);
         dark = Ui.isDark(this);
-        if (state != null) {
-            verifier = state.getString(STATE_VERIFIER, "");
-            expectedState = state.getString(STATE_EXPECTED, "");
-        }
         content = Ui.installPage(this, "Sign in to Claude", true).content;
         render();
-    }
-
-    @Override protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(STATE_VERIFIER, verifier);
-        outState.putString(STATE_EXPECTED, expectedState);
-        super.onSaveInstanceState(outState);
     }
 
     @Override protected void onDestroy() {
