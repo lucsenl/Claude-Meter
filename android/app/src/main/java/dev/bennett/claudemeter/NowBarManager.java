@@ -593,7 +593,7 @@ public final class NowBarManager {
         // Chip sits on the accent fill → always-light Claude mark.
         // Expanded Now Bar: pick an explicit light/dark resource at post time. Night-qualified
         // drawables can resolve wrong inside Samsung SystemUI (separate process / config).
-        Icon chipIcon = Icon.createWithResource(context, R.drawable.ic_claude_logo_on_accent);
+        Icon chipIcon = Icon.createWithResource(context, R.drawable.ic_claude_meter_mark_on_accent);
         Icon nowBarIcon = themeAdaptiveClaudeLogo(context);
         Icon progressDot = Icon.createWithResource(context, R.drawable.ic_now_bar_progress_dot);
         Bundle extras = new Bundle();
@@ -640,8 +640,8 @@ public final class NowBarManager {
         int night = context.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         return night == Configuration.UI_MODE_NIGHT_YES
-                ? R.drawable.ic_claude_logo_dark
-                : R.drawable.ic_claude_logo;
+                ? R.drawable.ic_claude_meter_mark_dark
+                : R.drawable.ic_claude_meter_mark;
     }
 
     private static void createChannel(NotificationManager manager) {

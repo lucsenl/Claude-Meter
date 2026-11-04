@@ -28,7 +28,7 @@
                 android:indeterminateOnly="false"
                 android:max="100"
                 android:progress="76"
-                android:progressDrawable="@drawable/codex_samsung_arc_progress" />
+                android:progressDrawable="@drawable/claude_samsung_arc_progress" />
             <ImageView
                 android:id="@+id/primary_samsung_icon"
                 android:layout_width="23dp"
@@ -67,7 +67,7 @@
                 android:indeterminateOnly="false"
                 android:max="100"
                 android:progress="75"
-                android:progressDrawable="@drawable/codex_samsung_arc_progress" />
+                android:progressDrawable="@drawable/claude_samsung_arc_progress" />
             <ImageView
                 android:id="@+id/secondary_samsung_icon"
                 android:layout_width="23dp"

@@ -94,7 +94,7 @@ public final class AboutActivity extends AppCompatActivity {
         CardItemView oneUi = Ui.actionRow(this, "One UI Design Library", "The library that makes this app so pretty.", R.drawable.ic_oui_theme,
                 view -> openUrl("https://github.com/tribalfs/oneui-design"));
         dependencies.addView(oneUi);
-        CardItemView claudeApi = Ui.actionRow(this, "Claude API", "This app would be pretty useless without it.", R.drawable.ic_anthropic_figma,
+        CardItemView claudeApi = Ui.actionRow(this, "Claude API", "This app would be pretty useless without it.", R.drawable.ic_claude_api,
                 view -> openUrl("https://platform.claude.com/docs/en/api/overview"));
         claudeApi.setIconSize(Ui.dp(this, 24));
         claudeApi.setShowTopDivider(true);
