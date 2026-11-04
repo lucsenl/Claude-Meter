@@ -13,21 +13,35 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** First-run setup for a user-supplied Anthropic API key. */
+/** Browser-based Claude subscription sign-in using OAuth PKCE. */
 public final class OnboardingActivity extends AppCompatActivity {
+    private static final String STATE_VERIFIER = "oauth_verifier";
+    private static final String STATE_EXPECTED = "oauth_state";
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private LinearLayout content;
     private boolean dark;
-    private EditText keyInput;
-    private EditText workspaceInput;
-    private Button verify;
+    private EditText codeInput;
+    private Button completeButton;
+    private String verifier = "";
+    private String expectedState = "";
 
     @Override protected void onCreate(Bundle state) {
         Ui.applySelectedTheme(this);
         super.onCreate(state);
         dark = Ui.isDark(this);
-        content = Ui.installPage(this, "Claude Meter setup", true).content;
+        if (state != null) {
+            verifier = state.getString(STATE_VERIFIER, "");
+            expectedState = state.getString(STATE_EXPECTED, "");
+        }
+        content = Ui.installPage(this, "Sign in to Claude", true).content;
         render();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(STATE_VERIFIER, verifier);
+        outState.putString(STATE_EXPECTED, expectedState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override protected void onDestroy() {
@@ -42,62 +56,57 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void render() {
         content.removeAllViews();
+
         LinearLayout card = Ui.card(this, dark);
-        TextView title = Ui.text(this, "Connect Anthropic", 26, Ui.mainText(dark));
+        TextView title = Ui.text(this, "Sign in with Claude", 26, Ui.mainText(dark));
         title.setTypeface(Ui.mediumTypeface(this));
         card.addView(title);
 
         TextView body = Ui.text(this,
-                "Enter an Anthropic API key. Claude Meter validates it against documented "
-                        + "Anthropic APIs and stores it encrypted with Android Keystore.",
+                "Claude Meter opens Claude in your browser. Sign in with the account whose "
+                        + "subscription you want to monitor. No API key is required.",
                 15, Ui.secondaryText(dark));
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
         bp.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 18));
         card.addView(body, bp);
 
-        keyInput = new EditText(this);
-        keyInput.setHint("sk-ant-…");
-        keyInput.setSingleLine(true);
-        keyInput.setInputType(InputType.TYPE_CLASS_TEXT
-                | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        card.addView(keyInput, new LinearLayout.LayoutParams(-1, Ui.dp(this, 56)));
+        Button signIn = Ui.nativePrimaryButton(this, "Open Claude sign-in");
+        signIn.setOnClickListener(v -> beginLogin());
+        card.addView(signIn, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
 
-        workspaceInput = new EditText(this);
-        workspaceInput.setHint("Workspace ID (optional)");
-        workspaceInput.setSingleLine(true);
-        LinearLayout.LayoutParams wp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 56));
-        wp.setMargins(0, Ui.dp(this, 8), 0, 0);
-        card.addView(workspaceInput, wp);
-
-        TextView workspaceHelp = Ui.text(this,
-                "Only needed for API keys that are not already scoped to one workspace.",
+        TextView step = Ui.text(this,
+                "After Claude finishes signing in, the browser shows an authorization code. "
+                        + "Copy that code (or the full callback value) and paste it below.",
                 13, Ui.secondaryText(dark));
-        LinearLayout.LayoutParams wh = new LinearLayout.LayoutParams(-1, -2);
-        wh.setMargins(0, Ui.dp(this, 5), 0, Ui.dp(this, 10));
-        card.addView(workspaceHelp, wh);
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
+        sp.setMargins(0, Ui.dp(this, 16), 0, Ui.dp(this, 8));
+        card.addView(step, sp);
 
-        verify = Ui.nativePrimaryButton(this, "Verify and save");
-        verify.setOnClickListener(v -> verifyKey());
-        LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 60));
-        vp.setMargins(0, Ui.dp(this, 8), 0, 0);
-        card.addView(verify, vp);
+        codeInput = new EditText(this);
+        codeInput.setHint("Authorization code");
+        codeInput.setSingleLine(false);
+        codeInput.setMinLines(2);
+        codeInput.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        card.addView(codeInput, new LinearLayout.LayoutParams(-1, -2));
 
-        Button console = Ui.button(this, "Open Claude Console API keys", false, dark);
-        console.setOnClickListener(v -> startActivity(
-                new Intent(Intent.ACTION_VIEW, Uri.parse(AppConstants.CONSOLE_KEYS_URL))));
+        completeButton = Ui.button(this, "Complete sign-in", false, dark);
+        completeButton.setEnabled(!verifier.isEmpty());
+        completeButton.setOnClickListener(v -> completeLogin());
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 56));
-        cp.setMargins(0, Ui.dp(this, 8), 0, 0);
-        card.addView(console, cp);
+        cp.setMargins(0, Ui.dp(this, 10), 0, 0);
+        card.addView(completeButton, cp);
         content.addView(card);
 
         Ui.addSpacer(content, 16);
         LinearLayout note = Ui.card(this, dark);
-        note.addView(Ui.text(this, "What Claude Meter can show", 18, Ui.mainText(dark)));
+        TextView noteTitle = Ui.text(this, "What Claude Meter reads", 18, Ui.mainText(dark));
+        noteTitle.setTypeface(Ui.mediumTypeface(this));
+        note.addView(noteTitle);
         TextView detail = Ui.text(this,
-                "With an Admin/Analytics-capable organization credential: token usage, request "
-                        + "counts and cost. With a regular API key: available models and connection "
-                        + "status. Claude subscription quota percentages are not exposed through "
-                        + "the supported third-party API.",
+                "Your Claude profile and subscription usage windows: 5-hour session, 7-day "
+                        + "allowance, reset times, and model-scoped weekly limits when Claude "
+                        + "returns them. Access and refresh tokens stay encrypted on this device.",
                 14, Ui.secondaryText(dark));
         LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(-1, -2);
         dp.setMargins(0, Ui.dp(this, 8), 0, 0);
@@ -113,30 +122,45 @@ public final class OnboardingActivity extends AppCompatActivity {
         }
     }
 
-    private void verifyKey() {
-        String key = keyInput.getText() == null ? "" : keyInput.getText().toString().trim();
-        String workspace = workspaceInput.getText() == null
-                ? "" : workspaceInput.getText().toString().trim();
-        if (key.isEmpty()) {
-            keyInput.setError("Enter an Anthropic API key");
+    private void beginLogin() {
+        try {
+            ClaudeOAuth.LoginRequest request = ClaudeOAuth.beginLogin();
+            verifier = request.verifier;
+            expectedState = request.state;
+            completeButton.setEnabled(true);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(request.url)));
+        } catch (Exception exception) {
+            Toast.makeText(this, UsageApi.safeMessage(exception), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void completeLogin() {
+        String code = codeInput.getText() == null ? "" : codeInput.getText().toString().trim();
+        if (verifier.isEmpty() || expectedState.isEmpty()) {
+            Toast.makeText(this, "Start Claude sign-in first.", Toast.LENGTH_LONG).show();
             return;
         }
-        verify.setEnabled(false);
-        verify.setText("Verifying…");
+        if (code.isEmpty()) {
+            codeInput.setError("Paste the authorization code");
+            return;
+        }
+
+        completeButton.setEnabled(false);
+        completeButton.setText("Signing in…");
         executor.execute(() -> {
             String error = "";
             try {
-                UsageApi.validateAndStoreApiKey(getApplicationContext(), key, workspace);
+                ClaudeOAuth.exchangeCode(getApplicationContext(), code, verifier, expectedState);
+                UsageApi.refreshAndCacheLocked(getApplicationContext());
                 AppPreferences.completeOnboarding(getApplicationContext());
-                try { UsageApi.refreshAndCacheLocked(getApplicationContext()); }
-                catch (Exception ignored) {}
+                RefreshScheduler.schedulePeriodic(getApplicationContext());
             } catch (Exception exception) {
                 error = UsageApi.safeMessage(exception);
             }
             String finalError = error;
             runOnUiThread(() -> {
-                verify.setEnabled(true);
-                verify.setText("Verify and save");
+                completeButton.setEnabled(true);
+                completeButton.setText("Complete sign-in");
                 if (!finalError.isEmpty()) {
                     Toast.makeText(this, finalError, Toast.LENGTH_LONG).show();
                     return;

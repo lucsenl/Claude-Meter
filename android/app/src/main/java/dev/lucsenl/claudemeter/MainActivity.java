@@ -16,7 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +43,7 @@ public final class MainActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle state) {
         Ui.applySelectedTheme(this);
         super.onCreate(state);
-        if (!AppPreferences.isOnboardingComplete(this)) {
+        if (!AppPreferences.isOnboardingComplete(this) && !SecureTokenStore.isSignedIn(this)) {
             startActivity(new Intent(this, OnboardingActivity.class));
             finish();
             return;
@@ -89,9 +92,12 @@ public final class MainActivity extends AppCompatActivity {
             }
             receiverRegistered = true;
         } catch (RuntimeException ignored) {}
+
         if (SecureTokenStore.isSignedIn(this)) {
+            RefreshScheduler.schedulePeriodic(this);
             UsageSnapshot snapshot = AppPreferences.loadSnapshot(this);
-            if (snapshot == null || System.currentTimeMillis() - snapshot.fetchedAtMillis > 900000L) {
+            if (snapshot == null
+                    || System.currentTimeMillis() - snapshot.fetchedAtMillis > 15L * 60L * 1000L) {
                 refresh();
             }
         }
@@ -121,19 +127,18 @@ public final class MainActivity extends AppCompatActivity {
 
         if (!SecureTokenStore.isSignedIn(this)) {
             LinearLayout card = Ui.card(this, dark);
-            TextView title = Ui.text(this, "Connect the Anthropic API", 22, Ui.mainText(dark));
+            TextView title = Ui.text(this, "Sign in to Claude", 22, Ui.mainText(dark));
             title.setTypeface(Ui.mediumTypeface(this));
             card.addView(title);
             TextView body = Ui.text(this,
-                    "Claude Meter uses a user-supplied API key. It does not sign in to Claude.ai "
-                            + "or imitate Claude Code. The key stays encrypted on this device.",
+                    "Connect the Claude account whose subscription usage you want to monitor.",
                     15, Ui.secondaryText(dark));
             LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2);
             bp.setMargins(0, Ui.dp(this, 10), 0, Ui.dp(this, 18));
             card.addView(body, bp);
-            Button connect = Ui.nativePrimaryButton(this, "Add API key");
-            connect.setOnClickListener(v -> startActivity(new Intent(this, OnboardingActivity.class)
-                    .putExtra("edit_key", true)));
+            Button connect = Ui.nativePrimaryButton(this, "Sign in with Claude");
+            connect.setOnClickListener(v ->
+                    startActivity(new Intent(this, OnboardingActivity.class)));
             card.addView(connect, new LinearLayout.LayoutParams(-1, Ui.dp(this, 60)));
             content.addView(card);
             return;
@@ -141,55 +146,61 @@ public final class MainActivity extends AppCompatActivity {
 
         UsageSnapshot snapshot = AppPreferences.loadSnapshot(this);
         if (snapshot == null) {
-            addInfoCard("Waiting for API data",
-                    "Refresh to load models and, when your credential has Analytics access, "
-                            + "organization usage and cost.");
+            addInfoCard("Connected to Claude", "Pull to refresh subscription usage.");
             return;
         }
 
-        String org = snapshot.organizationName.isEmpty()
-                ? (snapshot.organizationId.isEmpty() ? "Anthropic API" : snapshot.organizationId)
-                : snapshot.organizationName;
-        addInfoCard(org,
-                snapshot.analyticsAvailable
-                        ? "Organization Analytics connected"
-                        : "API key connected · Analytics unavailable for this credential");
+        String identity = !snapshot.displayName.isEmpty()
+                ? snapshot.displayName
+                : (!snapshot.email.isEmpty() ? snapshot.email : "Claude account");
+        String subtitle = snapshot.plan;
+        if (!snapshot.email.isEmpty() && !snapshot.email.equals(identity)) {
+            subtitle += " · " + snapshot.email;
+        }
+        if (!snapshot.subscriptionStatus.isEmpty()) {
+            subtitle += " · " + snapshot.subscriptionStatus;
+        }
+        addInfoCard(identity, subtitle);
 
-        if (snapshot.analyticsAvailable) {
-            addMetric("Today", formatTokens(snapshot.todayTokens),
-                    formatNumber(snapshot.todayRequests) + " requests");
-            addMetric("Last 7 days", formatTokens(snapshot.weekTokens),
-                    formatNumber(snapshot.weekRequests) + " requests");
-            addMetric("Last 30 days", snapshot.monthCostUsd.isEmpty()
-                            ? "—" : "$" + snapshot.monthCostUsd,
-                    "API cost reported by Anthropic");
-        } else {
-            addInfoCard("Usage and cost unavailable", snapshot.analyticsMessage);
+        addUsageCard("5-hour session", snapshot.fiveHourUtilization,
+                snapshot.fiveHourResetsAt);
+        addUsageCard("7-day allowance", snapshot.sevenDayUtilization,
+                snapshot.sevenDayResetsAt);
+
+        for (UsageSnapshot.ScopedLimit limit : snapshot.scopedLimits) {
+            addUsageCard(limit.label, limit.utilization, limit.resetsAt);
         }
 
-        String models = snapshot.activeModels.isEmpty()
-                ? "No models returned"
-                : String.join(" · ", snapshot.activeModels.subList(
-                        0, Math.min(3, snapshot.activeModels.size())));
-        addMetric("Available models", Integer.toString(snapshot.activeModels.size()), models);
-
-        addInfoCard("About subscription limits",
-                "Claude Pro/Max session and weekly allowance percentages are not exposed through "
-                        + "the public third-party API. Claude Meter does not fabricate them.");
+        if (snapshot.extraUsageEnabled) {
+            addInfoCard("Extra usage", "Enabled on this Claude account.");
+        }
 
         String error = AppPreferences.getLastError(this);
         if (!error.isEmpty()) addInfoCard("Last refresh issue", error);
     }
 
-    private void addMetric(String title, String value, String detail) {
+    private void addUsageCard(String title, double utilization, String resetsAt) {
         LinearLayout card = Ui.card(this, dark);
         TextView label = Ui.text(this, title, 14, Ui.secondaryText(dark));
         card.addView(label);
+
+        String value = utilization < 0d ? "—"
+                : String.format(Locale.US, "%.0f%% used", utilization);
         TextView number = Ui.text(this, value, 30, Ui.mainText(dark));
         number.setTypeface(Ui.mediumTypeface(this));
         LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(-1, -2);
         np.setMargins(0, Ui.dp(this, 7), 0, 0);
         card.addView(number, np);
+
+        String detail;
+        if (utilization < 0d) {
+            detail = "Usage unavailable";
+        } else {
+            double remaining = Math.max(0d, 100d - utilization);
+            detail = String.format(Locale.US, "%.0f%% remaining", remaining);
+            String reset = resetLabel(resetsAt);
+            if (!reset.isEmpty()) detail += " · " + reset;
+        }
         TextView sub = Ui.text(this, detail, 13, Ui.secondaryText(dark));
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
         sp.setMargins(0, Ui.dp(this, 6), 0, 0);
@@ -219,11 +230,8 @@ public final class MainActivity extends AppCompatActivity {
         if (swipeRefresh != null) swipeRefresh.setRefreshing(true);
         executor.execute(() -> {
             String error = "";
-            try {
-                UsageApi.refreshAndCacheLocked(getApplicationContext());
-            } catch (Exception exception) {
-                error = UsageApi.safeMessage(exception);
-            }
+            try { UsageApi.refreshAndCacheLocked(getApplicationContext()); }
+            catch (Exception exception) { error = UsageApi.safeMessage(exception); }
             String finalError = error;
             runOnUiThread(() -> {
                 if (swipeRefresh != null) swipeRefresh.setRefreshing(false);
@@ -235,14 +243,28 @@ public final class MainActivity extends AppCompatActivity {
         });
     }
 
-    static String formatTokens(long value) {
-        if (value >= 1_000_000_000L) return String.format(Locale.US, "%.2fB tokens", value / 1e9);
-        if (value >= 1_000_000L) return String.format(Locale.US, "%.2fM tokens", value / 1e6);
-        if (value >= 1_000L) return String.format(Locale.US, "%.1fK tokens", value / 1e3);
-        return formatNumber(value) + " tokens";
-    }
-
-    static String formatNumber(long value) {
-        return NumberFormat.getIntegerInstance(Locale.getDefault()).format(value);
+    static String resetLabel(String value) {
+        if (value == null || value.trim().isEmpty()) return "";
+        try {
+            OffsetDateTime reset = OffsetDateTime.parse(value);
+            Duration duration = Duration.between(
+                    OffsetDateTime.now(ZoneId.systemDefault()).toInstant(), reset.toInstant());
+            if (duration.isNegative() || duration.isZero()) return "resetting now";
+            long minutes = duration.toMinutes();
+            long days = minutes / (24L * 60L);
+            long hours = (minutes % (24L * 60L)) / 60L;
+            long mins = minutes % 60L;
+            if (days > 0) return "resets in " + days + "d " + hours + "h";
+            if (hours > 0) return "resets in " + hours + "h " + mins + "m";
+            return "resets in " + Math.max(1L, mins) + "m";
+        } catch (Exception ignored) {
+            try {
+                return "resets "
+                        + OffsetDateTime.parse(value).atZoneSameInstant(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("EEE HH:mm"));
+            } catch (Exception ignoredAgain) {
+                return "";
+            }
+        }
     }
 }

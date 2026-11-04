@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 public final class WidgetRenderer {
@@ -22,18 +21,15 @@ public final class WidgetRenderer {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_micro);
         UsageSnapshot snapshot = AppPreferences.loadSnapshot(context);
 
-        views.setViewVisibility(R.id.widget_title, android.view.View.VISIBLE);
         views.setTextViewText(R.id.widget_title, "CLAUDE");
-        views.setViewVisibility(R.id.plan_label, android.view.View.VISIBLE);
         views.setTextViewText(R.id.plan_label,
-                snapshot != null && snapshot.analyticsAvailable ? "ANALYTICS" : "API");
-
-        views.setTextViewText(R.id.primary_label, "Today");
+                snapshot == null || snapshot.plan.isEmpty() ? "—" : snapshot.plan.toUpperCase(Locale.US));
+        views.setTextViewText(R.id.primary_label, "5h");
         views.setTextViewText(R.id.secondary_label, "7d");
         views.setTextViewText(R.id.primary_percent,
-                snapshot == null ? "—" : compact(snapshot.todayTokens));
+                snapshot == null ? "—" : percent(snapshot.fiveHourUtilization));
         views.setTextViewText(R.id.secondary_percent,
-                snapshot == null ? "—" : compact(snapshot.weekTokens));
+                snapshot == null ? "—" : percent(snapshot.sevenDayUtilization));
 
         Intent openIntent = new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -51,10 +47,7 @@ public final class WidgetRenderer {
         manager.updateAppWidget(id, views);
     }
 
-    private static String compact(long value) {
-        if (value >= 1_000_000_000L) return String.format(Locale.US, "%.1fB", value / 1e9);
-        if (value >= 1_000_000L) return String.format(Locale.US, "%.1fM", value / 1e6);
-        if (value >= 1_000L) return String.format(Locale.US, "%.1fK", value / 1e3);
-        return NumberFormat.getIntegerInstance(Locale.getDefault()).format(value);
+    private static String percent(double value) {
+        return value < 0d ? "—" : String.format(Locale.US, "%.0f%%", value);
     }
 }

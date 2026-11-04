@@ -4,10 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import org.json.JSONObject;
 
-/** Small, provider-neutral preference store for Claude Meter. */
 public final class AppPreferences {
-    private static final String PREFS = "claude_meter_v1";
-    private static final String KEY_SNAPSHOT = "analytics_snapshot";
+    private static final String PREFS = "claude_meter_v2";
+    private static final String KEY_SNAPSHOT = "subscription_snapshot";
     private static final String KEY_LAST_ERROR = "last_error";
     private static final String KEY_ONBOARDING = "onboarding_complete";
     private static final String KEY_THEME = "theme";
@@ -55,6 +54,14 @@ public final class AppPreferences {
 
     public static void completeOnboarding(Context context) {
         prefs(context).edit().putBoolean(KEY_ONBOARDING, true).apply();
+    }
+
+    public static void resetOnboarding(Context context) {
+        prefs(context).edit()
+                .putBoolean(KEY_ONBOARDING, false)
+                .remove(KEY_SNAPSHOT)
+                .remove(KEY_LAST_ERROR)
+                .apply();
     }
 
     public static String getAppTheme(Context context) {

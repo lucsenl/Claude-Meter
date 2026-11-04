@@ -22,7 +22,7 @@ public final class RefreshScheduler {
                 new ComponentName(context, UsageRefreshJobService.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(false)
-                .setPeriodic(60L * 60L * 1000L)
+                .setPeriodic(15L * 60L * 1000L)
                 .build();
         scheduler.schedule(job);
     }
