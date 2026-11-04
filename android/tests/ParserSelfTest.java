@@ -1137,8 +1137,8 @@ public final class ParserSelfTest {
                 "partial widget keeps current theme");
         check(WidgetOptions.STYLE_DIALS.equals(merged.layout),
                 "partial widget keeps current layout");
-        check(merged.showPlan && merged.showResetCredits,
-                "partial widget keeps current visibility flags");
+        check(merged.showPlan && !merged.showResetCredits && !merged.showResetAction,
+                "partial widget preserves supported flags and disables legacy reset controls");
 
         boolean malformedLeadTimesRejected = false;
         try {
