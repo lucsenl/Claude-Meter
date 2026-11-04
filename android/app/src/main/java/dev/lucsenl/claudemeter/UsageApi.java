@@ -3,7 +3,6 @@ package dev.lucsenl.claudemeter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
@@ -103,7 +102,6 @@ public final class UsageApi {
             AppPreferences.setLastError(app, safeMessage(exception));
             DiagnosticLog.error(app, "refresh", "anthropic_analytics_refresh_failed", exception,
                     "duration_ms", SystemClock.elapsedRealtime() - started);
-            PhoneWearSync.pushStatus(app, false, safeMessage(exception));
             throw exception;
         }
     }
@@ -112,7 +110,6 @@ public final class UsageApi {
         AppPreferences.saveSnapshot(context, snapshot);
         AppPreferences.setLastError(context, "");
         WidgetRenderer.updateAll(context);
-        PhoneWearSync.pushUsage(context, snapshot);
         context.sendBroadcast(new Intent(AppConstants.ACTION_USAGE_UPDATED)
                 .setPackage(context.getPackageName()), AppConstants.INTERNAL_PERMISSION);
     }
