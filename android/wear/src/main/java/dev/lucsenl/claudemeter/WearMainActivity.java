@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.Manifest;
 import android.app.Activity;
@@ -15,9 +15,9 @@ import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.Wearable;
-import dev.bennett.claudemeter.wear.WearSettingsState;
-import dev.bennett.claudemeter.wear.WearSyncPaths;
-import dev.bennett.claudemeter.wear.WearSyncStatus;
+import dev.lucsenl.claudemeter.wear.WearSettingsState;
+import dev.lucsenl.claudemeter.wear.WearSyncPaths;
+import dev.lucsenl.claudemeter.wear.WearSyncStatus;
 
 public final class WearMainActivity extends Activity implements DataClient.OnDataChangedListener {
     private static final int REQUEST_NOTIFICATIONS = 8714;
