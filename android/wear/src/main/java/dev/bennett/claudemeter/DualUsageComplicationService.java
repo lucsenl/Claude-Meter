@@ -1,10 +1,10 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.os.Build;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationType;
 
-public final class DualUsageComplicationService extends CodexComplicationService {
+public final class DualUsageComplicationService extends ClaudeComplicationService {
     @Override
     protected ComplicationData dataForType(ComplicationType type, boolean preview) {
         UsageSnapshot snapshot = snapshot(preview);
@@ -13,20 +13,20 @@ public final class DualUsageComplicationService extends CodexComplicationService
         UsageWindow weekly = WearGlanceFormat.currentLongWindow(snapshot);
         float constrained = constrainedRemaining(fiveHour, weekly);
         if (type == ComplicationType.RANGED_VALUE) {
-            return rangedValue(constrained, shortValue, "Codex",
-                    "Five-hour and weekly Codex usage remaining");
+            return rangedValue(constrained, shortValue, "Claude",
+                    "Five-hour and weekly Claude usage remaining");
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && type == ComplicationType.GOAL_PROGRESS) {
-            return goalProgress(constrained, shortValue, "Codex",
-                    "Five-hour and weekly Codex usage remaining");
+            return goalProgress(constrained, shortValue, "Claude",
+                    "Five-hour and weekly Claude usage remaining");
         } else if (type == ComplicationType.SHORT_TEXT) {
-            return shortText(shortValue, "Codex",
-                    "Five-hour and weekly Codex usage remaining");
+            return shortText(shortValue, "Claude",
+                    "Five-hour and weekly Claude usage remaining");
         } else if (type == ComplicationType.LONG_TEXT) {
             return longText(surfaceText(preview, WearGlanceFormat.dualLongText(snapshot)),
-                    "Five-hour and weekly Codex usage remaining");
+                    "Five-hour and weekly Claude usage remaining");
         }
-        return imageForType(type, "Codex usage");
+        return imageForType(type, "Claude usage");
     }
 
     private static float constrainedRemaining(UsageWindow first, UsageWindow second) {

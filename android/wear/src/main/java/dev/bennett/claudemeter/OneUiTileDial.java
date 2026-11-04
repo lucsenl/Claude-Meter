@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import androidx.wear.protolayout.ColorBuilders;
 import androidx.wear.protolayout.DimensionBuilders;

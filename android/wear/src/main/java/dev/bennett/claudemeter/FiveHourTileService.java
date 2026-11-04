@@ -1,13 +1,13 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ProtoLayoutScope;
 
-public final class FiveHourTileService extends CodexTileService {
+public final class FiveHourTileService extends ClaudeTileService {
     @Override
     protected LayoutElement tileLayout(DeviceParameters deviceParameters, ProtoLayoutScope scope) {
-        return CodexTileLayouts.progress(this, deviceParameters, "5-hour",
-                CodexTileLayouts.fiveHour(this), scope);
+        return ClaudeTileLayouts.progress(this, deviceParameters, "5-hour",
+                ClaudeTileLayouts.fiveHour(this), scope);
     }
 }

@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 // ProtoLayout does not expose a public serializer, but exact resource bytes must survive a
 // service restart so an older layout can always retrieve its matching rasterized text.
 @SuppressLint("RestrictedApi")
-abstract class CodexTileService extends TileService {
-    private static final String TAG = "CodexTileService";
+abstract class ClaudeTileService extends TileService {
+    private static final String TAG = "ClaudeTileService";
     private static final String RESOURCES_VERSION_PREFIX = "5-";
     private static final int MEMORY_CACHE_ENTRIES = 8;
     private static final int DISK_CACHE_ENTRIES = 32;

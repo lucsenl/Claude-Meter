@@ -1,10 +1,10 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.os.Build;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationType;
 
-public final class NextResetComplicationService extends CodexComplicationService {
+public final class NextResetComplicationService extends ClaudeComplicationService {
     @Override
     protected ComplicationData dataForType(ComplicationType type, boolean preview) {
         UsageSnapshot snapshot = snapshot(preview);
@@ -15,16 +15,16 @@ public final class NextResetComplicationService extends CodexComplicationService
                 WearGlanceFormat.nextResetLongText(snapshot, now));
         float progress = resetProgress(snapshot, now);
         if (type == ComplicationType.RANGED_VALUE) {
-            return rangedValue(progress, shortText, "Reset", "Codex next reset");
+            return rangedValue(progress, shortText, "Reset", "Claude next reset");
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && type == ComplicationType.GOAL_PROGRESS) {
-            return goalProgress(progress, shortText, "Reset", "Codex next reset");
+            return goalProgress(progress, shortText, "Reset", "Claude next reset");
         } else if (type == ComplicationType.SHORT_TEXT) {
-            return shortText(shortText, "Reset", "Codex next reset");
+            return shortText(shortText, "Reset", "Claude next reset");
         } else if (type == ComplicationType.LONG_TEXT) {
-            return longText(longText, "Codex next reset");
+            return longText(longText, "Claude next reset");
         }
-        return imageForType(type, "Codex next reset");
+        return imageForType(type, "Claude next reset");
     }
 
     private static float resetProgress(UsageSnapshot snapshot, long nowMillis) {
