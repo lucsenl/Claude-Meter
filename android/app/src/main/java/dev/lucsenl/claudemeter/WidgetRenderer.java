@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -290,14 +290,14 @@ public final class WidgetRenderer {
         } else if (WidgetOptions.TAP_USE_RESET.equals(tapAction)) {
             rootAction = PendingIntent.getActivity(context, 74000 + i,
                     new Intent(context, (Class<?>) ResetCreditActivity.class)
-                            .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
+                            .setAction("dev.lucsenl.claudemeter.action.WIDGET_RESET")
                             .setData(widgetUri(i, "root-reset"))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
             rootAction = PendingIntent.getActivity(context, 74000 + i,
                     new Intent(context, (Class<?>) MainActivity.class)
-                            .setAction("dev.bennett.claudemeter.action.WIDGET_OPEN")
+                            .setAction("dev.lucsenl.claudemeter.action.WIDGET_OPEN")
                             .setData(widgetUri(i, "root-open"))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -313,7 +313,7 @@ public final class WidgetRenderer {
         remoteViews.setOnClickPendingIntent(R.id.reset_credit_button,
                 PendingIntent.getActivity(context, 76000 + i,
                         new Intent(context, (Class<?>) ResetCreditActivity.class)
-                                .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
+                                .setAction("dev.lucsenl.claudemeter.action.WIDGET_RESET")
                                 .setData(widgetUri(i, "reset"))
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                         | Intent.FLAG_ACTIVITY_CLEAR_TOP),
