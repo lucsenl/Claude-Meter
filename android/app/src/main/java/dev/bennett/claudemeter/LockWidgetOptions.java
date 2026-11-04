@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class LockWidgetOptions {

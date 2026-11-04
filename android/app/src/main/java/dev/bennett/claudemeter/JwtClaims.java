@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -33,10 +33,10 @@ public final class JwtClaims {
         }
         try {
             JSONObject jSONObject = new JSONObject(new String(Base64.getUrlDecoder().decode(pad(strArrSplit[1])), StandardCharsets.UTF_8));
-            String strOptString = jSONObject.optString("chatgpt_account_id", "");
-            JSONObject jSONObjectOptJSONObject2 = jSONObject.optJSONObject("https://api.openai.com/auth");
+            String strOptString = jSONObject.optString("claude_account_id", "");
+            JSONObject jSONObjectOptJSONObject2 = jSONObject.optJSONObject("https://api.anthropic.com/auth");
             if (strOptString.isEmpty() && jSONObjectOptJSONObject2 != null) {
-                strOptString = jSONObjectOptJSONObject2.optString("chatgpt_account_id", "");
+                strOptString = jSONObjectOptJSONObject2.optString("claude_account_id", "");
             }
             if (strOptString.isEmpty() && (jSONArrayOptJSONArray = jSONObject.optJSONArray("organizations")) != null && jSONArrayOptJSONArray.length() > 0 && (jSONObjectOptJSONObject = jSONArrayOptJSONArray.optJSONObject(0)) != null) {
                 strOptString = jSONObjectOptJSONObject.optString("id", "");

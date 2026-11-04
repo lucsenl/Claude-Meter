@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -19,7 +19,7 @@ import android.os.Looper;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import androidx.annotation.RequiresApi;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -29,11 +29,11 @@ import java.util.concurrent.TimeUnit;
  * configured threshold (same metric/threshold pattern as low-usage notifications).
  */
 public final class NowBarManager {
-    static final String ACTION_END = "dev.bennett.codexmeter.action.NOW_BAR_END";
-    static final String ACTION_REFRESH = "dev.bennett.codexmeter.action.NOW_BAR_REFRESH";
-    static final String ACTION_STOP = "dev.bennett.codexmeter.action.NOW_BAR_STOP";
+    static final String ACTION_END = "dev.bennett.claudemeter.action.NOW_BAR_END";
+    static final String ACTION_REFRESH = "dev.bennett.claudemeter.action.NOW_BAR_REFRESH";
+    static final String ACTION_STOP = "dev.bennett.claudemeter.action.NOW_BAR_STOP";
 
-    private static final String CHANNEL_ID = "codex_live_monitor_v2";
+    private static final String CHANNEL_ID = "claude_live_monitor_v2";
     private static final String EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing";
     private static final String KEY_ACTIVE = "active";
     private static final String KEY_AUTO_TRIGGER_FOCUS = "auto_trigger_focus";
@@ -51,9 +51,9 @@ public final class NowBarManager {
     private static final int REQUEST_END = 8611;
     private static final int REQUEST_REFRESH = 8612;
     private static final int REQUEST_STOP = 8613;
-    private static final String PREFS = "codex_meter_now_bar_v1";
+    private static final String PREFS = "claude_meter_now_bar_v1";
     private static final String SAMSUNG_ONGOING_PREFIX = "android.ongoingActivityNoti.";
-    private static final String TAG = "CodexNowBar";
+    private static final String TAG = "ClaudeNowBar";
 
     private NowBarManager() {
     }
@@ -459,7 +459,7 @@ public final class NowBarManager {
         String focusCritical = NowBarCopy.focusCriticalText(
                 weeklyFocus ? (longIsMonthly ? "M " : "W ") : "",
                 progressWindow, observedAt, now);
-        String title = "Codex usage";
+        String title = "Claude usage";
         String estimate = UsageFormat.estimatedRemaining(pace);
         String text = fiveHourText + " · " + weeklyText
                 + (estimate.isEmpty() ? "" : " · " + estimate);
@@ -478,7 +478,7 @@ public final class NowBarManager {
         String displayMode = resolveDisplayMode(context);
 
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
-                // Official Codex mark (white, no opaque square) — system tints status-bar icons.
+                // Official Claude mark (white, no opaque square) — system tints status-bar icons.
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(text)
@@ -590,11 +590,11 @@ public final class NowBarManager {
                 ? "Both usage windows"
                 : fiveHour != null ? "5-hour window"
                 : weekly != null ? longLabel + " window" : "Usage window unavailable";
-        // Chip sits on the accent fill → always-light Codex mark.
+        // Chip sits on the accent fill → always-light Claude mark.
         // Expanded Now Bar: pick an explicit light/dark resource at post time. Night-qualified
         // drawables can resolve wrong inside Samsung SystemUI (separate process / config).
-        Icon chipIcon = Icon.createWithResource(context, R.drawable.ic_codex_logo_on_accent);
-        Icon nowBarIcon = themeAdaptiveCodexLogo(context);
+        Icon chipIcon = Icon.createWithResource(context, R.drawable.ic_claude_logo_on_accent);
+        Icon nowBarIcon = themeAdaptiveClaudeLogo(context);
         Icon progressDot = Icon.createWithResource(context, R.drawable.ic_now_bar_progress_dot);
         Bundle extras = new Bundle();
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "style", 1);
@@ -608,7 +608,7 @@ public final class NowBarManager {
                 fiveHourText + " · " + weeklyText);
         extras.putCharSequence(SAMSUNG_ONGOING_PREFIX + "secondaryInfo",
                 accelerated && !estimate.isEmpty() ? estimate : availableWindows);
-        extras.putString(SAMSUNG_ONGOING_PREFIX + "description", "Codex usage limits");
+        extras.putString(SAMSUNG_ONGOING_PREFIX + "description", "Claude usage limits");
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "progress", used);
         extras.putInt(SAMSUNG_ONGOING_PREFIX + "progressMax", 100);
         extras.putParcelable(SAMSUNG_ONGOING_PREFIX + "progressSegments.icon", progressDot);
@@ -628,27 +628,27 @@ public final class NowBarManager {
     }
 
     /**
-     * Picks a fixed (non night-qualified) Codex logo resource from the posting process's
+     * Picks a fixed (non night-qualified) Claude logo resource from the posting process's
      * current UI mode so SystemUI loads the intended contrast without re-resolving
      * {@code drawable-night}.
      */
-    private static Icon themeAdaptiveCodexLogo(Context context) {
-        return Icon.createWithResource(context, themeAdaptiveCodexLogoRes(context));
+    private static Icon themeAdaptiveClaudeLogo(Context context) {
+        return Icon.createWithResource(context, themeAdaptiveClaudeLogoRes(context));
     }
 
-    static int themeAdaptiveCodexLogoRes(Context context) {
+    static int themeAdaptiveClaudeLogoRes(Context context) {
         int night = context.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         return night == Configuration.UI_MODE_NIGHT_YES
-                ? R.drawable.ic_codex_logo_dark
-                : R.drawable.ic_codex_logo;
+                ? R.drawable.ic_claude_logo_dark
+                : R.drawable.ic_claude_logo;
     }
 
     private static void createChannel(NotificationManager manager) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                "Codex live monitor", NotificationManager.IMPORTANCE_DEFAULT);
+                "Claude live monitor", NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription(
-                "Codex allowance monitor that ends at the next reset; may start from Settings or when remaining usage hits your threshold");
+                "Claude allowance monitor that ends at the next reset; may start from Settings or when remaining usage hits your threshold");
         channel.setSound(null, null);
         channel.enableVibration(false);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);

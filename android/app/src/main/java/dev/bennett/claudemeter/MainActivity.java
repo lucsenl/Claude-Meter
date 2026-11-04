@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class MainActivity extends AppCompatActivity {
@@ -50,7 +50,7 @@ public final class MainActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private String lastLaunchedAuthUrl = "";
     private boolean launchSignInRequested;
-    private final BroadcastReceiver authReceiver = new BroadcastReceiver() { // from class: dev.bennett.codexmeter.MainActivity.1
+    private final BroadcastReceiver authReceiver = new BroadcastReceiver() { // from class: dev.bennett.claudemeter.MainActivity.1
         @Override // android.content.BroadcastReceiver
         public void onReceive(Context context, Intent intent) {
             String action = intent == null ? null : intent.getAction();
@@ -95,7 +95,7 @@ public final class MainActivity extends AppCompatActivity {
             return;
         }
         this.dark = Ui.isDark(this);
-        Ui.Page page = Ui.installPage(this, "Codex Meter", false);
+        Ui.Page page = Ui.installPage(this, "Claude Meter", false);
         this.content = page.content;
         this.swipeRefresh = findViewById(R.id.dashboard_refresh);
         int refreshAccent = Ui.accent(this, this.dark);
@@ -175,9 +175,9 @@ public final class MainActivity extends AppCompatActivity {
         intentFilter.addAction(AppConstants.ACTION_RELEASES_UPDATED);
         try {
             if (Build.VERSION.SDK_INT >= 33) {
-                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.codexmeter.permission.INTERNAL", null, 4);
+                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.claudemeter.permission.INTERNAL", null, 4);
             } else {
-                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.codexmeter.permission.INTERNAL", null);
+                registerReceiver(this.authReceiver, intentFilter, "dev.bennett.claudemeter.permission.INTERNAL", null);
             }
             this.receiverRegistered = true;
         } catch (RuntimeException e) {
@@ -227,7 +227,7 @@ public final class MainActivity extends AppCompatActivity {
             intent.removeExtra("start_sign_in");
         }
         Uri data = intent == null ? null : intent.getData();
-        if (data != null && "codexmeter".equals(data.getScheme()) && "auth".equals(data.getHost())) {
+        if (data != null && "claudemeter".equals(data.getScheme()) && "auth".equals(data.getHost())) {
             if (SecureTokenStore.isSignedIn(this)) {
                 AppPreferences.setOAuthPending(this, false, "");
                 RefreshScheduler.scheduleImmediate(this);
@@ -266,7 +266,7 @@ public final class MainActivity extends AppCompatActivity {
     private static boolean isOAuthReturnIntent(Intent intent) {
         Uri data = intent == null ? null : intent.getData();
         return data != null
-                && "codexmeter".equals(data.getScheme())
+                && "claudemeter".equals(data.getScheme())
                 && "auth".equals(data.getHost())
                 && data.getPath() != null
                 && data.getPath().startsWith("/complete");
@@ -309,8 +309,8 @@ public final class MainActivity extends AppCompatActivity {
                 UpdatePreferences.installedVersion(this));
         LinearLayout card = Ui.card(this, this.dark);
         TextView title = Ui.text(this, returnToStable
-                        ? "Return to Codex Meter " + release.version
-                        : "Codex Meter " + release.version + " is ready", 18,
+                        ? "Return to Claude Meter " + release.version
+                        : "Claude Meter " + release.version + " is ready", 18,
                 Ui.mainText(this.dark));
         title.setTypeface(Ui.mediumTypeface(this));
         card.addView(title);
@@ -335,7 +335,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void addHeader() {
-        TextView textViewText = Ui.text(this, "Your Codex allowance at a glance.", 15.0f, Ui.secondaryText(this.dark));
+        TextView textViewText = Ui.text(this, "Your Claude allowance at a glance.", 15.0f, Ui.secondaryText(this.dark));
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(-1, -2);
         layoutParams.setMargins(Ui.dp(this, 4.0f), Ui.dp(this, 4.0f), 0, Ui.dp(this, 2.0f));
         this.content.addView(textViewText, layoutParams);
@@ -597,7 +597,7 @@ public final class MainActivity extends AppCompatActivity {
         if (credits.balance.isEmpty() && !credits.hasCredits) {
             return "Manage usage credits in Claude";
         }
-        return "Purchased Codex usage-credit balance";
+        return "Purchased Claude usage-credit balance";
     }
 
     private static String cadenceLabel(UsageWindow window) {
@@ -639,7 +639,7 @@ public final class MainActivity extends AppCompatActivity {
 
         LinearLayout account = Ui.horizontal(this, Gravity.CENTER_VERTICAL);
         ImageView avatar = new ImageView(this);
-        avatar.setImageResource(R.drawable.codex_profile_avatar);
+        avatar.setImageResource(R.drawable.claude_profile_avatar);
         Ui.makeAvatar(avatar);
         account.addView(avatar, new LinearLayout.LayoutParams(Ui.dp(this, 44.0f), Ui.dp(this, 44.0f)));
         LinearLayout identity = new LinearLayout(this);
@@ -657,7 +657,7 @@ public final class MainActivity extends AppCompatActivity {
         account.addView(identity, identityParams);
         if (signedIn && snapshot != null) {
             String plan = UsageFormat.planLabel(snapshot.planType);
-            TextView badge = Ui.text(this, plan.isEmpty() ? "Codex" : plan, 14.0f, Ui.mainText(this.dark));
+            TextView badge = Ui.text(this, plan.isEmpty() ? "Claude" : plan, 14.0f, Ui.mainText(this.dark));
             badge.setTypeface(Ui.mediumTypeface(this));
             badge.setGravity(Gravity.CENTER);
             badge.setPadding(Ui.dp(this, 13.0f), Ui.dp(this, 6.0f), Ui.dp(this, 13.0f), Ui.dp(this, 6.0f));
@@ -675,7 +675,7 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         if (!signedIn) {
             Button button = Ui.button(this, AppPreferences.isOAuthPending(this) ? "Continue sign-in" : "Sign in with Claude", true, this.dark);
-            button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.3
+            button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.3
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.startOrContinueSignIn();
@@ -685,7 +685,7 @@ public final class MainActivity extends AppCompatActivity {
         } else {
             final Button button2 = Ui.button(this, "Refresh", true, this.dark);
             button2.setCompoundDrawables(null, null, null, null);
-            button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.4
+            button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.4
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.refreshNow(button2);
@@ -697,7 +697,7 @@ public final class MainActivity extends AppCompatActivity {
             LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(0, Ui.dp(this, 60.0f), 1.0f);
             layoutParams4.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
             linearLayoutHorizontal.addView(button3, layoutParams4);
-            button3.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.5
+            button3.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.5
                 @Override // android.view.View.OnClickListener
                 public void onClick(View view) {
                     MainActivity.this.confirmSignOut();
@@ -780,7 +780,7 @@ public final class MainActivity extends AppCompatActivity {
         if (available > 0) {
             return "Expiration details unavailable";
         }
-        return "Earn credits from ChatGPT Codex";
+        return "Earn credits from Claude Claude";
     }
 
     private void openResetCredits() {
@@ -803,9 +803,9 @@ public final class MainActivity extends AppCompatActivity {
     private LinearLayout buildWidgetCard() {
         String str;
         LinearLayout linearLayoutCard = Ui.card(this, this.dark);
-        int length = AppWidgetManager.getInstance(this).getAppWidgetIds(new ComponentName(this, (Class<?>) CodexUsageWidget.class)).length + SamsungLockWidgetSupport.countAll(this);
+        int length = AppWidgetManager.getInstance(this).getAppWidgetIds(new ComponentName(this, (Class<?>) ClaudeUsageWidget.class)).length + SamsungLockWidgetSupport.countAll(this);
         if (length == 0) {
-            str = "Add Codex Meter widgets";
+            str = "Add Claude Meter widgets";
         } else {
             str = length + " widget" + (length == 1 ? "" : "s") + " active";
         }
@@ -818,7 +818,7 @@ public final class MainActivity extends AppCompatActivity {
         linearLayoutCard.addView(viewText, layoutParams);
         LinearLayout linearLayoutHorizontal = Ui.horizontal(this, 16);
         Button button = Ui.button(this, "Add widget", true, this.dark);
-        button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.7
+        button.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.7
             @Override // android.view.View.OnClickListener
             public void onClick(View view) {
                 MainActivity.this.requestPinWidget();
@@ -829,7 +829,7 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(0, Ui.dp(this, 50.0f), 1.0f);
         layoutParams2.setMargins(Ui.dp(this, 10.0f), 0, 0, 0);
         linearLayoutHorizontal.addView(button2, layoutParams2);
-        button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.8
+        button2.setOnClickListener(new View.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.8
             @Override // android.view.View.OnClickListener
             public void onClick(View view) {
                 Ui.startSecondaryActivity(MainActivity.this, SettingsActivity.class);
@@ -870,9 +870,9 @@ public final class MainActivity extends AppCompatActivity {
         try {
             startForegroundService(new Intent(this, (Class<?>) OAuthService.class).setAction(OAuthService.ACTION_START));
             if (AppPreferences.isOAuthPending(this)) {
-                str = "Resuming secure OpenAI sign-in…";
+                str = "Resuming secure Anthropic sign-in…";
             } else {
-                str = "Opening secure OpenAI sign-in…";
+                str = "Opening secure Anthropic sign-in…";
             }
             Toast.makeText(this, str, 0).show();
         } catch (RuntimeException e) {
@@ -898,13 +898,13 @@ public final class MainActivity extends AppCompatActivity {
         button.setEnabled(false);
         button.setText(R.string.refreshing);
         final Context applicationContext = getApplicationContext();
-        this.executor.execute(new Runnable() { // from class: dev.bennett.codexmeter.MainActivity.9
+        this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9
             @Override // java.lang.Runnable
             public void run() {
                 try {
                     RefreshScheduler.scheduleAtNextReset(applicationContext, UsageApi.refreshAndCache(applicationContext));
                     WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.codexmeter.MainActivity.9.1
+                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9.1
                         @Override // java.lang.Runnable
                         public void run() {
                             DiagnosticLog.info(applicationContext, "user",
@@ -918,7 +918,7 @@ public final class MainActivity extends AppCompatActivity {
                             "source", "button");
                     AppPreferences.setLastError(applicationContext, MainActivity.safeMessage(e));
                     WidgetRenderer.updateAll(applicationContext);
-                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.codexmeter.MainActivity.9.2
+                    MainActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.9.2
                         @Override // java.lang.Runnable
                         public void run() {
                             Toast.makeText(MainActivity.this, MainActivity.safeMessage(e), 1).show();
@@ -966,7 +966,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void confirmSignOut() {
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted ChatGPT tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.bennett.codexmeter.MainActivity.10
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Sign out?").setMessage("This removes encrypted Claude tokens and cached usage from this device.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Sign out", new DialogInterface.OnClickListener() { // from class: dev.bennett.claudemeter.MainActivity.10
             @Override // android.content.DialogInterface.OnClickListener
             public void onClick(DialogInterface dialogInterface, int i) {
                 MainActivity.this.signOut();
@@ -985,7 +985,7 @@ public final class MainActivity extends AppCompatActivity {
         ResetAlertScheduler.cancelAll(this);
         WidgetRenderer.updateAll(this);
         rebuild();
-        this.executor.execute(new Runnable() { // from class: dev.bennett.codexmeter.MainActivity.11
+        this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.MainActivity.11
             @Override // java.lang.Runnable
             public void run() {
                 OAuthClient.revokeBestEffort(MainActivity.this.getApplicationContext(),
@@ -996,12 +996,12 @@ public final class MainActivity extends AppCompatActivity {
 
     public void requestPinWidget() {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-        ComponentName componentName = new ComponentName(this, (Class<?>) CodexUsageWidget.class);
+        ComponentName componentName = new ComponentName(this, (Class<?>) ClaudeUsageWidget.class);
         if (appWidgetManager.isRequestPinAppWidgetSupported()) {
             appWidgetManager.requestPinAppWidget(componentName, null, null);
             Toast.makeText(this, "Choose a size and place the widget on your home screen.", 1).show();
         } else {
-            AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Add from your launcher").setMessage("Long-press an empty area of the home screen, open Widgets, then choose Codex Meter.").setPositiveButton("OK", (DialogInterface.OnClickListener) null).create();
+            AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Add from your launcher").setMessage("Long-press an empty area of the home screen, open Widgets, then choose Claude Meter.").setPositiveButton("OK", (DialogInterface.OnClickListener) null).create();
             dialog.show();
         }
     }
