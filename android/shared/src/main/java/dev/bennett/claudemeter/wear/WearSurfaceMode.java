@@ -1,6 +1,6 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
-import dev.bennett.codexmeter.NowBarDisplayMode;
+import dev.bennett.claudemeter.NowBarDisplayMode;
 
 public enum WearSurfaceMode {
     ONGOING_ACTIVITY,

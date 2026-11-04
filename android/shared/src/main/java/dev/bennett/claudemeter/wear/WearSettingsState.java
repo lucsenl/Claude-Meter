@@ -1,9 +1,9 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
-import dev.bennett.codexmeter.NowBarAutoStart;
-import dev.bennett.codexmeter.NowBarDisplayMode;
-import dev.bennett.codexmeter.NowBarPercentMode;
-import dev.bennett.codexmeter.UsagePace;
+import dev.bennett.claudemeter.NowBarAutoStart;
+import dev.bennett.claudemeter.NowBarDisplayMode;
+import dev.bennett.claudemeter.NowBarPercentMode;
+import dev.bennett.claudemeter.UsagePace;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,12 +11,12 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ProtoLayoutScope;
 import androidx.wear.protolayout.ResourceBuilders;
-import dev.bennett.codexmeter.wear.WearSettingsState;
+import dev.bennett.claudemeter.wear.WearSettingsState;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /** One UI Watch tile layouts shared by the full-screen and Samsung modular hosts. */
-final class CodexTileLayouts {
+final class ClaudeTileLayouts {
     private static final int GRADIENT_FALLBACK = 0xFF1C197E;
     private static final int GRADIENT_START = 0xFF534FA7;
     private static final int GRADIENT_END = 0xFF1C197E;
@@ -29,7 +29,7 @@ final class CodexTileLayouts {
     private static final int TEXT_TERTIARY = 0xCCFFFFFF;
     private static final int TEXT_DIVIDER = 0x66FFFFFF;
 
-    private CodexTileLayouts() {
+    private ClaudeTileLayouts() {
     }
 
     static LayoutElement overview(Context context, DeviceParameters deviceParameters,
@@ -57,7 +57,7 @@ final class CodexTileLayouts {
                 + WearGlanceFormat.remainingPercentText(fiveHour) + " remaining, " + fiveReset
                 + ". " + longLabel + " usage, "
                 + WearGlanceFormat.remainingPercentText(longWindow)
-                + " remaining, " + weekReset + ". Open Codex Meter.";
+                + " remaining, " + weekReset + ". Open Claude Meter.";
         return card(context, "overview", leadingInset(content, 12f), 0f, 72f, 176f,
                 description);
     }
@@ -79,7 +79,7 @@ final class CodexTileLayouts {
         LayoutElement content = metricRow(context, window, designLabel, weekly, reset, gap, text,
                 scope);
         String description = label + ", " + WearGlanceFormat.remainingPercentText(window)
-                + " remaining, " + reset + ". Open Codex Meter.";
+                + " remaining, " + reset + ". Open Claude Meter.";
         return card(context, label, leadingInset(content, inset), 0f, 46f, 92f, description);
     }
 
@@ -115,7 +115,7 @@ final class CodexTileLayouts {
                     LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         }
         String description = "Next reset, " + relative + ", " + windowLabel
-                + (credits.isEmpty() ? "" : ", " + credits) + ". Open Codex Meter.";
+                + (credits.isEmpty() ? "" : ", " + credits) + ". Open Claude Meter.";
         return card(context, "reset", compactRow(
                 usageDial(context, dialWindow, weekly, scope),
                 copy.build()), 10f, 46f, 92f, description);
@@ -145,7 +145,7 @@ final class CodexTileLayouts {
                         LayoutElementBuilders.FONT_WEIGHT_NORMAL))
                 .build();
         String description = "Live monitor " + (active ? "active" : "off") + ". "
-                + WearGlanceFormat.focusSummary(snapshot) + ". Open Codex Meter.";
+                + WearGlanceFormat.focusSummary(snapshot) + ". Open Claude Meter.";
         return card(context, "monitor", compactRow(
                 usageDial(context, focus, focusWeekly, scope), copy),
                 10f, 46f, 92f, description);
@@ -166,7 +166,7 @@ final class CodexTileLayouts {
     private static LayoutElement card(Context context, String idSuffix, LayoutElement content,
             float paddingDp, float cornerRadiusDp) {
         return card(context, idSuffix, content, paddingDp, cornerRadiusDp, 92f,
-                "Open Codex Meter",
+                "Open Claude Meter",
                 DimensionBuilders.expand(), DimensionBuilders.expand());
     }
 
@@ -355,7 +355,7 @@ final class CodexTileLayouts {
     private static ModifiersBuilders.Clickable openClickable(Context context, String idSuffix) {
         ComponentName activity = new ComponentName(context, WearMainActivity.class);
         return new ModifiersBuilders.Clickable.Builder()
-                .setId("codex_open_" + idSuffix)
+                .setId("claude_open_" + idSuffix)
                 .setOnClick(ActionBuilders.launchAction(activity))
                 .build();
     }

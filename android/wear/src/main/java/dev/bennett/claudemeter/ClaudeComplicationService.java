@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,13 +23,13 @@ import androidx.wear.watchface.complications.data.SmallImageType;
 import androidx.wear.watchface.complications.data.ShortTextComplicationData;
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService;
 import androidx.wear.watchface.complications.datasource.ComplicationRequest;
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSyncStatus;
+import dev.bennett.claudemeter.wear.WearSettingsState;
+import dev.bennett.claudemeter.wear.WearSyncStatus;
 import java.util.concurrent.TimeUnit;
 
-abstract class CodexComplicationService extends ComplicationDataSourceService {
+abstract class ClaudeComplicationService extends ComplicationDataSourceService {
     private static final int REQUEST_COMPLICATION_TAP = 8720;
-    private static final String TAG = "CodexComplication";
+    private static final String TAG = "ClaudeComplication";
 
     @Override
     public final void onComplicationRequest(ComplicationRequest request,
@@ -96,7 +96,7 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
         return builder.build();
     }
 
-    /** Image-only fallback keeps Codex selectable in icon slots on Samsung faces. */
+    /** Image-only fallback keeps Claude selectable in icon slots on Samsung faces. */
     protected ComplicationData imageForType(ComplicationType type, String description) {
         if (type == ComplicationType.MONOCHROMATIC_IMAGE) {
             return new MonochromaticImageComplicationData.Builder(

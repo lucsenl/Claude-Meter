@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
 import org.json.JSONException;
 import org.json.JSONObject;

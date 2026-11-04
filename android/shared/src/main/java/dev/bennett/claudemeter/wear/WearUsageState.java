@@ -1,6 +1,6 @@
-package dev.bennett.codexmeter.wear;
+package dev.bennett.claudemeter.wear;
 
-import dev.bennett.codexmeter.UsageSnapshot;
+import dev.bennett.claudemeter.UsageSnapshot;
 import org.json.JSONException;
 import org.json.JSONObject;
 
