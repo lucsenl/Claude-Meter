@@ -22,7 +22,7 @@ public final class UsageApi {
         if (key.isEmpty()) throw new Exception("Enter an Anthropic credential.");
 
         Response models = request(context, AppConstants.MODELS_URL + "?limit=1",
-                key, AuthMode.API_KEY, false);
+                key, AuthMode.BEARER, false);
         if (isSuccess(models)) {
             SecureTokenStore.save(context, new AuthTokens(key));
             return;
@@ -56,7 +56,7 @@ public final class UsageApi {
         String modelsJson = "";
         try {
             Response models = request(app, AppConstants.MODELS_URL + "?limit=100",
-                    key, AuthMode.API_KEY, false);
+                    key, AuthMode.BEARER, false);
             if (isSuccess(models)) modelsJson = models.body;
 
             Instant now = Instant.now();
