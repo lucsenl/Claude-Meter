@@ -7,172 +7,128 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/* JADX INFO: loaded from: classes.dex */
+/**
+ * Claude Meter snapshot backed by Anthropic's public organization analytics and models APIs.
+ *
+ * Legacy quota fields remain as null/default compatibility slots while inherited renderers are
+ * retired. Active UI must use the analytics fields below.
+ */
 public final class UsageSnapshot {
-    public final boolean allowed;
-    public final List<UsageLimit> additionalLimits;
+    public final boolean analyticsAvailable;
+    public final String analyticsMessage;
+    public final String organizationId;
+    public final String organizationName;
+    public final long todayTokens;
+    public final long todayRequests;
+    public final long weekTokens;
+    public final long weekRequests;
+    public final String monthCostUsd;
+    public final List<String> activeModels;
     public final long fetchedAtMillis;
-    public final UsageWindow fiveHour;
-    public final boolean limitReached;
-    /** Monthly Claude window (~30 days); reported instead of 5-hour/weekly on the Free tier. */
-    public final UsageWindow monthly;
-    public final String planType;
-    public final int resetCreditsAvailable;
-    public final UsageCredits usageCredits;
-    public final UsageWindow weekly;
 
-    public UsageSnapshot(String str, boolean z, boolean z2, UsageWindow usageWindow, UsageWindow usageWindow2, long j) {
-        this(str, z, z2, usageWindow, usageWindow2, -1, j);
-    }
+    // Compatibility fields for inherited, inactive code.
+    public final boolean allowed = true;
+    public final boolean limitReached = false;
+    public final String planType = "";
+    public final UsageWindow fiveHour = null;
+    public final UsageWindow weekly = null;
+    public final UsageWindow monthly = null;
+    public final List<UsageLimit> additionalLimits = Collections.emptyList();
+    public final UsageCredits usageCredits = null;
+    public final int resetCreditsAvailable = -1;
 
-    public UsageSnapshot(String str, boolean z, boolean z2, UsageWindow usageWindow, UsageWindow usageWindow2, int i, long j) {
-        this(str, z, z2, usageWindow, usageWindow2, null, Collections.emptyList(), null, i, j);
-    }
-
-    public UsageSnapshot(String str, boolean z, boolean z2, UsageWindow usageWindow,
-            UsageWindow usageWindow2, List<UsageLimit> additionalLimits,
-            UsageCredits usageCredits, int i, long j) {
-        this(str, z, z2, usageWindow, usageWindow2, null, additionalLimits, usageCredits, i, j);
-    }
-
-    public UsageSnapshot(String str, boolean z, boolean z2, UsageWindow usageWindow,
-            UsageWindow usageWindow2, UsageWindow monthlyWindow,
-            List<UsageLimit> additionalLimits,
-            UsageCredits usageCredits, int i, long j) {
-        this.planType = str == null ? "" : str;
-        this.allowed = z;
-        this.limitReached = z2;
-        this.fiveHour = usageWindow;
-        this.weekly = usageWindow2;
-        this.monthly = monthlyWindow;
-        this.additionalLimits = additionalLimits == null
+    public UsageSnapshot(boolean analyticsAvailable, String analyticsMessage,
+            String organizationId, String organizationName,
+            long todayTokens, long todayRequests, long weekTokens, long weekRequests,
+            String monthCostUsd, List<String> activeModels, long fetchedAtMillis) {
+        this.analyticsAvailable = analyticsAvailable;
+        this.analyticsMessage = safe(analyticsMessage);
+        this.organizationId = safe(organizationId);
+        this.organizationName = safe(organizationName);
+        this.todayTokens = Math.max(0L, todayTokens);
+        this.todayRequests = Math.max(0L, todayRequests);
+        this.weekTokens = Math.max(0L, weekTokens);
+        this.weekRequests = Math.max(0L, weekRequests);
+        this.monthCostUsd = safe(monthCostUsd);
+        this.activeModels = activeModels == null
                 ? Collections.emptyList()
-                : Collections.unmodifiableList(new ArrayList<>(additionalLimits));
-        this.usageCredits = usageCredits;
-        this.resetCreditsAvailable = i < 0 ? -1 : i;
-        this.fetchedAtMillis = j;
+                : Collections.unmodifiableList(new ArrayList<>(activeModels));
+        this.fetchedAtMillis = Math.max(0L, fetchedAtMillis);
     }
 
-    /**
-     * The longer-cadence Claude window: weekly when present, otherwise the monthly window that
-     * free-tier accounts report. Surfaces that used to hardcode "weekly" adapt through this so a
-     * subscription change (for example Pro 20x expiring to Free) swaps windows automatically.
-     */
-    public UsageWindow longWindow() {
-        return this.weekly != null ? this.weekly : this.monthly;
+    // Legacy constructors retained only so inherited classes compile while being removed.
+    public UsageSnapshot(String ignoredPlan, boolean ignoredAllowed, boolean ignoredReached,
+            UsageWindow ignoredFive, UsageWindow ignoredWeek, long fetchedAt) {
+        this(false, "", "", "", 0, 0, 0, 0, "", Collections.emptyList(), fetchedAt);
+    }
+    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
+            int f, long g) { this(a,b,c,d,e,g); }
+    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
+            List<UsageLimit> f, UsageCredits g, int h, long i) { this(a,b,c,d,e,i); }
+    public UsageSnapshot(String a, boolean b, boolean c, UsageWindow d, UsageWindow e,
+            UsageWindow f, List<UsageLimit> g, UsageCredits h, int i, long j) {
+        this(a,b,c,d,e,j);
     }
 
-    /** Whether {@link #longWindow()} is the monthly window rather than the weekly one. */
-    public boolean longWindowIsMonthly() {
-        return this.weekly == null && this.monthly != null;
+    public long longWindowTokens() { return weekTokens; }
+    public UsageWindow longWindow() { return null; }
+    public boolean longWindowIsMonthly() { return false; }
+    public long nextResetMillis(long now) { return 0L; }
+
+    public boolean hasDisplayableData() {
+        return analyticsAvailable || todayTokens > 0 || weekTokens > 0
+                || !monthCostUsd.isEmpty() || !activeModels.isEmpty()
+                || !analyticsMessage.isEmpty();
     }
 
     public JSONObject toJson() throws JSONException {
-        JSONObject jSONObject = new JSONObject();
-        jSONObject.put("plan_type", this.planType);
-        jSONObject.put("allowed", this.allowed);
-        jSONObject.put("limit_reached", this.limitReached);
-        if (this.fiveHour != null) {
-            jSONObject.put("five_hour", this.fiveHour.toJson());
-        }
-        if (this.weekly != null) {
-            jSONObject.put("weekly", this.weekly.toJson());
-        }
-        if (this.monthly != null) {
-            jSONObject.put("monthly", this.monthly.toJson());
-        }
-        if (!this.additionalLimits.isEmpty()) {
-            JSONArray limits = new JSONArray();
-            for (UsageLimit limit : this.additionalLimits) {
-                if (limit != null) {
-                    limits.put(limit.toJson());
-                }
-            }
-            jSONObject.put("additional_limits", limits);
-        }
-        if (this.usageCredits != null) {
-            jSONObject.put("usage_credits", this.usageCredits.toJson());
-        }
-        if (this.resetCreditsAvailable >= 0) {
-            jSONObject.put("reset_credits_available", this.resetCreditsAvailable);
-        }
-        jSONObject.put("fetched_at", this.fetchedAtMillis);
-        return jSONObject;
+        JSONObject json = new JSONObject();
+        json.put("analytics_available", analyticsAvailable);
+        json.put("analytics_message", analyticsMessage);
+        json.put("organization_id", organizationId);
+        json.put("organization_name", organizationName);
+        json.put("today_tokens", todayTokens);
+        json.put("today_requests", todayRequests);
+        json.put("week_tokens", weekTokens);
+        json.put("week_requests", weekRequests);
+        json.put("month_cost_usd", monthCostUsd);
+        JSONArray models = new JSONArray();
+        for (String model : activeModels) models.put(model);
+        json.put("active_models", models);
+        json.put("fetched_at", fetchedAtMillis);
+        return json;
     }
 
-    public static UsageSnapshot fromJson(JSONObject jSONObject) {
-        if (jSONObject == null) {
-            return null;
-        }
-        ArrayList<UsageLimit> additionalLimits = new ArrayList<>();
-        JSONArray limits = jSONObject.optJSONArray("additional_limits");
-        if (limits != null) {
-            for (int i = 0; i < limits.length(); i++) {
-                UsageLimit limit = UsageLimit.fromJson(limits.optJSONObject(i));
-                if (limit != null) {
-                    additionalLimits.add(limit);
-                }
+    public static UsageSnapshot fromJson(JSONObject json) {
+        if (json == null || !json.has("analytics_available")) return null;
+        ArrayList<String> models = new ArrayList<>();
+        JSONArray array = json.optJSONArray("active_models");
+        if (array != null) {
+            for (int i = 0; i < array.length(); i++) {
+                String value = array.optString(i, "").trim();
+                if (!value.isEmpty()) models.add(value);
             }
         }
         return new UsageSnapshot(
-                jSONObject.optString("plan_type", ""),
-                jSONObject.optBoolean("allowed", true),
-                jSONObject.optBoolean("limit_reached", false),
-                UsageWindow.fromJson(jSONObject.optJSONObject("five_hour")),
-                UsageWindow.fromJson(jSONObject.optJSONObject("weekly")),
-                UsageWindow.fromJson(jSONObject.optJSONObject("monthly")),
-                additionalLimits,
-                UsageCredits.fromJson(jSONObject.optJSONObject("usage_credits")),
-                jSONObject.has("reset_credits_available")
-                        ? jSONObject.optInt("reset_credits_available", -1) : -1,
-                jSONObject.optLong("fetched_at", 0L));
+                json.optBoolean("analytics_available", false),
+                json.optString("analytics_message", ""),
+                json.optString("organization_id", ""),
+                json.optString("organization_name", ""),
+                json.optLong("today_tokens", 0L),
+                json.optLong("today_requests", 0L),
+                json.optLong("week_tokens", 0L),
+                json.optLong("week_requests", 0L),
+                json.optString("month_cost_usd", ""),
+                models,
+                json.optLong("fetched_at", 0L));
     }
 
-    public long nextResetMillis(long j) {
-        long fiveHourReset = this.fiveHour == null ? 0L
-                : this.fiveHour.effectiveResetAtMillis(this.fetchedAtMillis);
-        long weeklyReset = this.weekly == null ? 0L
-                : this.weekly.effectiveResetAtMillis(this.fetchedAtMillis);
-        long monthlyReset = this.monthly == null ? 0L
-                : this.monthly.effectiveResetAtMillis(this.fetchedAtMillis);
-        long jMin = fiveHourReset <= j ? Long.MAX_VALUE : fiveHourReset;
-        if (weeklyReset > j) {
-            jMin = Math.min(jMin, weeklyReset);
-        }
-        if (monthlyReset > j) {
-            jMin = Math.min(jMin, monthlyReset);
-        }
-        for (UsageLimit limit : additionalLimits) {
-            jMin = earlierFutureReset(jMin, limit.primary, j);
-            jMin = earlierFutureReset(jMin, limit.secondary, j);
-        }
-        if (jMin == Long.MAX_VALUE) {
-            return 0L;
-        }
-        return jMin;
+    public static UsageWindow currentWindow(UsageWindow window, long now) { return null; }
+    public static UsageWindow currentWindow(UsageWindow window, long observed, long now) {
+        return null;
     }
 
-    public boolean hasDisplayableData() {
-        return fiveHour != null || weekly != null || monthly != null || !additionalLimits.isEmpty()
-                || (usageCredits != null && usageCredits.shouldDisplay())
-                || resetCreditsAvailable > 0;
-    }
-
-    private long earlierFutureReset(long current, UsageWindow window, long now) {
-        if (window == null) {
-            return current;
-        }
-        long reset = window.effectiveResetAtMillis(fetchedAtMillis);
-        return reset > now ? Math.min(current, reset) : current;
-    }
-
-    static UsageWindow currentWindow(UsageWindow window, long now) {
-        return currentWindow(window, 0L, now);
-    }
-
-    static UsageWindow currentWindow(UsageWindow window, long observedAtMillis, long now) {
-        if (window == null) return null;
-        long resetAt = window.effectiveResetAtMillis(observedAtMillis);
-        return resetAt > 0L && resetAt <= now ? null : window;
+    private static String safe(String value) {
+        return value == null ? "" : value.trim();
     }
 }
