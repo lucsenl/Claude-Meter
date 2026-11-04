@@ -24,5 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Claude-Meter"
 include(":app")
-include(":shared")
-include(":wear")
