@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,18 +9,18 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-import dev.bennett.codexmeter.wear.WearMonitorState;
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSyncPaths;
-import dev.bennett.codexmeter.wear.WearSyncStatus;
-import dev.bennett.codexmeter.wear.WearUsageState;
+import dev.lucsenl.claudemeter.wear.WearMonitorState;
+import dev.lucsenl.claudemeter.wear.WearSettingsState;
+import dev.lucsenl.claudemeter.wear.WearSyncPaths;
+import dev.lucsenl.claudemeter.wear.WearSyncStatus;
+import dev.lucsenl.claudemeter.wear.WearUsageState;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.json.JSONObject;
 
 public final class WearPhoneSync {
     private static final String KEY_PAYLOAD = "payload";
-    private static final String TAG = "CodexWearSync";
+    private static final String TAG = "ClaudeWearSync";
 
     private WearPhoneSync() {
     }

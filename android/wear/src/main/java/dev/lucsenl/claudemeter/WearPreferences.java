@@ -1,11 +1,11 @@
-package dev.bennett.codexmeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import dev.bennett.codexmeter.wear.WearMonitorState;
-import dev.bennett.codexmeter.wear.WearSettingsState;
-import dev.bennett.codexmeter.wear.WearSurfaceMode;
-import dev.bennett.codexmeter.wear.WearSyncStatus;
+import dev.lucsenl.claudemeter.wear.WearMonitorState;
+import dev.lucsenl.claudemeter.wear.WearSettingsState;
+import dev.lucsenl.claudemeter.wear.WearSurfaceMode;
+import dev.lucsenl.claudemeter.wear.WearSyncStatus;
 import org.json.JSONObject;
 
 public final class WearPreferences {
@@ -37,7 +37,7 @@ public final class WearPreferences {
     private static final String KEY_THRESHOLD = "threshold";
     private static final String KEY_USAGE_PACE_ENABLED = "usage_pace_enabled";
     private static final String KEY_USAGE_PACE_SENSITIVITY = "usage_pace_sensitivity";
-    private static final String PREFS = "codex_meter_wear_v1";
+    private static final String PREFS = "claude_meter_wear_v1";
 
     private WearPreferences() {
     }
