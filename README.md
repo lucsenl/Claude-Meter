@@ -1,9 +1,9 @@
 # Claude Meter
 
-Claude Meter is an Android phone app for viewing documented Anthropic API analytics.
+Claude Meter is a phone-only Android app for viewing documented Anthropic API analytics.
 
-The app uses only public Anthropic API contracts. It does not sign in to Claude.ai, impersonate
-Claude Code, or use private subscription-quota endpoints.
+The app uses public Anthropic API contracts and a user-supplied API credential stored locally
+with Android Keystore.
 
 ## What it shows
 
@@ -19,12 +19,10 @@ With a regular Anthropic API key:
 - connection status
 - models available to that key
 
-Claude subscription session/weekly allowance percentages are not exposed through the public
-third-party API, so Claude Meter does not fabricate them.
+Claude subscription allowance percentages are not exposed through the supported third-party API,
+so Claude Meter does not estimate them.
 
 ## Android
-
-Claude Meter is phone-only. There is no iOS or Wear OS module.
 
 - package: `dev.lucsenl.claudemeter`
 - minimum Android: API 26
