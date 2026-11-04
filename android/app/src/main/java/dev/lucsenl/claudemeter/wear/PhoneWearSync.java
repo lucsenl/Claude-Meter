@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter.wear;
+package dev.lucsenl.claudemeter.wear;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,14 +7,14 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-import dev.bennett.claudemeter.AppPreferences;
-import dev.bennett.claudemeter.DiagnosticLog;
-import dev.bennett.claudemeter.NowBarManager;
-import dev.bennett.claudemeter.NowBarPreferences;
-import dev.bennett.claudemeter.RefreshScheduler;
-import dev.bennett.claudemeter.SecureTokenStore;
-import dev.bennett.claudemeter.UsageSnapshot;
-import dev.bennett.claudemeter.UsagePacePreferences;
+import dev.lucsenl.claudemeter.AppPreferences;
+import dev.lucsenl.claudemeter.DiagnosticLog;
+import dev.lucsenl.claudemeter.NowBarManager;
+import dev.lucsenl.claudemeter.NowBarPreferences;
+import dev.lucsenl.claudemeter.RefreshScheduler;
+import dev.lucsenl.claudemeter.SecureTokenStore;
+import dev.lucsenl.claudemeter.UsageSnapshot;
+import dev.lucsenl.claudemeter.UsagePacePreferences;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

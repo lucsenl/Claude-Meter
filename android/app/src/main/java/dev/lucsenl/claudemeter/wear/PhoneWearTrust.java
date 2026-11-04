@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter.wear;
+package dev.lucsenl.claudemeter.wear;
 
 import android.content.Context;
 import android.util.Log;

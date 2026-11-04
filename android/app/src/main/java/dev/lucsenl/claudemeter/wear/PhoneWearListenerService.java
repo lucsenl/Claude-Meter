@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter.wear;
+package dev.lucsenl.claudemeter.wear;
 
 import android.net.Uri;
 import android.util.Log;
@@ -8,10 +8,10 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.WearableListenerService;
-import dev.bennett.claudemeter.AppPreferences;
-import dev.bennett.claudemeter.DiagnosticLog;
-import dev.bennett.claudemeter.NowBarManager;
-import dev.bennett.claudemeter.UsageApi;
+import dev.lucsenl.claudemeter.AppPreferences;
+import dev.lucsenl.claudemeter.DiagnosticLog;
+import dev.lucsenl.claudemeter.NowBarManager;
+import dev.lucsenl.claudemeter.UsageApi;
 import org.json.JSONObject;
 
 public final class PhoneWearListenerService extends WearableListenerService {
