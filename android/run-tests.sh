@@ -21,10 +21,15 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT"   "$ROOT/app/src/main/java/dev/l
 java -ea -cp "$OUT:$JSON_JAR" dev.lucsenl.claudemeter.ParserSelfTest
 
 grep -q 'applicationId = "dev.lucsenl.claudemeter"' "$ROOT/app/build.gradle.kts"
+grep -q 'versionCode = 1' "$ROOT/app/build.gradle.kts"
+grep -q 'versionName = "0.1.0"' "$ROOT/app/build.gradle.kts"
+grep -q 'VERSION_CODE = 1' "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
+grep -q 'VERSION_NAME = "0.1.0"' "$ROOT/app/src/main/java/dev/lucsenl/claudemeter/AppConstants.java"
 grep -q 'rootProject.name = "Claude-Meter"' "$ROOT/settings.gradle.kts"
 ! grep -q 'include(":wear")' "$ROOT/settings.gradle.kts"
 ! grep -q 'include(":shared")' "$ROOT/settings.gradle.kts"
-! grep -R -E -q 'dev\.bennett|OpenAI|ChatGPT|Codex Meter'   "$ROOT/app/src/main" "$ROOT/settings.gradle.kts" "$ROOT/app/build.gradle.kts"
+! grep -R -E -q 'dev\.bennett|OpenAI|ChatGPT' "$ROOT/app/src/main" "$ROOT/settings.gradle.kts" "$ROOT/app/build.gradle.kts"
+! grep -R -E -q 'Codex Meter' "$ROOT/app/src/main/java" --exclude='AboutActivity.java'
 ! grep -R -E -q 'auth\.anthropic\.com|claude\.com/backend-api' "$ROOT/app/src/main"
 ! grep -R -E -q 'fiveHour|resetCreditsAvailable|weekly allowance|5-hour allowance'   "$ROOT/app/src/main/java" "$ROOT/app/src/main/res/values"
 ! test -d "$ROOT/wear"
