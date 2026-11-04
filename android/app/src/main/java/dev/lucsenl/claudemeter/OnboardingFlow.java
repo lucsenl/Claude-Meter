@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** Pure onboarding navigation rules shared by the activity and JVM self-tests. */
 public final class OnboardingFlow {
