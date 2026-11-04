@@ -1,4 +1,4 @@
-name: Build Claude Meter Android APKs
+name: Build Claude Meter Android APK
 
 on:
   pull_request:
@@ -54,7 +54,7 @@ jobs:
           SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
           [[ -x "$SDKMANAGER" ]] || SDKMANAGER="$(command -v sdkmanager)"
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-36" "platforms;android-37.0" "build-tools;36.0.0"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Validate version
         id: version
@@ -98,14 +98,14 @@ jobs:
       - name: Run Android lint
         run: ./lint.sh
 
-      - name: Build and verify APKs
+      - name: Build and verify APK
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p dist
           ./build.sh 2>&1 | tee dist/build.log
 
-      - name: Upload APKs
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
           name: claude-meter-${{ steps.version.outputs.name }}-ci
@@ -167,7 +167,6 @@ jobs:
           fi
           gh release upload "$GITHUB_REF_NAME" \
             "release-dist/ClaudeMeter-$VERSION_NAME.apk#Claude Meter $VERSION_NAME APK" \
-            "release-dist/ClaudeMeter-Wear-$VERSION_NAME.apk#Claude Meter Wear OS $VERSION_NAME APK" \
             "release-dist/SHA256SUMS.txt#SHA-256 checksums" --clobber
           if [[ "$PRERELEASE" == "true" ]]; then
             gh release edit "$GITHUB_REF_NAME" --draft=false
