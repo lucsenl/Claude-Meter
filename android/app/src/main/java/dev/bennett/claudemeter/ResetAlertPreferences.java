@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -21,7 +21,7 @@ public final class ResetAlertPreferences {
     public static final String METRIC_BOTH = "both";
     public static final String METRIC_FIVE_HOUR = "five_hour";
     public static final String METRIC_WEEKLY = "weekly";
-    private static final String PREFS = "codex_meter_reset_alerts_v1";
+    private static final String PREFS = "claude_meter_reset_alerts_v1";
     public static final String STYLE_ALARM = "alarm";
     public static final String STYLE_NOTIFICATION = "notification";
     public static final String STYLE_OFF = "off";

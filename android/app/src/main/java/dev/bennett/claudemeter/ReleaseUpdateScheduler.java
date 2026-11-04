@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;

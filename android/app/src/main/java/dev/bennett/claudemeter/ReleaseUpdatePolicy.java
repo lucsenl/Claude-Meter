@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /**
  * In-app update policy gates. Builds before {@link #FIRST_IN_APP_UPDATE_VERSION} pointed at a
@@ -24,7 +24,7 @@ public final class ReleaseUpdatePolicy {
     }
 
     public static String irreversibleDetail() {
-        return "Builds before Codex Meter " + FIRST_IN_APP_UPDATE_VERSION
+        return "Builds before Claude Meter " + FIRST_IN_APP_UPDATE_VERSION
                 + " lack working in-app updates against the canonical repository. Install or "
                 + "recover from this release only via its GitHub release page; the app cannot "
                 + "upgrade you back afterward.";
