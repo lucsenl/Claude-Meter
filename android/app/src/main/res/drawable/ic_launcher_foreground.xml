@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="fill"
-    android:src="@drawable/codex_meter_icon_fg" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="@android:color/transparent"
+        android:strokeColor="#D97757" android:strokeWidth="9"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M78,34 C70,24 55,20 42,25 C27,31 20,45 23,59 C26,75 39,85 55,85 C65,85 74,81 80,73"/>
+    <path android:fillColor="#141413"
+        android:pathData="M50,47 L66,47 L66,54 L50,54 Z M43,58 L66,58 L66,65 L43,65 Z"/>
+    <path android:fillColor="#6A9BCC"
+        android:pathData="M79,67 C83,67 86,70 86,74 C86,78 83,81 79,81 C75,81 72,78 72,74 C72,70 75,67 79,67 Z"/>
+</vector>
