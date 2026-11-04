@@ -21,30 +21,16 @@ if [[ ! -f "$KEYSTORE" ]]; then
   openssl rand -hex 24 > "$PASS_FILE"
   chmod 600 "$PASS_FILE"
   STORE_PASS="$(<"$PASS_FILE")"
-  "$JAVA_HOME/bin/keytool" -genkeypair \
-    -storetype PKCS12 \
-    -keystore "$KEYSTORE" -storepass "$STORE_PASS" -keypass "$STORE_PASS" \
-    -alias "$KEY_ALIAS" -keyalg RSA -keysize 3072 -validity 10000 \
-    -dname "CN=Claude Meter Local Build, OU=Android, O=Local Build" \
-    >/dev/null 2>&1
+  "$JAVA_HOME/bin/keytool" -genkeypair     -storetype PKCS12     -keystore "$KEYSTORE" -storepass "$STORE_PASS" -keypass "$STORE_PASS"     -alias "$KEY_ALIAS" -keyalg RSA -keysize 3072 -validity 10000     -dname "CN=Claude Meter Local Build, OU=Android, O=Local Build"     >/dev/null 2>&1
 fi
 
-"$ROOT/gradlew" --project-dir "$ROOT" \
-  :app:assembleRelease \
-  :wear:assembleRelease \
-  --console=plain
+"$ROOT/gradlew" --project-dir "$ROOT" :app:assembleRelease --console=plain
 
 SOURCE_APK="$ROOT/app/build/outputs/apk/release/app-release.apk"
 OUT="$DIST/ClaudeMeter-$VERSION_NAME.apk"
 cp "$SOURCE_APK" "$OUT"
 
-WEAR_SOURCE_APK="$ROOT/wear/build/outputs/apk/release/wear-release.apk"
-WEAR_OUT="$DIST/ClaudeMeter-Wear-$VERSION_NAME.apk"
-cp "$WEAR_SOURCE_APK" "$WEAR_OUT"
-
 APKSIGNER="$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort | tail -1)"
 "$APKSIGNER" verify --verbose --print-certs "$OUT"
-"$APKSIGNER" verify --verbose --print-certs "$WEAR_OUT"
-(cd "$DIST" && sha256sum "$(basename "$OUT")" "$(basename "$WEAR_OUT")") | tee "$DIST/SHA256SUMS.txt"
+(cd "$DIST" && sha256sum "$(basename "$OUT")") | tee "$DIST/SHA256SUMS.txt"
 echo "Built $OUT"
-echo "Built $WEAR_OUT"
