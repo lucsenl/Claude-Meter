@@ -1,10 +1,10 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.os.Bundle;
-import dev.bennett.claudemeter.SamsungLockWidgetSupport;
+import dev.lucsenl.claudemeter.SamsungLockWidgetSupport;
 
 /* JADX INFO: loaded from: classes.dex */
 abstract class SamsungLockWidgetProvider extends AppWidgetProvider {

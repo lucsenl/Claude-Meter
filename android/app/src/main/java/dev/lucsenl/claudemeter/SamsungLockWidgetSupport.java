@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -548,7 +548,7 @@ final class SamsungLockWidgetSupport {
         String target = z2 ? "reset" : "open";
         Intent intentAddFlags = new Intent(context,
                 (Class<?>) (z2 ? ResetCreditActivity.class : MainActivity.class))
-                .setAction("dev.bennett.claudemeter.action.LOCK_WIDGET_"
+                .setAction("dev.lucsenl.claudemeter.action.LOCK_WIDGET_"
                         + target.toUpperCase(Locale.US))
                 .setData(Uri.parse("claudemeter://widget/lock/v" + AppConstants.VERSION_CODE + "/"
                         + i2 + "/"
