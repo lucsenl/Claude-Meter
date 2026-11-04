@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -32,9 +32,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class OAuthService extends Service {
-    public static final String ACTION_START = "dev.bennett.claudemeter.oauth.START";
-    public static final String ACTION_CANCEL = "dev.bennett.claudemeter.oauth.CANCEL";
-    public static final String ACTION_CANCEL_SILENT = "dev.bennett.claudemeter.oauth.CANCEL_SILENT";
+    public static final String ACTION_START = "dev.lucsenl.claudemeter.oauth.START";
+    public static final String ACTION_CANCEL = "dev.lucsenl.claudemeter.oauth.CANCEL";
+    public static final String ACTION_CANCEL_SILENT = "dev.lucsenl.claudemeter.oauth.CANCEL_SILENT";
     private static final String CHANNEL_ID = "oauth_sign_in";
     private static final int NOTIFICATION_ID = 7301;
 

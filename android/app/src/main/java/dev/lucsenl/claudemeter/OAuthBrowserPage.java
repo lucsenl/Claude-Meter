@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 /** Generates the small localhost page shown after the browser OAuth callback. */
 public final class OAuthBrowserPage {

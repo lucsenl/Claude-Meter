@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -19,7 +19,7 @@ import android.os.Looper;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import androidx.annotation.RequiresApi;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
+import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -29,9 +29,9 @@ import java.util.concurrent.TimeUnit;
  * configured threshold (same metric/threshold pattern as low-usage notifications).
  */
 public final class NowBarManager {
-    static final String ACTION_END = "dev.bennett.claudemeter.action.NOW_BAR_END";
-    static final String ACTION_REFRESH = "dev.bennett.claudemeter.action.NOW_BAR_REFRESH";
-    static final String ACTION_STOP = "dev.bennett.claudemeter.action.NOW_BAR_STOP";
+    static final String ACTION_END = "dev.lucsenl.claudemeter.action.NOW_BAR_END";
+    static final String ACTION_REFRESH = "dev.lucsenl.claudemeter.action.NOW_BAR_REFRESH";
+    static final String ACTION_STOP = "dev.lucsenl.claudemeter.action.NOW_BAR_STOP";
 
     private static final String CHANNEL_ID = "claude_live_monitor_v2";
     private static final String EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing";
