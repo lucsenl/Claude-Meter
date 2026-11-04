@@ -24,8 +24,6 @@ public final class LockWidgetConfigActivity extends AppCompatActivity {
     private boolean dark;
     private ImageView preview;
     private CheckBox showCountdown;
-    private CheckBox showResetAction;
-    private CheckBox showResetCredits;
     private TextView metersHint;
     private final LinkedHashSet<String> selectedMeters = new LinkedHashSet<>();
 
@@ -125,15 +123,9 @@ public final class LockWidgetConfigActivity extends AppCompatActivity {
         RoundedLinearLayout contentCard = Ui.seslCard(this, this.dark);
         this.showCountdown = Ui.checkbox(this, "Show live time until reset", saved.showCountdown,
                 this.dark);
-        this.showResetCredits = Ui.checkbox(this, "Show reset-credit count", saved.showResetCredits,
-                this.dark);
-        this.showResetAction = Ui.checkbox(this, "Tap tile to open Use reset confirmation",
-                saved.showResetAction, this.dark);
         contentCard.addView(this.showCountdown);
-        contentCard.addView(this.showResetCredits);
-        contentCard.addView(this.showResetAction);
         TextView textViewText = Ui.text(this,
-                "A reset is never consumed directly from the lock screen. The tile opens a confirmation screen first.",
+                "Reset countdowns are based on the current Claude usage window.",
                 12.0f, Ui.secondaryText(this.dark));
         LinearLayout.LayoutParams layoutParams3 = new LinearLayout.LayoutParams(-1, -2);
         layoutParams3.setMargins(0, Ui.dp(this, 12.0f), 0, 0);
@@ -143,8 +135,6 @@ public final class LockWidgetConfigActivity extends AppCompatActivity {
         CompoundButton.OnCheckedChangeListener previewCheckListener =
                 (buttonView, isChecked) -> updatePreview();
         this.showCountdown.setOnCheckedChangeListener(previewCheckListener);
-        this.showResetCredits.setOnCheckedChangeListener(previewCheckListener);
-        this.showResetAction.setOnCheckedChangeListener(previewCheckListener);
 
         page.cancel.setOnClickListener(view -> finish());
         page.save.setOnClickListener(view -> save());
@@ -204,8 +194,8 @@ public final class LockWidgetConfigActivity extends AppCompatActivity {
         } else if (weekly && !five && this.selectedMeters.size() == 1) {
             metricMode = WidgetOptions.METRIC_WEEKLY;
         }
-        return new LockWidgetOptions(metricMode, this.showResetCredits.isChecked(),
-                this.showResetAction.isChecked(), this.showCountdown.isChecked(), visible);
+        return new LockWidgetOptions(metricMode, false, false,
+                this.showCountdown.isChecked(), visible);
     }
 
     private void updatePreview() {

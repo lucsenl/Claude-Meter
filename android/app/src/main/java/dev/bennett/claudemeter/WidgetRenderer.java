@@ -287,13 +287,6 @@ public final class WidgetRenderer {
                             .setData(widgetUri(i, "root-refresh"))
                             .putExtra("appWidgetId", i),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        } else if (WidgetOptions.TAP_USE_RESET.equals(tapAction)) {
-            rootAction = PendingIntent.getActivity(context, 74000 + i,
-                    new Intent(context, (Class<?>) ResetCreditActivity.class)
-                            .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
-                            .setData(widgetUri(i, "root-reset"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
             rootAction = PendingIntent.getActivity(context, 74000 + i,
                     new Intent(context, (Class<?>) MainActivity.class)
@@ -310,14 +303,7 @@ public final class WidgetRenderer {
                                 .setData(widgetUri(i, "refresh"))
                                 .putExtra("appWidgetId", i),
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-        remoteViews.setOnClickPendingIntent(R.id.reset_credit_button,
-                PendingIntent.getActivity(context, 76000 + i,
-                        new Intent(context, (Class<?>) ResetCreditActivity.class)
-                                .setAction("dev.bennett.claudemeter.action.WIDGET_RESET")
-                                .setData(widgetUri(i, "reset"))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                        | Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+
     }
 
     private static Uri widgetUri(int appWidgetId, String action) {
@@ -741,45 +727,15 @@ public final class WidgetRenderer {
         }
     }
 
-    private static void applyResetCreditRow(Context context, RemoteViews remoteViews, int i, WidgetOptions widgetOptions, boolean z, String str) {
-        String str2;
-        boolean zEquals = STYLE_MICRO.equals(str) || STYLE_BATTERY_LIST.equals(str);
-        boolean z2 = widgetOptions.showResetCredits || widgetOptions.showResetAction;
-        if (zEquals || !z2) {
-            remoteViews.setViewVisibility(R.id.reset_credit_row, 8);
-            return;
-        }
-        ResetCreditsSnapshot resetCreditsSnapshotLoadResetCredits = AppPreferences.loadResetCredits(context);
-        int i2 = resetCreditsSnapshotLoadResetCredits == null ? GRAPHIC_STANDARD : resetCreditsSnapshotLoadResetCredits.availableCount;
-        long jCurrentTimeMillis = System.currentTimeMillis();
-        long jNextExpiryMillis = resetCreditsSnapshotLoadResetCredits == null ? 0L : resetCreditsSnapshotLoadResetCredits.nextExpiryMillis(jCurrentTimeMillis);
-        boolean z3 = widgetOptions.showResetCredits;
-        boolean z4 = widgetOptions.showResetAction && i2 > 0 && SecureTokenStore.isSignedIn(context);
-        if (!z3 && !z4) {
-            remoteViews.setViewVisibility(R.id.reset_credit_row, 8);
-            return;
-        }
-        remoteViews.setViewVisibility(R.id.reset_credit_row, GRAPHIC_STANDARD);
-        remoteViews.setViewVisibility(R.id.reset_credit_info, z3 ? GRAPHIC_STANDARD : 8);
-        remoteViews.setViewVisibility(R.id.reset_credit_button, z4 ? GRAPHIC_STANDARD : 8);
-        if (i2 <= 0) {
-            str2 = "No reset credits";
-        } else if (jNextExpiryMillis > 0) {
-            str2 = i2 + " reset" + (i2 == GRAPHIC_LARGE ? "" : "s") + " · expires " + UsageFormat.relative(jNextExpiryMillis, jCurrentTimeMillis);
-        } else {
-            str2 = i2 + " reset" + (i2 == GRAPHIC_LARGE ? "" : "s") + " available";
-        }
-        remoteViews.setTextViewText(R.id.reset_credit_info, str2);
-        remoteViews.setTextColor(R.id.reset_credit_info, mutedColor(z));
-        remoteViews.setTextViewText(R.id.reset_credit_button, i2 > GRAPHIC_LARGE ? "Use reset (" + i2 + ")" : "Use reset");
-        remoteViews.setTextColor(R.id.reset_credit_button, WidgetGraphics.mainTextColor(z));
-        remoteViews.setInt(R.id.reset_credit_button, "setBackgroundResource", z ? R.drawable.widget_action_dark : R.drawable.widget_action_light);
-        remoteViews.setContentDescription(R.id.reset_credit_button, "Use one Claude reset credit. " + str2);
+    /** Unsupported Claude reset-credit redemption is never shown, even for legacy prefs. */
+    private static void applyResetCreditRow(Context context, RemoteViews remoteViews, int id,
+            WidgetOptions options, boolean dark, String style) {
+        remoteViews.setViewVisibility(R.id.reset_credit_row, View.GONE);
     }
 
     private static int progressResource(String str, boolean z) {
         if (WidgetOptions.ACCENT_APP.equals(str)) {
-            return R.drawable.progress_mono;
+            return R.drawable.progress_claude;
         }
         if (WidgetOptions.ACCENT_BLUE.equals(str)) {
             return R.drawable.progress_blue;

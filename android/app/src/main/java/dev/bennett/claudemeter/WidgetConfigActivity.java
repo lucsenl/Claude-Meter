@@ -62,7 +62,6 @@ public final class WidgetConfigActivity extends AppCompatActivity {
     private String tapAction = WidgetOptions.TAP_OPEN_APP;
     private final int tapOpenId = View.generateViewId();
     private final int tapRefreshId = View.generateViewId();
-    private final int tapResetId = View.generateViewId();
 
     @Override
     @SuppressLint("RestrictedApi")
@@ -240,14 +239,11 @@ public final class WidgetConfigActivity extends AppCompatActivity {
         group.setOrientation(LinearLayout.VERTICAL);
         group.addView(radioRow(this.tapOpenId, "Open Claude Meter", false));
         group.addView(radioRow(this.tapRefreshId, "Refresh usage", true));
-        group.addView(radioRow(this.tapResetId, "Use reset if available", true));
         card.addView(group);
         group.check(tapActionId(this.tapAction));
         group.setOnCheckedChangeListener((radioGroup, checkedId) -> {
             if (checkedId == this.tapRefreshId) {
                 this.tapAction = WidgetOptions.TAP_REFRESH;
-            } else if (checkedId == this.tapResetId) {
-                this.tapAction = WidgetOptions.TAP_USE_RESET;
             } else {
                 this.tapAction = WidgetOptions.TAP_OPEN_APP;
             }
@@ -303,9 +299,6 @@ public final class WidgetConfigActivity extends AppCompatActivity {
     private int tapActionId(String action) {
         if (WidgetOptions.TAP_REFRESH.equals(action)) {
             return this.tapRefreshId;
-        }
-        if (WidgetOptions.TAP_USE_RESET.equals(action)) {
-            return this.tapResetId;
         }
         return this.tapOpenId;
     }

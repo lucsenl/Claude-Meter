@@ -18,8 +18,8 @@ public final class LockWidgetOptions {
             str = "both";
         }
         this.metricMode = str;
-        this.showResetCredits = z;
-        this.showResetAction = z2;
+        this.showResetCredits = false; // No Claude reset-credit redemption.
+        this.showResetAction = false;
         this.showCountdown = z3;
         this.visibleMeters = visibleMeters == null ? "" : visibleMeters.trim();
     }
