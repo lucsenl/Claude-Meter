@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +41,7 @@ public final class ResetCreditApi {
             responseRequest = request(context, "reset_credit_list", "GET",
                     AppConstants.RESET_CREDITS_URL, authTokensRefresh, null);
         }
-        ensureSuccess(responseRequest, "Could not load Codex reset credits");
+        ensureSuccess(responseRequest, "Could not load Claude reset credits");
         ResetCreditsSnapshot resetCreditsSnapshot = ResetCreditsParser.parse(responseRequest.body, System.currentTimeMillis());
         if (!AppPreferences.saveResetCredits(context, resetCreditsSnapshot)) {
             throw new Exception("Reset credits were received, but could not be saved on this device.");
@@ -95,7 +95,7 @@ public final class ResetCreditApi {
                 response = request(app, "reset_credit_consume", "POST",
                         AppConstants.RESET_CREDITS_CONSUME_URL, tokens, payload);
             }
-            ensureSuccess(response, "Could not apply the Codex reset");
+            ensureSuccess(response, "Could not apply the Claude reset");
 
             JSONObject object = new JSONObject(response.body);
             String code = object.optString("code", "");
@@ -189,7 +189,7 @@ public final class ResetCreditApi {
 
     private static void notifyUpdated(Context context) {
         try {
-            context.sendBroadcast(new Intent(AppConstants.ACTION_RESET_CREDITS_UPDATED).setPackage(context.getPackageName()), "dev.bennett.codexmeter.permission.INTERNAL");
+            context.sendBroadcast(new Intent(AppConstants.ACTION_RESET_CREDITS_UPDATED).setPackage(context.getPackageName()), "dev.bennett.claudemeter.permission.INTERNAL");
         } catch (RuntimeException e) {
         }
     }

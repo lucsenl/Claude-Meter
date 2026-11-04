@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class ResetConsumeResult {
@@ -26,7 +26,7 @@ public final class ResetConsumeResult {
             if (this.windowsReset > 0) {
                 str = "Reset applied to " + this.windowsReset + " usage window" + (this.windowsReset == 1 ? "." : "s.");
             } else {
-                str = "Codex usage reset applied.";
+                str = "Claude usage reset applied.";
             }
             if (!this.refreshWarning.isEmpty()) {
                 return str + " " + this.refreshWarning;
@@ -34,11 +34,11 @@ public final class ResetConsumeResult {
             return str;
         }
         if (NOTHING_TO_RESET.equals(this.outcome)) {
-            return "There is no used Codex allowance to reset right now.";
+            return "There is no used Claude allowance to reset right now.";
         }
         if (NO_CREDIT.equals(this.outcome)) {
             return "No reset credit is currently available.";
         }
-        return ALREADY_REDEEMED.equals(this.outcome) ? "That reset request was already redeemed." : "OpenAI returned an unrecognized reset result.";
+        return ALREADY_REDEEMED.equals(this.outcome) ? "That reset request was already redeemed." : "Anthropic returned an unrecognized reset result.";
     }
 }
