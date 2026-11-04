@@ -1,8 +1,8 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.os.SystemClock;
-import dev.bennett.codexmeter.wear.PhoneWearSync;
+import dev.bennett.claudemeter.wear.PhoneWearSync;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -42,9 +42,9 @@ public final class UsageApi {
                 }
                 if (responseRequestUsage.status < 200 || responseRequestUsage.status >= 300) {
                     if (responseRequestUsage.status == 403) {
-                        str = "Codex usage access was denied for this account.";
+                        str = "Claude usage access was denied for this account.";
                     } else {
-                        str = responseRequestUsage.status == 404 ? "The Codex usage endpoint is unavailable or has changed." : "Usage refresh failed (HTTP " + responseRequestUsage.status + ").";
+                        str = responseRequestUsage.status == 404 ? "The Claude usage endpoint is unavailable or has changed." : "Usage refresh failed (HTTP " + responseRequestUsage.status + ").";
                     }
                     throw new Exception(OAuthClient.readError(responseRequestUsage.body, str));
                 }

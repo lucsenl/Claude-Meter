@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,7 +7,7 @@ import java.util.List;
 
 /** Durable updater state, isolated from account and usage preferences. */
 public final class UpdatePreferences {
-    private static final String PREFS = "codex_meter_updates_v1";
+    private static final String PREFS = "claude_meter_updates_v1";
     private static final String KEY_AUTOMATIC = "automatic";
     private static final String KEY_CHANNEL = "release_channel";
     private static final String KEY_NOTIFY = "notify_updates";

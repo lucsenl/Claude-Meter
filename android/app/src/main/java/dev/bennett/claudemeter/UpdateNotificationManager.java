@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,7 +11,7 @@ import android.os.Build;
 
 /** Posts a one-shot “update available” notification with Open and Update actions. */
 public final class UpdateNotificationManager {
-    static final String CHANNEL_ID = "codex_update_available";
+    static final String CHANNEL_ID = "claude_update_available";
     static final int NOTIFICATION_ID = 73450;
 
     private UpdateNotificationManager() {
@@ -24,7 +24,7 @@ public final class UpdateNotificationManager {
         }
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                 "App updates", NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription("Alerts when a signed Codex Meter release is available");
+        channel.setDescription("Alerts when a signed Claude Meter release is available");
         channel.enableVibration(true);
         manager.createNotificationChannel(channel);
     }
@@ -73,8 +73,8 @@ public final class UpdateNotificationManager {
         boolean returnToStable = UpdateChannel.isReturnToStable(release,
                 UpdatePreferences.installedVersion(context));
         String title = returnToStable
-                ? "Return to Codex Meter " + release.version
-                : "Codex Meter " + release.version + " is available";
+                ? "Return to Claude Meter " + release.version
+                : "Claude Meter " + release.version + " is available";
         String text = returnToStable
                 ? "The stable release installs in place over this alpha build."
                 : release.prerelease
