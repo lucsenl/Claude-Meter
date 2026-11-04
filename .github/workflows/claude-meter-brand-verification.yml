@@ -1,5 +1,5 @@
 name: One-time Claude color and plan verification
-# Rerun after restoring executable permissions.
+# Build v0.2.1 after complete Claude identity and plan migration.
 
 on:
   push:
