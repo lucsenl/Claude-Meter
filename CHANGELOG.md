@@ -4,25 +4,23 @@
 
 ### Added
 
-- Initial Claude Meter phone-only Android application under `dev.lucsenl.claudemeter`.
-- Anthropic API credential onboarding with encrypted Android Keystore storage.
-- Optional workspace ID support for multi-workspace API keys.
-- Documented Anthropic Models and Usage/Cost Analytics integration.
-- Dashboard cards for token usage today, token usage over the last 7 days, request counts,
-  30-day API cost, and available models.
-- Compact home-screen widget showing today and 7-day token totals.
+- Claude Meter phone-only Android application under `dev.lucsenl.claudemeter`.
+- Browser-based Claude OAuth login with PKCE.
+- Encrypted access/refresh token storage using Android Keystore.
+- Automatic OAuth token refresh.
+- Claude profile and subscription plan display.
+- 5-hour and 7-day utilization with reset times.
+- Model-scoped weekly limits when present in Claude's usage response.
+- Extra-usage status.
+- Compact home-screen widget showing 5h and 7d percentages.
 - One UI / SESL interface with system, light, and dark themes.
-- Independent Claude Meter launcher artwork using the Anthropic-inspired palette.
+- Independent Claude Meter launcher artwork.
 
-### Product boundary
+### Compatibility
 
-Claude subscription allowance percentages are not exposed through the supported third-party API.
-Claude Meter does not estimate or fabricate them.
+The subscription OAuth profile/usage endpoints can change independently of this app. Parsing is
+forward-tolerant and the app surfaces authentication/rate-limit/endpoint failures explicitly.
 
-Organization usage and cost analytics require a credential with the appropriate Analytics/Admin
-permission. A regular API key can still validate the API connection and list available models.
+### Platform
 
-### Platform scope
-
-Android phone only. No watch companion, iOS client, backend, browser-session authentication,
-private Claude.ai endpoints, or subscription-quota scraping.
+Android phone only.

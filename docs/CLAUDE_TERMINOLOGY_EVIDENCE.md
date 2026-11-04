@@ -1,12 +1,10 @@
 # Claude Meter terminology
 
-Current product terminology:
-
 - Product: Claude Meter
-- Provider/company: Anthropic
-- API: Anthropic API / Claude API
-- Credentials: Anthropic API key
+- Account action: Sign in with Claude
+- Authentication: Claude OAuth / PKCE
+- Credential: OAuth access token / refresh token
+- Usage: 5-hour session, 7-day allowance, model-scoped weekly limits
 - Package: `dev.lucsenl.claudemeter`
 
-Claude Meter is an independent third-party Android client. It does not impersonate Claude Code,
-use Claude.ai browser sessions, or consume private subscription-quota endpoints.
+No API-key terminology belongs in the product UI.

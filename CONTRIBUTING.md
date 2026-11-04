@@ -5,7 +5,10 @@ Claude Meter is a phone-only Android project.
 - app code: `android/app/`
 - parser/source tests: `android/tests/`
 - package: `dev.lucsenl.claudemeter`
-- provider integration: documented Anthropic APIs only
+- authentication: Claude OAuth authorization-code + PKCE
+- usage: Claude subscription profile and usage windows
+
+Do not add API-key onboarding or spoof another application's identity.
 
 Before submitting changes:
 

@@ -38,8 +38,10 @@ public final class AboutActivity extends AppCompatActivity {
         card.addView(version, vp);
 
         TextView body = Ui.text(this,
-                "An independent Android client for documented Anthropic API analytics. "
-                        + "Claude Meter is not affiliated with or endorsed by Anthropic.",
+                "An independent Android usage meter for Claude subscriptions. "
+                        + "It signs in through Claude OAuth and reads the account profile and "
+                        + "subscription usage windows. Claude Meter is not affiliated with or "
+                        + "endorsed by Anthropic.",
                 14, Ui.secondaryText(dark));
         card.addView(body);
 
@@ -48,28 +50,22 @@ public final class AboutActivity extends AppCompatActivity {
         LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 54));
         pp.setMargins(0, Ui.dp(this, 14), 0, 0);
         card.addView(project, pp);
-
-        Button docs = Ui.button(this, "Anthropic API documentation", false, dark);
-        docs.setOnClickListener(v -> open(AppConstants.API_DOCS_URL));
-        LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(-1, Ui.dp(this, 54));
-        dp.setMargins(0, Ui.dp(this, 8), 0, 0);
-        card.addView(docs, dp);
         content.addView(card);
 
         Ui.addSpacer(content, 16);
-        LinearLayout attribution = Ui.card(this, dark);
-        TextView at = Ui.text(this, "Attribution", 19, Ui.mainText(dark));
-        at.setTypeface(Ui.mediumTypeface(this));
-        attribution.addView(at);
+        LinearLayout note = Ui.card(this, dark);
+        TextView noteTitle = Ui.text(this, "Compatibility", 19, Ui.mainText(dark));
+        noteTitle.setTypeface(Ui.mediumTypeface(this));
+        note.addView(noteTitle);
         TextView detail = Ui.text(this,
-                "This project preserves the upstream MIT license and attribution. "
-                        + "Product behavior, package identity and provider integration are "
-                        + "implemented for Anthropic.",
+                "Subscription usage OAuth endpoints are not a stable public third-party API. "
+                        + "Claude Meter handles token refresh and unknown usage fields defensively, "
+                        + "but Anthropic-side changes can require an app update.",
                 14, Ui.secondaryText(dark));
-        LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(-1, -2);
-        ap.setMargins(0, Ui.dp(this, 8), 0, 0);
-        attribution.addView(detail, ap);
-        content.addView(attribution);
+        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(-1, -2);
+        np.setMargins(0, Ui.dp(this, 8), 0, 0);
+        note.addView(detail, np);
+        content.addView(note);
     }
 
     private void open(String url) {

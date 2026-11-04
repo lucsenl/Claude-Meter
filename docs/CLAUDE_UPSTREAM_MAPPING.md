@@ -1,23 +1,28 @@
-# Claude Meter API contract
-
-Claude Meter uses documented Anthropic APIs only.
-
-## Supported data
-
-- Models available to the supplied API key
-- Organization usage analytics when the credential has Analytics permission
-- Organization cost analytics when the credential has Analytics permission
-
-## Unsupported data
-
-Claude subscription allowance percentages are not exposed through the supported third-party API.
-Claude Meter therefore does not display or estimate those values.
+# Claude Meter subscription contract
 
 ## Authentication
 
-The user supplies an Anthropic API key and, when required, a workspace ID. The credential is
-encrypted locally using Android Keystore and is sent only to Anthropic API endpoints.
+- Authorization Code + PKCE (S256)
+- Claude browser sign-in
+- OAuth access + refresh tokens
+- local encrypted storage with Android Keystore
+- automatic refresh before expiry and once after an HTTP 401
 
-## Platform scope
+No API key is requested or stored.
+
+## Usage
+
+Claude Meter reads the account profile and subscription usage windows:
+
+- 5-hour session utilization and reset time
+- 7-day utilization and reset time
+- model-scoped weekly limits when present
+- subscription/profile metadata
+- extra-usage enabled state
+
+Unknown fields are ignored. Missing windows render as unavailable instead of failing the whole
+snapshot.
+
+## Platform
 
 Phone-only Android application.

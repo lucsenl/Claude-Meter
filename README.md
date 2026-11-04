@@ -1,26 +1,24 @@
 # Claude Meter
 
-Claude Meter is a phone-only Android app for viewing documented Anthropic API analytics.
+Claude Meter is a phone-only Android app for monitoring Claude subscription usage.
 
-The app uses public Anthropic API contracts and a user-supplied API credential stored locally
-with Android Keystore.
+## Sign-in
+
+Claude Meter uses browser-based Claude OAuth with PKCE. The user signs in to Claude, copies the
+authorization result shown by the callback page, and pastes it back into the app. Access and
+refresh tokens are encrypted locally with Android Keystore. No API key is required.
 
 ## What it shows
 
-With an Anthropic credential that has Analytics access:
+- Claude account/profile and subscription plan
+- 5-hour session utilization and reset
+- 7-day allowance utilization and reset
+- model-scoped weekly limits when returned by Claude
+- whether extra usage is enabled
+- a compact home-screen widget with 5h and 7d percentages
 
-- token usage today
-- token usage over the last 7 days
-- request counts
-- API cost over the last 30 days
-
-With a regular Anthropic API key:
-
-- connection status
-- models available to that key
-
-Claude subscription allowance percentages are not exposed through the supported third-party API,
-so Claude Meter does not estimate them.
+The subscription usage/profile endpoints are not a stable public third-party API and may change.
+Claude Meter is deliberately defensive about missing and newly-added fields.
 
 ## Android
 
@@ -29,7 +27,7 @@ so Claude Meter does not estimate them.
 - target/compile SDK: 36
 - interface: One UI / SESL
 - credential storage: Android Keystore
-- widget: today + 7-day token totals
+- platform: Android phone only
 
 ## Build
 

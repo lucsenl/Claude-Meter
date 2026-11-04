@@ -1,14 +1,16 @@
 # Claude Meter for Android
 
-Phone-only Android project for Claude Meter.
+Phone-only Android project for Claude subscription usage.
 
 ## Layout
 
 | Path | Role |
 |---|---|
 | `app/` | Android app (`dev.lucsenl.claudemeter`) |
-| `tests/` | Pure-Java parser/source checks |
+| `tests/` | Pure-Java subscription parser/source checks |
 | `vendor/m2/` | Cached One UI / SESL Maven artifacts |
+
+The app signs in through Claude OAuth PKCE and stores access/refresh tokens with Android Keystore.
 
 ## Build and test
 
@@ -20,5 +22,3 @@ Phone-only Android project for Claude Meter.
 
 Requirements: JDK 17+, Android SDK Platform 36, Build Tools 36.x, and
 `ANDROID_SDK_ROOT` or `ANDROID_HOME`.
-
-Signed local APKs are written to `android/dist/`.

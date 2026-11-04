@@ -2,7 +2,7 @@
 
 ## Scope
 
-Claude Meter is a phone-only Android app.
+Claude Meter is a phone-only Android app for Claude subscription usage.
 
 ## Project
 
@@ -10,18 +10,19 @@ Claude Meter is a phone-only Android app.
 - package: `dev.lucsenl.claudemeter`
 - tests: `android/tests/`
 - UI: One UI / SESL
-- provider: documented Anthropic API
 - credential storage: Android Keystore
 
-## Provider rules
+## Authentication and usage contract
 
-Use documented Anthropic APIs only.
+The product is login-only. Do not introduce API-key onboarding.
 
-A regular API key may provide model access without organization Analytics permissions. In that
-case the app must show Analytics as unavailable rather than invent usage percentages.
+The OAuth flow uses authorization-code + PKCE. Store access/refresh tokens only in the encrypted
+credential store. Never log credentials, authorization codes, PKCE verifiers, or refresh tokens.
 
-Claude subscription allowance is not a supported third-party metric and must not be represented
-as API analytics.
+Usage comes from the Claude subscription OAuth profile/usage surfaces. Parse unknown/missing fields
+defensively because these endpoints can change.
+
+Do not spoof another application's User-Agent or identity.
 
 ## Validation
 
