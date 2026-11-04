@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public final class GitHubReleaseParser {
             if (version == null || versions.contains(version.normalized())) {
                 continue;
             }
-            String expectedApk = "CodexMeter-" + version.normalized() + ".apk";
+            String expectedApk = "ClaudeMeter-" + version.normalized() + ".apk";
             JSONObject apk = null;
             JSONObject checksum = null;
             JSONArray assets = release.optJSONArray("assets");
@@ -71,7 +71,7 @@ public final class GitHubReleaseParser {
             }
             String releaseName = clean(release.optString("name", ""), 160);
             if (releaseName.isEmpty()) {
-                releaseName = "Codex Meter " + version.normalized();
+                releaseName = "Claude Meter " + version.normalized();
             }
             String notes = clean(release.optString("body", ""), MAX_NOTES);
             boolean prerelease = release.optBoolean("prerelease", false)

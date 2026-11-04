@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
@@ -56,7 +56,7 @@ public final class DashboardReorderActivity extends AppCompatActivity {
 
         TextView hint = Ui.text(this,
                 "Drag the handles to arrange your usage cards and use the switches to hide the "
-                        + "ones you don't need. Model-specific limits such as GPT-5.3-Codex-Spark "
+                        + "ones you don't need. Model-specific limits such as GPT-5.3-Claude-Spark "
                         + "appear here automatically once Claude reports them for your account.",
                 14.0f, Ui.secondaryText(dark));
         LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(-1, -2);
@@ -103,12 +103,12 @@ public final class DashboardReorderActivity extends AppCompatActivity {
                 AppPreferences.getDashboardOrder(this), DashboardSections.defaultOrder(limits));
         for (String key : ordered) {
             if (DashboardSections.FIVE_HOUR.equals(key)) {
-                items.add(new SectionItem(key, "5-hour limit", "Rolling 5-hour Codex window"));
+                items.add(new SectionItem(key, "5-hour limit", "Rolling 5-hour Claude window"));
             } else if (DashboardSections.WEEKLY.equals(key)) {
-                items.add(new SectionItem(key, "Weekly limit", "Rolling 7-day Codex window"));
+                items.add(new SectionItem(key, "Weekly limit", "Rolling 7-day Claude window"));
             } else if (DashboardSections.MONTHLY.equals(key)) {
                 items.add(new SectionItem(key, "Monthly limit",
-                        "Rolling ~30-day Codex window (free tier)"));
+                        "Rolling ~30-day Claude window (free tier)"));
             } else if (DashboardSections.USAGE_CREDITS.equals(key)) {
                 items.add(new SectionItem(key, "Usage-credit balance",
                         "Hidden automatically at a zero or negative balance"));

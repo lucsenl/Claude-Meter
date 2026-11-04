@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.Activity;
 import android.app.Application;
@@ -6,7 +6,7 @@ import android.content.ComponentCallbacks2;
 import android.os.Bundle;
 
 /** Installs opt-in process and screen lifecycle diagnostics without touching normal app data. */
-public final class CodexMeterApplication extends Application
+public final class ClaudeMeterApplication extends Application
         implements Application.ActivityLifecycleCallbacks {
     @Override
     public void onCreate() {

@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -6,7 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 /* JADX INFO: loaded from: classes.dex */
-public final class CodexUsageWidget extends AppWidgetProvider {
+public final class ClaudeUsageWidget extends AppWidgetProvider {
     @Override // android.appwidget.AppWidgetProvider
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] iArr) {
         if (iArr != null) {

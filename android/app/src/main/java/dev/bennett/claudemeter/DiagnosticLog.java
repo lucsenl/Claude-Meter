@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,7 +29,7 @@ public final class DiagnosticLog {
     private static final String CURRENT_FILE = "events.jsonl";
     private static final String PREF_ENABLED = "enabled";
     private static final String PREF_SESSION = "session_id";
-    private static final String PREFERENCES = "codex_meter_diagnostic_log_v1";
+    private static final String PREFERENCES = "claude_meter_diagnostic_log_v1";
     private static final int MAX_ARCHIVES = 2;
     private static final long MAX_FILE_BYTES = 1024L * 1024L;
     private static final Object FILE_LOCK = new Object();
