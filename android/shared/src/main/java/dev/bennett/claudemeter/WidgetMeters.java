@@ -323,27 +323,18 @@ public final class WidgetMeters {
         return 2;
     }
 
-    /**
-     * The window backing a usage meter key. The weekly meter carries the long-cadence window,
-     * so a free-tier account's monthly window automatically fills widgets that were configured
-     * while a weekly window existed.
-     */
+    /** Window backing a Claude usage meter key. */
     public static UsageWindow meterWindow(String key, UsageSnapshot snapshot) {
-        if (snapshot == null) {
-            return null;
-        }
-        if (FIVE_HOUR.equals(key)) {
-            return snapshot.fiveHour;
-        }
-        if (WEEKLY.equals(key)) {
-            return snapshot.longWindow();
-        }
-        return null;
+        if (snapshot == null) return null;
+        if (FIVE_HOUR.equals(key)) return snapshot.fiveHour;
+        if (WEEKLY.equals(key)) return snapshot.weekly;
+        UsageLimit limit = findLimit(key, snapshot);
+        if (limit == null) return null;
+        return key.endsWith(SECONDARY_SUFFIX) ? limit.secondary : limit.primary;
     }
 
-    /** Whether the weekly meter is currently showing the monthly free-tier window. */
     public static boolean weeklyMeterIsMonthly(UsageSnapshot snapshot) {
-        return snapshot != null && snapshot.longWindowIsMonthly();
+        return false;
     }
 
     /** Short label for dial/bar faces; config can use the fuller display name. */
@@ -352,7 +343,7 @@ public final class WidgetMeters {
             return "5h";
         }
         if (WEEKLY.equals(key)) {
-            return weeklyMeterIsMonthly(snapshot) ? "Mo" : "Wk";
+            return "Wk";
         }
         if (NEXT_RESET.equals(key)) {
             return "Reset";
@@ -363,12 +354,11 @@ public final class WidgetMeters {
         UsageLimit limit = findLimit(key, snapshot);
         if (limit != null) {
             String base = shortLimitName(limit.displayName());
-            if (key.endsWith(PRIMARY_SUFFIX)) {
-                return base + " 5h";
-            }
-            if (key.endsWith(SECONDARY_SUFFIX)) {
+            UsageWindow window = meterWindow(key, snapshot);
+            if (window != null && window.windowSeconds >= 5L * 24L * 60L * 60L) {
                 return base + " W";
             }
+            return base;
         }
         return "Meter";
     }
@@ -379,7 +369,7 @@ public final class WidgetMeters {
             return "Claude · 5 hours";
         }
         if (WEEKLY.equals(key)) {
-            return weeklyMeterIsMonthly(snapshot) ? "Claude · Monthly" : "Claude · Weekly";
+            return "Claude · Weekly";
         }
         if (NEXT_RESET.equals(key)) {
             return "Next reset";
@@ -390,10 +380,8 @@ public final class WidgetMeters {
         UsageLimit limit = findLimit(key, snapshot);
         if (limit != null) {
             String name = limit.displayName();
-            if (key.endsWith(PRIMARY_SUFFIX)) {
-                return name + " · 5 hours";
-            }
-            if (key.endsWith(SECONDARY_SUFFIX)) {
+            UsageWindow window = meterWindow(key, snapshot);
+            if (window != null && window.windowSeconds >= 5L * 24L * 60L * 60L) {
                 return name + " · Weekly";
             }
             return name;
