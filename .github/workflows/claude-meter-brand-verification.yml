@@ -1,4 +1,5 @@
 name: One-time Claude color and plan verification
+# Rerun after restoring executable permissions.
 
 on:
   push:
