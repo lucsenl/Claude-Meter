@@ -1,11 +1,6 @@
 name: Build Claude Meter Android APK
 
 on:
-  pull_request:
-    branches: [main, alpha]
-  push:
-    branches: [main, alpha, fix/restore-original-android-ui]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -13,8 +8,8 @@ permissions:
   packages: read
 
 concurrency:
-  group: android-ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: claude-meter-android-manual
+  cancel-in-progress: false
 
 jobs:
   build:
