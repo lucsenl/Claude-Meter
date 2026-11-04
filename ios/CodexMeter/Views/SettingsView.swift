@@ -16,7 +16,7 @@ struct SettingsView: View {
         Form {
             Section("Account") {
                 if model.mode == .live {
-                    LabeledContent("ChatGPT account", value: model.accountEmail.isEmpty ? "Connected" : model.accountEmail)
+                    LabeledContent("Claude account", value: model.accountEmail.isEmpty ? "Connected" : model.accountEmail)
                     if !model.accountPlan.isEmpty {
                         LabeledContent("Plan", value: model.accountPlan)
                     }
@@ -32,7 +32,7 @@ struct SettingsView: View {
                         }
                     }
                 } else {
-                    Button("Sign in with ChatGPT") {
+                    Button("Sign in with Claude") {
                         dismiss()
                         model.isShowingSignIn = true
                     }
@@ -195,7 +195,7 @@ struct SettingsView: View {
             await model.refreshNotificationPermissionState()
         }
         .confirmationDialog(
-            "Sign out of ChatGPT?",
+            "Sign out of Claude?",
             isPresented: $confirmingSignOut,
             titleVisibility: .visible
         ) {

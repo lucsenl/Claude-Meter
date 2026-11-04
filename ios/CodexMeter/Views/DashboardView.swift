@@ -13,7 +13,7 @@ struct DashboardView: View {
                 } else {
                     if model.mode == .demo {
                         StatusBanner(
-                            message: "Demo data — no OpenAI requests",
+                            message: "Demo data — no Anthropic requests",
                             systemImage: "sparkles",
                             tint: .blue
                         )
@@ -143,13 +143,13 @@ private struct SignedOutView: View {
                 Text("Your Codex allowance at a glance")
                     .font(.title2.bold())
                     .multilineTextAlignment(.center)
-                Text("Connect your ChatGPT account to see current usage limits, purchased usage credits, reset times, and earned reset credits.")
+                Text("Connect your Claude account to see current usage limits, purchased usage credits, reset times, and earned reset credits.")
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
             VStack(spacing: 12) {
-                Button("Sign in with ChatGPT") {
+                Button("Sign in with Claude") {
                     model.isShowingSignIn = true
                 }
                 .buttonStyle(.borderedProminent)
@@ -165,7 +165,7 @@ private struct SignedOutView: View {
             }
             .frame(maxWidth: 420)
 
-            Label("Demo mode is local and never contacts OpenAI.", systemImage: "hand.raised")
+            Label("Demo mode is local and never contacts Anthropic.", systemImage: "hand.raised")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

@@ -23,7 +23,7 @@ final class DemoGalleryTests: XCTestCase {
         UITestSupport.settle(1.0)
         capture("01-signed-out")
 
-        UITestSupport.tap(app.buttons["Sign in with ChatGPT"])
+        UITestSupport.tap(app.buttons["Sign in with Claude"])
         XCTAssertTrue(app.navigationBars["Connect account"].waitForExistence(timeout: 5))
         UITestSupport.settle(0.8)
         capture("02-sign-in")

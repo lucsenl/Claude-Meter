@@ -35,12 +35,12 @@ struct DashboardEditView: View {
             } header: {
                 Text("Dashboard cards")
             } footer: {
-                Text("Drag the handles to arrange cards and use the switches to hide cards you do not need. Model-specific limits appear automatically when OpenAI reports them.")
+                Text("Drag the handles to arrange cards and use the switches to hide cards you do not need. Model-specific limits appear automatically when Claude reports them.")
             }
 
             Section {
                 Label(
-                    "Changes save immediately. Usage-credit and reset-credit cards still hide automatically when their inventory is empty or unknown. Usage history stays off the dashboard until OpenAI reports a usage window.",
+                    "Changes save immediately. Usage-credit and reset-credit cards still hide automatically when their inventory is empty or unknown. Usage history stays off the dashboard until Claude reports a usage window.",
                     systemImage: "info.circle"
                 )
                 .font(.footnote)

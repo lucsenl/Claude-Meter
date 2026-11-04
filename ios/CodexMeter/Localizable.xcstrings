@@ -41,7 +41,7 @@
     "Account" : {
 
     },
-    "After signing in on the OpenAI page, return here. This screen updates automatically." : {
+    "After signing in on the Claude authorization page, return here. This screen updates automatically." : {
 
     },
     "Allow notifications" : {
@@ -65,7 +65,7 @@
     "Cancel" : {
 
     },
-    "ChatGPT account" : {
+    "Claude account" : {
 
     },
     "Close" : {
@@ -77,7 +77,7 @@
     "Codex Meter" : {
 
     },
-    "Codex Meter has no analytics, advertising, account system, or relay server. Authentication and Codex account requests go directly to OpenAI only when needed for the feature you selected." : {
+    "Codex Meter has no analytics, advertising, account system, or relay server. Authentication and Codex account requests go directly to Anthropic only when needed for the feature you selected." : {
 
     },
     "Codex Meter is not affiliated with or endorsed by OpenAI. ChatGPT and Codex are trademarks of their respective owner. Account routes used by this app may change without notice." : {
@@ -95,7 +95,7 @@
     "Connect account" : {
 
     },
-    "Connect your ChatGPT account to see the current five-hour and weekly windows, reset times, and earned reset credits." : {
+    "Connect your Claude account to see the current five-hour and weekly windows, reset times, and earned reset credits." : {
 
     },
     "Copied" : {
@@ -116,7 +116,7 @@
     "Demo mode is entirely local and does not contact OpenAI." : {
 
     },
-    "Demo mode is local and never contacts OpenAI." : {
+    "Demo mode is local and never contacts Anthropic." : {
 
     },
     "Done" : {
@@ -204,7 +204,7 @@
     "One-time code %@" : {
 
     },
-    "Open ChatGPT sign-in" : {
+    "Open Claude sign-in" : {
 
     },
     "Open notification settings" : {
@@ -273,13 +273,13 @@
     "Sign in or open demo mode to configure usage alerts." : {
 
     },
-    "Sign in with ChatGPT" : {
+    "Sign in with Claude" : {
 
     },
     "Sign out" : {
 
     },
-    "Sign out of ChatGPT?" : {
+    "Sign out of Claude?" : {
 
     },
     "Source and credits" : {
