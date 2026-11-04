@@ -1,19 +1,19 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.os.Build;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class AppConstants {
-    public static final String ACTION_OAUTH_READY = "dev.bennett.claudemeter.action.OAUTH_READY";
-    public static final String ACTION_OAUTH_RESULT = "dev.bennett.claudemeter.action.OAUTH_RESULT";
-    public static final String ACTION_INSTALL_STATUS = "dev.bennett.claudemeter.action.INSTALL_STATUS";
-    public static final String ACTION_RELEASES_UPDATED = "dev.bennett.claudemeter.action.RELEASES_UPDATED";
-    public static final String ACTION_REFRESH_WIDGET = "dev.bennett.claudemeter.action.REFRESH_WIDGET";
-    public static final String ACTION_RESET_ALERT = "dev.bennett.claudemeter.action.RESET_ALERT";
+    public static final String ACTION_OAUTH_READY = "dev.lucsenl.claudemeter.action.OAUTH_READY";
+    public static final String ACTION_OAUTH_RESULT = "dev.lucsenl.claudemeter.action.OAUTH_RESULT";
+    public static final String ACTION_INSTALL_STATUS = "dev.lucsenl.claudemeter.action.INSTALL_STATUS";
+    public static final String ACTION_RELEASES_UPDATED = "dev.lucsenl.claudemeter.action.RELEASES_UPDATED";
+    public static final String ACTION_REFRESH_WIDGET = "dev.lucsenl.claudemeter.action.REFRESH_WIDGET";
+    public static final String ACTION_RESET_ALERT = "dev.lucsenl.claudemeter.action.RESET_ALERT";
     public static final String ACTION_RESET_CREDIT_EXPIRY_ALERT =
-            "dev.bennett.claudemeter.action.RESET_CREDIT_EXPIRY_ALERT";
-    public static final String ACTION_RESET_CREDITS_UPDATED = "dev.bennett.claudemeter.action.RESET_CREDITS_UPDATED";
-    public static final String ACTION_USAGE_UPDATED = "dev.bennett.claudemeter.action.USAGE_UPDATED";
+            "dev.lucsenl.claudemeter.action.RESET_CREDIT_EXPIRY_ALERT";
+    public static final String ACTION_RESET_CREDITS_UPDATED = "dev.lucsenl.claudemeter.action.RESET_CREDITS_UPDATED";
+    public static final String ACTION_USAGE_UPDATED = "dev.lucsenl.claudemeter.action.USAGE_UPDATED";
     public static final String APP_LINK = "claudemeter://auth/complete";
     public static final String AUTHORIZE_URL = "https://auth.anthropic.com/oauth/authorize";
     public static final String AUTH_BASE = "https://auth.anthropic.com";
@@ -24,7 +24,7 @@ public final class AppConstants {
     public static final String EXTRA_NOTIFICATION_ID = "notification_id";
     public static final String EXTRA_PROMPT_USE_RESET = "prompt_use_reset";
     public static final String EXTRA_SUCCESS = "success";
-    public static final String INTERNAL_PERMISSION = "dev.bennett.claudemeter.permission.INTERNAL";
+    public static final String INTERNAL_PERMISSION = "dev.lucsenl.claudemeter.permission.INTERNAL";
     public static final String OAUTH_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann";
     public static final int[] OAUTH_PORTS = {1455, 1457};
     public static final String OAUTH_SCOPE = "openid profile email offline_access";

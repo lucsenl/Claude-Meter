@@ -1,8 +1,8 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import dev.bennett.claudemeter.wear.PhoneWearSync;
+import dev.lucsenl.claudemeter.wear.PhoneWearSync;
 import org.json.JSONObject;
 
 /* JADX INFO: loaded from: classes.dex */
