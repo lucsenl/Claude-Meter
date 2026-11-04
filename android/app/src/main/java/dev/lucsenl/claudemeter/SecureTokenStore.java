@@ -41,7 +41,6 @@ public final class SecureTokenStore {
                     .putString(KEY_BLOB, envelope.toString()).commit()) {
                 throw new Exception("Could not save Claude sign-in securely.");
             }
-            clearLegacyApiKeyStorage(context);
         }
     }
 
@@ -73,25 +72,12 @@ public final class SecureTokenStore {
     public static void clear(Context context) {
         synchronized (LOCK) {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().commit();
-            clearLegacyApiKeyStorage(context);
             try {
                 KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
                 keyStore.load(null);
                 if (keyStore.containsAlias(KEY_ALIAS)) keyStore.deleteEntry(KEY_ALIAS);
-                for (String legacy : new String[] {
-                        "claude_meter_api_key_v1", "claude_meter_api_key_v2"
-                }) {
-                    if (keyStore.containsAlias(legacy)) keyStore.deleteEntry(legacy);
-                }
             } catch (Exception ignored) {}
         }
-    }
-
-    private static void clearLegacyApiKeyStorage(Context context) {
-        context.getSharedPreferences("secure_anthropic_api_key_v1", Context.MODE_PRIVATE)
-                .edit().clear().commit();
-        context.getSharedPreferences("secure_anthropic_credential_v2", Context.MODE_PRIVATE)
-                .edit().clear().commit();
     }
 
     private static SecretKey getOrCreateKey() throws Exception {
