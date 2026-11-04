@@ -113,6 +113,19 @@ public final class UsageParser {
                 fetchedAtMillis);
         ArrayList<UsageLimit> additionalLimits = new ArrayList<>();
 
+        // Older and newer Claude usage schemas can coexist in one response. Keep the
+        // named top-level model windows, then merge the newer scoped limits below.
+        addLegacyClaudeLimit(additionalLimits, root, "seven_day_sonnet",
+                "Sonnet weekly", "sonnet", fetchedAtMillis);
+        addLegacyClaudeLimit(additionalLimits, root, "seven_day_opus",
+                "Opus weekly", "opus", fetchedAtMillis);
+        addLegacyClaudeLimit(additionalLimits, root, "seven_day_oauth_apps",
+                "OAuth apps weekly", "oauth_apps", fetchedAtMillis);
+        addLegacyClaudeLimit(additionalLimits, root, "seven_day_cowork",
+                "Cowork weekly", "cowork", fetchedAtMillis);
+        addLegacyClaudeLimit(additionalLimits, root, "seven_day_overage_included",
+                "Overage weekly", "overage", fetchedAtMillis);
+
         JSONArray scopedLimits = root.optJSONArray("limits");
         if (scopedLimits != null && scopedLimits.length() > 0) {
             for (int i = 0; i < scopedLimits.length(); i++) {
@@ -138,25 +151,18 @@ public final class UsageParser {
                 String name = modelName.isEmpty()
                         ? firstNonEmpty(group, kind, "Additional Claude limit")
                         : modelName + " " + cadence;
-                additionalLimits.add(new UsageLimit(
-                        firstNonEmpty(item.optString("id", ""), modelName, group, kind,
-                                "claude-limit") + "-" + i,
-                        name,
-                        firstNonEmpty(group, kind),
-                        window.usedPercent < 100,
-                        window.usedPercent >= 100,
-                        window,
-                        null));
+                if (!containsClaudeLimit(additionalLimits, modelName, name)) {
+                    additionalLimits.add(new UsageLimit(
+                            firstNonEmpty(item.optString("id", ""), modelName, group, kind,
+                                    "claude-limit") + "-" + i,
+                            name,
+                            firstNonEmpty(group, kind),
+                            window.usedPercent < 100,
+                            window.usedPercent >= 100,
+                            window,
+                            null));
+                }
             }
-        } else {
-            addLegacyClaudeLimit(additionalLimits, root, "seven_day_sonnet",
-                    "Sonnet weekly", "sonnet", fetchedAtMillis);
-            addLegacyClaudeLimit(additionalLimits, root, "seven_day_opus",
-                    "Opus weekly", "opus", fetchedAtMillis);
-            addLegacyClaudeLimit(additionalLimits, root, "seven_day_oauth_apps",
-                    "OAuth apps weekly", "oauth_apps", fetchedAtMillis);
-            addLegacyClaudeLimit(additionalLimits, root, "seven_day_cowork",
-                    "Cowork weekly", "cowork", fetchedAtMillis);
         }
 
         boolean limitReached = (fiveHour != null && fiveHour.usedPercent >= 100)
@@ -175,6 +181,24 @@ public final class UsageParser {
                 null,
                 -1,
                 fetchedAtMillis);
+    }
+
+    private static boolean containsClaudeLimit(List<UsageLimit> limits, String modelName,
+            String displayName) {
+        String normalizedModel = modelName == null ? "" : modelName.trim();
+        String normalizedDisplay = displayName == null ? "" : displayName.trim();
+        for (UsageLimit existing : limits) {
+            if (!normalizedDisplay.isEmpty()
+                    && existing.displayName().equalsIgnoreCase(normalizedDisplay)) {
+                return true;
+            }
+            if (!normalizedModel.isEmpty()
+                    && existing.displayName().toLowerCase(java.util.Locale.ROOT)
+                            .startsWith(normalizedModel.toLowerCase(java.util.Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void addLegacyClaudeLimit(List<UsageLimit> target, JSONObject root,

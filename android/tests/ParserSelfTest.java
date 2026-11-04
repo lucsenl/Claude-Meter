@@ -69,9 +69,10 @@ public final class ParserSelfTest {
         String json = "{"
                 + "\"five_hour\":{\"utilization\":25.4,\"resets_at\":\"2033-05-19T00:00:00Z\"},"
                 + "\"seven_day\":{\"utilization\":40,\"resets_at\":\"2033-05-25T00:00:00Z\"},"
+                + "\"seven_day_sonnet\":{\"utilization\":7,\"resets_at\":\"2033-05-25T00:00:00Z\"},"
                 + "\"limits\":[{\"kind\":\"weekly_scoped\",\"group\":\"weekly\","
                 + "\"percent\":12,\"resets_at\":\"2033-05-25T00:00:00Z\","
-                + "\"scope\":{\"model\":{\"display_name\":\"Sonnet\"}}}]}";
+                + "\"scope\":{\"model\":{\"display_name\":\"Fable\"}}}]}";
         UsageSnapshot snapshot = UsageParser.parse(json, fetchedAt);
         check("claude".equals(snapshot.planType), "Claude plan marker");
         check(snapshot.fiveHour != null && snapshot.fiveHour.usedPercent == 25,
@@ -82,9 +83,14 @@ public final class ParserSelfTest {
                 "Claude seven-day utilization");
         check(snapshot.weekly.windowSeconds == TimeUnit.DAYS.toSeconds(7),
                 "Claude seven-day duration");
-        check(snapshot.additionalLimits.size() == 1
-                        && snapshot.additionalLimits.get(0).displayName().contains("Sonnet"),
-                "Claude model-scoped weekly limit");
+        check(snapshot.additionalLimits.size() == 2,
+                "Claude merges legacy and scoped model limits");
+        check(snapshot.additionalLimits.stream()
+                        .anyMatch(limit -> limit.displayName().contains("Sonnet")),
+                "Claude legacy Sonnet weekly limit");
+        check(snapshot.additionalLimits.stream()
+                        .anyMatch(limit -> limit.displayName().contains("Fable")),
+                "Claude scoped model weekly limit");
         check(snapshot.resetCreditsAvailable < 0 && snapshot.usageCredits == null,
                 "Codex-only credit surfaces stay hidden for Claude");
         System.out.println("Claude OAuth usage maps to 5-hour, 7-day, and scoped limits.");
