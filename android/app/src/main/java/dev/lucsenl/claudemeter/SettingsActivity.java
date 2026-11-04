@@ -88,9 +88,9 @@ public final class SettingsActivity extends AppCompatActivity {
         TextView appearanceTitle = Ui.text(this, "Appearance", 20, Ui.mainText(dark));
         appearanceTitle.setTypeface(Ui.mediumTypeface(this));
         appearance.addView(appearanceTitle);
-        addThemeButton(appearance, "System theme", WidgetOptions.THEME_SYSTEM);
-        addThemeButton(appearance, "Light", WidgetOptions.THEME_LIGHT);
-        addThemeButton(appearance, "Dark", WidgetOptions.THEME_DARK);
+        addThemeButton(appearance, "System theme", AppPreferences.THEME_SYSTEM);
+        addThemeButton(appearance, "Light", AppPreferences.THEME_LIGHT);
+        addThemeButton(appearance, "Dark", AppPreferences.THEME_DARK);
         content.addView(appearance);
 
         Ui.addSpacer(content, 16);
@@ -101,7 +101,7 @@ public final class SettingsActivity extends AppCompatActivity {
         addAction(app, "Check for updates", () -> startActivity(
                 new Intent(this, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_FORCE_CHECK, true)));
         addAction(app, "About", () -> Ui.startSecondaryActivity(this, AboutActivity.class));
-        addAction(app, "Project on GitHub", () -> open(GitHubReleaseSource.REPOSITORY_URL));
+        addAction(app, "Project on GitHub", () -> open(AppConstants.PROJECT_URL));
         addAction(app, "Anthropic API documentation", () -> open(AppConstants.API_DOCS_URL));
         content.addView(app);
     }
