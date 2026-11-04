@@ -26,6 +26,7 @@ public final class AppConstants {
     public static final String ANALYTICS_BETA = "analytics-usage-cost-2026-08-24";
     public static final String CONSOLE_KEYS_URL = "https://platform.claude.com/settings/keys";
     public static final String API_DOCS_URL = "https://platform.claude.com/docs/en/api/overview";
+    public static final String PROJECT_URL = "https://github.com/lucsenl/Claude-Meter";
 
     public static final int VERSION_CODE = 30;
     public static final String VERSION_NAME = "2.8.0";
