@@ -1377,7 +1377,7 @@ public final class ParserSelfTest {
                 "intentional five-hour-only selection stays single-metric");
         check(WidgetMeters.lockSlotCapacity() == 2, "lock widgets cap at two meters");
         check(WidgetMeters.shortLabel(WidgetMeters.limitPrimaryKey(spark), snapshot)
-                        .equals("5.5 5h"),
+                        .equals("5.5"),
                 "limit primary short label still formats from display name");
         check(WidgetMeters.shortLabel(WidgetMeters.limitSecondaryKey(spark), snapshot)
                         .equals("5.5 W"),
