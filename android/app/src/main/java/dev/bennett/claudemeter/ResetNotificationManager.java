@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,12 +15,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-/** Posts and deduplicates Codex usage, reset-time, and reset-credit notifications. */
+/** Posts and deduplicates Claude usage, reset-time, and reset-credit notifications. */
 public final class ResetNotificationManager {
-    private static final String CHANNEL_ALARM = "codex_reset_alarm";
-    private static final String CHANNEL_NOTIFY = "codex_reset_notify";
-    private static final String CHANNEL_SILENT = "codex_reset_silent";
-    private static final String PREFS = "codex_meter_notification_state_v1";
+    private static final String CHANNEL_ALARM = "claude_reset_alarm";
+    private static final String CHANNEL_NOTIFY = "claude_reset_notify";
+    private static final String CHANNEL_SILENT = "claude_reset_silent";
+    private static final String PREFS = "claude_meter_notification_state_v1";
     private static final String KEY_FIVE_HOUR_WINDOW = "low_five_hour_window";
     private static final String KEY_WEEKLY_WINDOW = "low_weekly_window";
     private static final String KEY_MONTHLY_WINDOW = "low_monthly_window";
@@ -107,10 +107,10 @@ public final class ResetNotificationManager {
             return;
         }
         String text = added == 1
-                ? "One Codex reset credit was added. You now have " + current + "."
-                : added + " Codex reset credits were added. You now have " + current + ".";
+                ? "One Claude reset credit was added. You now have " + current + "."
+                : added + " Claude reset credits were added. You now have " + current + ".";
         if (post(context, NOTIFICATION_NEW_CREDIT,
-                added == 1 ? "Codex reset credit added" : "Codex reset credits added", text,
+                added == 1 ? "Claude reset credit added" : "Claude reset credits added", text,
                 NOTIFICATION_NEW_CREDIT)) {
             state.edit().putInt(KEY_CREDIT_COUNT, current).apply();
         }
@@ -146,7 +146,7 @@ public final class ResetNotificationManager {
             label = "5-hour";
             id = NOTIFICATION_RESET_FIVE_HOUR;
         }
-        post(context, id, "Codex " + label + " usage reset",
+        post(context, id, "Claude " + label + " usage reset",
                 "Your " + label + " allowance should be available again. Refreshing usage now.",
                 id);
     }
@@ -169,7 +169,7 @@ public final class ResetNotificationManager {
                     + UsageFormat.relative(expiresAtMillis, now)
                     + "). Use it before it expires.";
             if (!postResetCreditExpiry(context, notificationId,
-                    "Codex reset credit expires soon", text)) {
+                    "Claude reset credit expires soon", text)) {
                 return false;
             }
             Set<String> announced = new HashSet<>(state(context).getStringSet(
@@ -211,7 +211,7 @@ public final class ResetNotificationManager {
         if (context == null || !ResetAlertPreferences.enabled(context)) {
             return false;
         }
-        return post(context, NOTIFICATION_TEST, "Codex Meter notifications are working",
+        return post(context, NOTIFICATION_TEST, "Claude Meter notifications are working",
                 "Low usage, scheduled resets, surprise refills, and reset-credit alerts are ready.",
                 NOTIFICATION_TEST);
     }
@@ -291,7 +291,7 @@ public final class ResetNotificationManager {
             return;
         }
         int remaining = window.remainingPercent();
-        if (post(context, notificationId, label + " Codex usage is low",
+        if (post(context, notificationId, label + " Claude usage is low",
                 remaining + "% remaining in the current "
                         + label.toLowerCase(Locale.ROOT) + " window.",
                 notificationId, true)) {
@@ -305,19 +305,19 @@ public final class ResetNotificationManager {
         boolean weekly = (refills & CelebrationDetector.WEEKLY) != 0;
         boolean monthly = (refills & CelebrationDetector.MONTHLY) != 0;
         if ((fiveHour && weekly) || (fiveHour && monthly)) {
-            post(context, NOTIFICATION_REFILL_BOTH, "Surprise Codex refill",
-                    "Your Codex allowances jumped to 100% before their scheduled resets. Enjoy the bonus capacity.",
+            post(context, NOTIFICATION_REFILL_BOTH, "Surprise Claude refill",
+                    "Your Claude allowances jumped to 100% before their scheduled resets. Enjoy the bonus capacity.",
                     NOTIFICATION_REFILL_BOTH);
         } else if (weekly) {
-            post(context, NOTIFICATION_REFILL_WEEKLY, "Surprise weekly Codex refill",
+            post(context, NOTIFICATION_REFILL_WEEKLY, "Surprise weekly Claude refill",
                     "Your weekly allowance jumped to 100% before its scheduled reset. Enjoy the bonus capacity.",
                     NOTIFICATION_REFILL_WEEKLY);
         } else if (monthly) {
-            post(context, NOTIFICATION_REFILL_MONTHLY, "Surprise monthly Codex refill",
+            post(context, NOTIFICATION_REFILL_MONTHLY, "Surprise monthly Claude refill",
                     "Your monthly allowance jumped to 100% before its scheduled reset. Enjoy the bonus capacity.",
                     NOTIFICATION_REFILL_MONTHLY);
         } else {
-            post(context, NOTIFICATION_REFILL_FIVE_HOUR, "Surprise 5-hour Codex refill",
+            post(context, NOTIFICATION_REFILL_FIVE_HOUR, "Surprise 5-hour Claude refill",
                     "Your 5-hour allowance jumped to 100% before its scheduled reset. Enjoy the bonus capacity.",
                     NOTIFICATION_REFILL_FIVE_HOUR);
         }
@@ -407,7 +407,7 @@ public final class ResetNotificationManager {
         PendingIntent details = PendingIntent.getActivity(context, id, detailsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Intent useIntent = new Intent(context, ResetCreditActivity.class)
-                .setAction("dev.bennett.codexmeter.action.USE_RESET_FROM_NOTIFICATION")
+                .setAction("dev.bennett.claudemeter.action.USE_RESET_FROM_NOTIFICATION")
                 .putExtra(AppConstants.EXTRA_PROMPT_USE_RESET, true)
                 .putExtra(AppConstants.EXTRA_NOTIFICATION_ID, id)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -453,7 +453,7 @@ public final class ResetNotificationManager {
     private static String createChannel(NotificationManager manager, String style) {
         if (ResetAlertPreferences.STYLE_SILENT.equals(style)) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_SILENT,
-                    "Codex usage alerts", NotificationManager.IMPORTANCE_LOW);
+                    "Claude usage alerts", NotificationManager.IMPORTANCE_LOW);
             channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
             channel.setSound(null, null);
             channel.enableVibration(false);
@@ -462,7 +462,7 @@ public final class ResetNotificationManager {
         }
         if (ResetAlertPreferences.STYLE_ALARM.equals(style)) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ALARM,
-                    "Codex usage alarms", NotificationManager.IMPORTANCE_HIGH);
+                    "Claude usage alarms", NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
             channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
                     new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
@@ -472,7 +472,7 @@ public final class ResetNotificationManager {
             return CHANNEL_ALARM;
         }
         NotificationChannel channel = new NotificationChannel(CHANNEL_NOTIFY,
-                "Codex usage alerts", NotificationManager.IMPORTANCE_DEFAULT);
+                "Claude usage alerts", NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription("Low usage, scheduled resets, surprise refills, and reset credits");
         channel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                 new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION)

@@ -1,4 +1,4 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -18,7 +18,7 @@ public final class ResetCreditExpiryScheduler {
     static final String EXTRA_LEAD_TIME = "expiry_lead_time";
     private static final long DELIVERY_GRACE_MS = 1000L;
     private static final String KEY_ALARM_URIS = "alarm_uris";
-    private static final String PREFS = "codex_meter_reset_expiry_alarms_v1";
+    private static final String PREFS = "claude_meter_reset_expiry_alarms_v1";
     private static final int REQUEST_CODE = 74209;
 
     private ResetCreditExpiryScheduler() {
@@ -107,7 +107,7 @@ public final class ResetCreditExpiryScheduler {
 
     private static Uri data(String creditId, long expiresAt, long leadTime) {
         return new Uri.Builder()
-                .scheme("codexmeter")
+                .scheme("claudemeter")
                 .authority("reset-credit-expiry")
                 .appendPath(creditId == null || creditId.isEmpty() ? "_" : creditId)
                 .appendQueryParameter("expires", String.valueOf(expiresAt))

@@ -1,15 +1,15 @@
-package dev.bennett.codexmeter;
+package dev.bennett.claudemeter;
 
-import dev.bennett.codexmeter.SamsungLockWidgetSupport;
+import dev.bennett.claudemeter.SamsungLockWidgetSupport;
 
 /* JADX INFO: loaded from: classes.dex */
 public final class SamsungLockBarsWideWidget extends SamsungLockWidgetProvider {
-    @Override // dev.bennett.codexmeter.SamsungLockWidgetProvider
+    @Override // dev.bennett.claudemeter.SamsungLockWidgetProvider
     protected SamsungLockWidgetSupport.Shape shape() {
         return SamsungLockWidgetSupport.Shape.WIDE;
     }
 
-    @Override // dev.bennett.codexmeter.SamsungLockWidgetProvider
+    @Override // dev.bennett.claudemeter.SamsungLockWidgetProvider
     protected SamsungLockWidgetSupport.Style style() {
         return SamsungLockWidgetSupport.Style.BARS;
     }
