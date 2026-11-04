@@ -66,11 +66,14 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/DiagnosticSanitizer.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/SettingsTransfer.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/ClaudeOAuthProtocol.java" \
+  "$ROOT/app/src/main/java/dev/bennett/claudemeter/ClaudeAccountProfile.java" \
+  "$ROOT/tests/ClaudeAccountProfileTest.java" \
   "$ROOT/tests/ClaudeOAuthProtocolTest.java" \
   "$ROOT/tests/ParserSelfTest.java"
 
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ParserSelfTest
 java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeOAuthProtocolTest
+java -ea -cp "$OUT:$JSON_JAR" dev.bennett.claudemeter.ClaudeAccountProfileTest
 
 # Claude Meter source-contract checks.
 grep -q 'VERSION_NAME = "0.2.0"' "$ROOT/app/src/main/java/dev/bennett/claudemeter/AppConstants.java"

@@ -34,7 +34,7 @@ public final class UsageApi {
                     throw new Exception(OAuthClient.readError(usage.body, fallback));
                 }
 
-                Profile profile = requestProfile(context, tokens);
+                ClaudeAccountProfile profile = requestProfile(context, tokens);
                 if (profile != null) {
                     tokens = new AuthTokens(
                             tokens.accessToken,
@@ -98,7 +98,7 @@ public final class UsageApi {
         return tokens;
     }
 
-    private static Profile requestProfile(Context context, AuthTokens tokens) {
+    private static ClaudeAccountProfile requestProfile(Context context, AuthTokens tokens) {
         try {
             Response response = request(context, AppConstants.PROFILE_URL, "profile", tokens);
             if (response.status < 200 || response.status >= 300) {
@@ -106,17 +106,9 @@ public final class UsageApi {
                         "status", response.status);
                 return null;
             }
-            JSONObject root = new JSONObject(response.body);
-            JSONObject account = root.optJSONObject("account");
-            if (account == null) return null;
-            String email = account.optString("email", "").trim();
-            String accountId = firstNonEmpty(
-                    account.optString("uuid", ""),
-                    account.optString("id", ""),
-                    tokens.accountId);
-            String plan = account.optBoolean("has_claude_max", false) ? "Max"
-                    : account.optBoolean("has_claude_pro", false) ? "Pro" : "";
-            return new Profile(accountId, email, plan);
+            // The Claude subscription belongs to the organization, not to the
+            // rate-limit percentage or an old OpenAI-style subscription label.
+            return ClaudeAccountProfile.parse(response.body, tokens.accountId, tokens.email);
         } catch (Exception exception) {
             DiagnosticLog.error(context, "profile", "profile_request_failed", exception);
             return null;
@@ -173,25 +165,6 @@ public final class UsageApi {
         if (message == null || message.trim().isEmpty()) return "Claude usage refresh failed.";
         String clean = message.trim();
         return clean.length() > 240 ? clean.substring(0, 240) : clean;
-    }
-
-    private static String firstNonEmpty(String... values) {
-        for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) return value.trim();
-        }
-        return "";
-    }
-
-    private static final class Profile {
-        final String accountId;
-        final String email;
-        final String plan;
-
-        Profile(String accountId, String email, String plan) {
-            this.accountId = accountId == null ? "" : accountId;
-            this.email = email == null ? "" : email;
-            this.plan = plan == null ? "" : plan;
-        }
     }
 
     private static final class Response {
