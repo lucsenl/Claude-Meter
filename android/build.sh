@@ -5,8 +5,9 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 VERSION_NAME="2.8.0"
 DIST="$ROOT/dist"
 SIGNING_DIR="$ROOT/.local-signing"
-KEYSTORE="$SIGNING_DIR/codex-meter-local.p12"
+KEYSTORE="$SIGNING_DIR/claude-meter-local.p12"
 PASS_FILE="$SIGNING_DIR/password"
+KEY_ALIAS="claudemeter"
 
 if [[ -z "${JAVA_HOME:-}" && -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ]]; then
   export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
@@ -23,8 +24,8 @@ if [[ ! -f "$KEYSTORE" ]]; then
   "$JAVA_HOME/bin/keytool" -genkeypair \
     -storetype PKCS12 \
     -keystore "$KEYSTORE" -storepass "$STORE_PASS" -keypass "$STORE_PASS" \
-    -alias codexmeter -keyalg RSA -keysize 3072 -validity 10000 \
-    -dname "CN=Codex Meter Local Build, OU=Personal Android App, O=Local Build" \
+    -alias "$KEY_ALIAS" -keyalg RSA -keysize 3072 -validity 10000 \
+    -dname "CN=Claude Meter Local Build, OU=Android, O=Local Build" \
     >/dev/null 2>&1
 fi
 
@@ -34,11 +35,11 @@ fi
   --console=plain
 
 SOURCE_APK="$ROOT/app/build/outputs/apk/release/app-release.apk"
-OUT="$DIST/CodexMeter-$VERSION_NAME.apk"
+OUT="$DIST/ClaudeMeter-$VERSION_NAME.apk"
 cp "$SOURCE_APK" "$OUT"
 
 WEAR_SOURCE_APK="$ROOT/wear/build/outputs/apk/release/wear-release.apk"
-WEAR_OUT="$DIST/CodexMeter-Wear-$VERSION_NAME.apk"
+WEAR_OUT="$DIST/ClaudeMeter-Wear-$VERSION_NAME.apk"
 cp "$WEAR_SOURCE_APK" "$WEAR_OUT"
 
 APKSIGNER="$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort | tail -1)"
