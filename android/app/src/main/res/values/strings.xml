@@ -6,8 +6,8 @@
     <string name="widget_description">Anthropic API token usage for today and the last 7 days</string>
     <string name="widget_title">CLAUDE</string>
     <string name="widget_sample_plan">API</string>
-    <string name="widget_sample_five_hour_short">Today</string>
-    <string name="widget_sample_week_short">7d</string>
-    <string name="widget_sample_primary_percent_short">12.4K</string>
-    <string name="widget_sample_secondary_percent_short">74.8K</string>
+    <string name="widget_sample_today_short">Today</string>
+    <string name="widget_sample_seven_day_short">7d</string>
+    <string name="widget_sample_today_value">12.4K</string>
+    <string name="widget_sample_seven_day_value">74.8K</string>
 </resources>
