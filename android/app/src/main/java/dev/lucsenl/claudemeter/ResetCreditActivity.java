@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -151,12 +151,12 @@ public final class ResetCreditActivity extends AppCompatActivity {
                         < resetCreditsSnapshotLoadResetCredits.availableCount;
         if (SecureTokenStore.isSignedIn(this) && (jMax >= 300000 || missingDetails)) {
             final Context applicationContext = getApplicationContext();
-            this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.ResetCreditActivity.4
+            this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.4
                 @Override // java.lang.Runnable
                 public void run() {
                     try {
                         ResetCreditApi.refreshAndCache(applicationContext);
-                        ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.ResetCreditActivity.4.1
+                        ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.4.1
                             @Override // java.lang.Runnable
                             public void run() {
                                 ResetCreditActivity.this.rebuild();
@@ -171,7 +171,7 @@ public final class ResetCreditActivity extends AppCompatActivity {
     }
 
     public void confirmUse() {
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Use one Claude reset?").setMessage("The available credit expiring soonest will be used. This cannot be undone.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Use 1 reset", new DialogInterface.OnClickListener() { // from class: dev.bennett.claudemeter.ResetCreditActivity.5
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Use one Claude reset?").setMessage("The available credit expiring soonest will be used. This cannot be undone.").setNegativeButton("Cancel", (DialogInterface.OnClickListener) null).setPositiveButton("Use 1 reset", new DialogInterface.OnClickListener() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.5
             @Override // android.content.DialogInterface.OnClickListener
             public void onClick(DialogInterface dialogInterface, int i) {
                 ResetCreditActivity.this.consume();
@@ -202,12 +202,12 @@ public final class ResetCreditActivity extends AppCompatActivity {
             this.useButton.setText("Applying…");
         }
         final Context applicationContext = getApplicationContext();
-        this.executor.execute(new Runnable() { // from class: dev.bennett.claudemeter.ResetCreditActivity.6
+        this.executor.execute(new Runnable() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.6
             @Override // java.lang.Runnable
             public void run() {
                 try {
                     final ResetConsumeResult resetConsumeResultConsumeBestAvailable = ResetCreditApi.consumeBestAvailable(applicationContext);
-                    ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.ResetCreditActivity.6.1
+                    ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.6.1
                         @Override // java.lang.Runnable
                         public void run() {
                             Toast.makeText(ResetCreditActivity.this, resetConsumeResultConsumeBestAvailable.userMessage(), 1).show();
@@ -223,7 +223,7 @@ public final class ResetCreditActivity extends AppCompatActivity {
                     });
                 } catch (Exception e) {
                     AppPreferences.setResetCreditsError(applicationContext, ResetCreditActivity.safeMessage(e));
-                    ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.bennett.claudemeter.ResetCreditActivity.6.2
+                    ResetCreditActivity.this.runOnUiThread(new Runnable() { // from class: dev.lucsenl.claudemeter.ResetCreditActivity.6.2
                         @Override // java.lang.Runnable
                         public void run() {
                             Toast.makeText(ResetCreditActivity.this, ResetCreditActivity.safeMessage(e), 1).show();

@@ -1,4 +1,4 @@
-package dev.bennett.claudemeter;
+package dev.lucsenl.claudemeter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -189,7 +189,7 @@ public final class ResetCreditApi {
 
     private static void notifyUpdated(Context context) {
         try {
-            context.sendBroadcast(new Intent(AppConstants.ACTION_RESET_CREDITS_UPDATED).setPackage(context.getPackageName()), "dev.bennett.claudemeter.permission.INTERNAL");
+            context.sendBroadcast(new Intent(AppConstants.ACTION_RESET_CREDITS_UPDATED).setPackage(context.getPackageName()), "dev.lucsenl.claudemeter.permission.INTERNAL");
         } catch (RuntimeException e) {
         }
     }
