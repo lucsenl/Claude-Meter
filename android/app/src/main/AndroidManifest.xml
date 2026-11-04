@@ -55,11 +55,6 @@
             android:name="dev.lucsenl.claudemeter.AboutActivity"
             android:exported="false"/>
         <activity
-            android:name="dev.lucsenl.claudemeter.ResetCreditActivity"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:excludeFromRecents="true"/>
-        <activity
             android:theme="@style/AppTheme"
             android:name="dev.lucsenl.claudemeter.WidgetConfigActivity"
             android:exported="true">
@@ -240,16 +235,7 @@
             android:name="dev.lucsenl.claudemeter.WidgetRefreshReceiver"
             android:exported="false"/>
         <receiver
-            android:name="dev.lucsenl.claudemeter.ResetAlertReceiver"
-            android:exported="false"/>
-        <receiver
             android:name="dev.lucsenl.claudemeter.UpdateInstallReceiver"
-            android:exported="false"/>
-        <receiver
-            android:name="dev.lucsenl.claudemeter.ResetCreditExpiryReceiver"
-            android:exported="false"/>
-        <receiver
-            android:name="dev.lucsenl.claudemeter.NowBarActionReceiver"
             android:exported="false"/>
         <receiver
             android:name="dev.lucsenl.claudemeter.BootReceiver"
