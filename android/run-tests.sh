@@ -43,13 +43,6 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/shared/src/main/java/dev/bennett/claudemeter/NowBarDisplayMode.java" \
   "$ROOT/shared/src/main/java/dev/bennett/claudemeter/NowBarPercentMode.java" \
   "$ROOT/shared/src/main/java/dev/bennett/claudemeter/NowBarCopy.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearSyncPaths.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearSyncStatus.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearSettingsState.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearUsageState.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearMonitorState.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/wear/WearSurfaceMode.java" \
-  "$ROOT/shared/src/main/java/dev/bennett/claudemeter/WearGlanceFormat.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/UsageParser.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/CelebrationDetector.java" \
   "$ROOT/app/src/main/java/dev/bennett/claudemeter/RateLimitResetCredit.java" \
