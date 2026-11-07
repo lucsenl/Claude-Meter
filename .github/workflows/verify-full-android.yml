@@ -1,0 +1,89 @@
+name: Verify full Claude Meter Android APK
+
+on:
+  push:
+    branches:
+      - integrate/original-android-oauth
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: full-claude-meter-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-full-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_USERNAME: ${{ github.actor }}
+      GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout full application
+        uses: actions/checkout@v7
+
+      - name: Guard against simplified APK regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'namespace = "dev.bennett.claudemeter"' android/app/build.gradle.kts
+          test -d android/shared/src/main/java/dev/bennett/claudemeter
+          test -f android/app/src/main/java/dev/bennett/claudemeter/SamsungLockWidgetProvider.java
+          test -f android/app/src/main/java/dev/bennett/claudemeter/UsageHistoryActivity.java
+          test -f android/app/src/main/java/dev/bennett/claudemeter/OnboardingActivity.java
+          test -f android/app/src/main/java/dev/bennett/claudemeter/OAuthClient.java
+          count=$(find android/app/src/main/java -name '*.java' | wc -l)
+          test "$count" -ge 85
+          grep -q 'claude_meter_adaptive_fg' android/app/src/main/res/mipmap-anydpi/ic_launcher.xml
+          grep -q '#FAF9F5' android/app/src/main/res/drawable/claude_meter_adaptive_fg.xml
+          grep -q '#D97757' android/app/src/main/res/drawable/claude_meter_adaptive_bg.xml
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle*
+            android/**/gradle-wrapper.properties
+
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          [[ -x "$SDKMANAGER" ]] || SDKMANAGER="$(command -v sdkmanager)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Regression tests
+        working-directory: android
+        run: ./run-tests.sh
+
+      - name: Android lint
+        working-directory: android
+        run: ./lint.sh
+
+      - name: Assemble signed APK and verify checksum
+        working-directory: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./build.sh
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+
+      - name: Upload full Android APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: claude-meter-full-android-${{ github.run_number }}
+          path: android/dist/
+          if-no-files-found: error
+          retention-days: 30

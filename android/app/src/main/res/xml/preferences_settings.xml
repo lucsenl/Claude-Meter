@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <dev.oneuiproject.oneui.preference.LayoutPreference
+        android:key="account_card"
+        android:layout="@layout/preference_account_card"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false" />
+
+    <PreferenceCategory android:title="General">
+        <Preference
+            android:key="settings_appearance"
+            android:title="Appearance"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="settings_refresh_usage"
+            android:title="Refresh &amp; usage"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Features">
+        <Preference
+            android:key="settings_notifications"
+            android:title="Notifications"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="settings_now_bar"
+            android:title="Now Bar"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="App &amp; data">
+        <Preference
+            android:key="settings_updates"
+            android:title="Updates"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="settings_transfer"
+            android:summary="Move settings between devices"
+            android:title="Backup &amp; transfer"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="settings_privacy"
+            android:summary="Local storage, encryption, and network access"
+            android:title="Privacy"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory app:height="20dp" />
+
+    <Preference
+        android:key="about_claude_meter"
+        android:title="About Claude Meter"
+        app:iconSpaceReserved="false" />
+
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory app:height="28dp" />
+</PreferenceScreen>

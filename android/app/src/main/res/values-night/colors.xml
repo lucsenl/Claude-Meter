@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Claude accents in dark mode; One UI layout and widgets remain unchanged. -->
+    <color name="oneui_primary">@color/claude_orange</color>
+    <color name="oneui_primary_dark">@color/claude_dark</color>
+    <color name="widget_setting_progress_color_control_normal">#66B0AEA5</color>
+    <color name="widget_setting_seek_bar_thumb_background_tint">@color/claude_dark</color>
+    <color name="widget_setting_seek_bar_thumb_tint">@color/claude_orange</color>
+    <color name="widget_setting_seek_bar_tick_mark_solid_color">@color/claude_mid_gray</color>
+    <color name="widget_config_divider">#363532</color>
+    <color name="oneui_bg">@color/claude_dark</color>
+    <color name="oneui_card_bg">#262521</color>
+    <color name="oneui_text_primary">@color/claude_light</color>
+    <color name="oneui_text_secondary">@color/claude_mid_gray</color>
+    <color name="oneui_divider">#363532</color>
+    <color name="about_gradient_start">@color/claude_dark</color>
+    <color name="about_gradient_center">#302A26</color>
+    <color name="about_gradient_end">#6F3B2E</color>
+</resources>
