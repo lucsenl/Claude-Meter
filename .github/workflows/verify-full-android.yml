@@ -78,7 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           ./build.sh
-          sha256sum -c dist/SHA256SUMS.txt
+          (cd dist && sha256sum -c SHA256SUMS.txt)
 
       - name: Upload full Android APK
         uses: actions/upload-artifact@v7
