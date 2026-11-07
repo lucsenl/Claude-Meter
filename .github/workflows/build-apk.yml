@@ -2,6 +2,11 @@ name: Build Claude Meter Android APK
 
 on:
   workflow_dispatch:
+  # Trigger a CI APK build when this workflow is changed, without publishing a release.
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/build-apk.yml
 
 permissions:
   contents: read
