@@ -3,15 +3,29 @@ plugins {
 }
 
 android {
-    namespace = "dev.lucsenl.claudemeter"
+    namespace = "dev.bennett.claudemeter"
     compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.lucsenl.claudemeter"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 4
+        versionName = "0.2.2"
+        providers.gradleProperty("demoVersionCode").orNull?.toIntOrNull()?.let {
+            versionCode = it
+        }
+        providers.gradleProperty("demoVersionName").orNull?.let {
+            versionName = it
+        }
+        val updateApiUrl = providers.gradleProperty("demoUpdateUrl").orNull
+            ?: "https://api.github.com/repos/lucsenl/Claude-Meter/releases?per_page=30" // pragma: allowlist secret
+        buildConfigField("String", "UPDATE_API_URL",
+            "\"${updateApiUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     signingConfigs {
@@ -36,10 +50,6 @@ android {
         }
     }
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -49,6 +59,9 @@ android {
         resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1", "META-INF/LICENSE*")
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 configurations.configureEach {
@@ -67,6 +80,7 @@ configurations.configureEach {
 }
 
 dependencies {
+    implementation(project(":shared"))
     implementation("io.github.tribalfs:oneui-design:0.9.14+oneui8")
     implementation("io.github.oneuiproject:icons:1.1.0")
 }
