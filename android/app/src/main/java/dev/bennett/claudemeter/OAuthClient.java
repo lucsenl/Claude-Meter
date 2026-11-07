@@ -14,6 +14,13 @@ import org.json.JSONObject;
 public final class OAuthClient {
     private OAuthClient() {}
 
+    /** A consumed or revoked OAuth grant needs browser reauthorization, not job retries. */
+    public static final class InvalidGrantException extends Exception {
+        public InvalidGrantException(String message) {
+            super(message);
+        }
+    }
+
     public static AuthTokens exchangeCode(Context context, String code, String redirectUri,
             String verifier, String state) throws Exception {
         JSONObject body = new JSONObject();
@@ -99,6 +106,13 @@ public final class OAuthClient {
                     "duration_ms", SystemClock.elapsedRealtime() - started,
                     "response_bytes", body.getBytes(StandardCharsets.UTF_8).length);
             if (status < 200 || status >= 300) {
+                if (isInvalidGrant(body)) {
+                    String message = "oauth_token_refresh".equals(operation)
+                            ? "Claude session expired (invalid_grant). Sign in with Claude again."
+                            : "Claude authorization code was rejected (invalid_grant). "
+                                    + "Start a NEW Claude sign-in and paste its new code.";
+                    throw new InvalidGrantException(message);
+                }
                 throw new Exception(readError(body,
                         "Claude authorization failed (HTTP " + status + ")."));
             }
@@ -127,6 +141,22 @@ public final class OAuthClient {
                 }
             }
             return output.toString(StandardCharsets.UTF_8.name());
+        }
+    }
+
+    static boolean isInvalidGrant(String body) {
+        try {
+            JSONObject json = new JSONObject(body == null ? "{}" : body);
+            Object error = json.opt("error");
+            if (error instanceof String) return "invalid_grant".equals(error);
+            if (error instanceof JSONObject) {
+                JSONObject detail = (JSONObject) error;
+                return "invalid_grant".equals(detail.optString("type", ""))
+                        || "invalid_grant".equals(detail.optString("code", ""));
+            }
+            return "invalid_grant".equals(json.optString("error_code", ""));
+        } catch (Exception ignored) {
+            return false;
         }
     }
 
