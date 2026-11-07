@@ -38,6 +38,7 @@ public final class OnboardingActivity extends AppCompatActivity {
     private String authMessage = "";
     private String lastLaunchedAuthUrl = "";
     private EditText codeInput;
+    private boolean exchangingCode;
 
     private final BroadcastReceiver authReceiver = new BroadcastReceiver() {
         @Override
@@ -403,6 +404,7 @@ public final class OnboardingActivity extends AppCompatActivity {
 
     private void completeSignIn() {
         String code = this.codeInput == null ? "" : this.codeInput.getText().toString().trim();
+        if (exchangingCode) return;
         if (code.isEmpty() || !OAuthPendingStore.isValid(this)) {
             this.authMessage = "Start sign-in and paste the complete code#state from Claude.";
             render();
@@ -418,15 +420,19 @@ public final class OnboardingActivity extends AppCompatActivity {
             render();
             return;
         }
+        this.exchangingCode = true;
         this.authMessage = "Completing secure Claude sign-in…";
         render();
         new Thread(() -> {
             try {
-                AuthTokens tokens = OAuthClient.exchangeCode(getApplicationContext(),
-                        result.code, AppConstants.REDIRECT_URI, verifier, expectedState);
-                SecureTokenStore.save(getApplicationContext(), tokens);
-                OAuthPendingStore.clear(getApplicationContext());
-                AppPreferences.setOAuthPending(getApplicationContext(), false, "");
+                // Serialize account changes against all background/manual usage refreshes.
+                synchronized (UsageApi.NETWORK_LOCK) {
+                    AuthTokens tokens = OAuthClient.exchangeCode(getApplicationContext(),
+                            result.code, AppConstants.REDIRECT_URI, verifier, expectedState);
+                    SecureTokenStore.save(getApplicationContext(), tokens);
+                    OAuthPendingStore.clear(getApplicationContext());
+                    AppPreferences.setOAuthPending(getApplicationContext(), false, "");
+                }
                 try {
                     UsageSnapshot snapshot = UsageApi.refreshAndCache(getApplicationContext());
                     RefreshScheduler.scheduleAtNextReset(getApplicationContext(), snapshot);
@@ -438,11 +444,17 @@ public final class OnboardingActivity extends AppCompatActivity {
                 RefreshScheduler.schedulePeriodic(getApplicationContext());
                 WidgetRenderer.updateAll(getApplicationContext());
                 runOnUiThread(() -> {
+                    this.exchangingCode = false;
                     this.oauthRequested = false;
                     showStep(OnboardingFlow.STEP_COMPLETE);
                 });
             } catch (Exception exception) {
+                if (exception instanceof OAuthClient.InvalidGrantException) {
+                    OAuthPendingStore.clear(getApplicationContext());
+                    AppPreferences.setOAuthPending(getApplicationContext(), false, "");
+                }
                 runOnUiThread(() -> {
+                    this.exchangingCode = false;
                     this.authMessage = "Claude sign-in failed: "
                             + (exception.getMessage() == null
                             ? exception.getClass().getSimpleName() : exception.getMessage());
