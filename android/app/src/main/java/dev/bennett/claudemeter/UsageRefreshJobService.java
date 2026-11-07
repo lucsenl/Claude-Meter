@@ -117,8 +117,12 @@ public final class UsageRefreshJobService extends JobService {
                     WidgetRenderer.updateAll(UsageRefreshJobService.this.getApplicationContext());
                     UsageRefreshJobService.this.active.remove(Integer.valueOf(this.params.getJobId()), this);
                     if (!this.stopped) {
-                        UsageRefreshJobService.this.jobFinished(this.params, !this.chainedCycle);
-                        if (this.chainedCycle && SecureTokenStore.isSignedIn(UsageRefreshJobService.this.getApplicationContext())) {
+                        // OAuth invalid_grant cannot be repaired by background retries.
+                        boolean reauthRequired = e instanceof OAuthClient.InvalidGrantException;
+                        UsageRefreshJobService.this.jobFinished(
+                                this.params, !this.chainedCycle && !reauthRequired);
+                        if (this.chainedCycle && !reauthRequired
+                                && SecureTokenStore.isSignedIn(UsageRefreshJobService.this.getApplicationContext())) {
                             RefreshScheduler.scheduleNextShort(UsageRefreshJobService.this.getApplicationContext(), this.params.getJobId());
                         }
                     }
